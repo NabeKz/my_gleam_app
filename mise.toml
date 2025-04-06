@@ -1,3 +1,10 @@
 [tools]
 erlang = "latest"
 rebar = "latest"
+
+[tasks.serve]
+run = """
+  watchexec --restart --clear --wrap-process=session --stop-signal \
+  SIGTERM --exts gleam --watch src/ -- "gleam run"
+"""
+description = "run the CLI"
