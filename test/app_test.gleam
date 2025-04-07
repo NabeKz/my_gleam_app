@@ -8,8 +8,7 @@ pub fn main() {
   gleeunit.main()
 }
 
-// gleeunit test functions end in `_test`
-pub fn hello_world_test() {
+pub fn get_home_page_test() {
   let req = testing.get("/", [])
   let response = router.handle_request(req)
 
@@ -21,5 +20,25 @@ pub fn hello_world_test() {
 
   response
   |> testing.string_body
-  |> should.equal("<h1>Hello, Joe!</h1>")
+  |> should.equal("Hello, Joe!")
+}
+
+pub fn page_not_found_test() {
+  let req = testing.post("/", [], "a body")
+  let response = router.handle_request(req)
+
+  response.status
+  |> should.equal(404)
+}
+
+pub fn get_comments_test() {
+  let req = testing.get("/comments", [])
+  let response = router.handle_request(req)
+
+  response.status
+  |> should.equal(200)
+
+  response
+  |> testing.string_body
+  |> should.equal("Comments!")
 }
