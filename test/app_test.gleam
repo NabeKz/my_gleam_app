@@ -1,3 +1,4 @@
+import gleam/json
 import gleeunit
 import gleeunit/should
 import wisp/testing
@@ -41,4 +42,34 @@ pub fn get_comments_test() {
   response
   |> testing.string_body
   |> should.equal("Comments!")
+}
+
+pub fn submit_wrong_content_type_test() {
+  let response =
+    testing.post("/persons", [], "")
+    |> router.handle_request()
+
+  response.status
+  |> should.equal(415)
+}
+
+pub fn submit_missing_parameters_test() {
+  let object = json.object([#("name", json.string("name"))])
+  let response =
+    testing.post_json("/persons", [], object)
+    |> router.handle_request()
+
+  response.status
+  |> should.equal(422)
+}
+
+pub fn submit_successful_test() {
+  let object =
+    json.object([#("name", json.string("name")), #("is_cool", json.bool(True))])
+  let response =
+    testing.post_json("/persons", [], object)
+    |> router.handle_request()
+
+  response.status
+  |> should.equal(200)
 }
