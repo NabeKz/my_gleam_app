@@ -5,7 +5,7 @@ import gleam/string_tree
 import wisp.{type Request, type Response}
 
 pub fn handle_request(ctx: person.Context, req: Request) -> Response {
-  use _res <- web.middleware(req)
+  use req <- web.middleware(req)
 
   case wisp.path_segments(req), req.method {
     [], Get -> home_page(req)
