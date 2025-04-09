@@ -1,10 +1,11 @@
 import app/web
-import app/web/person
+import app/web/person.{type PersonRepository}
+import app/web/person_controller
 import gleam/http.{Get, Post}
 import gleam/string_tree
 import wisp.{type Request, type Response}
 
-pub fn handle_request(ctx: person.Context, req: Request) -> Response {
+pub fn handle_request(repository: PersonRepository, req: Request) -> Response {
   use req <- web.middleware(req)
 
   case wisp.path_segments(req), req.method {
@@ -12,7 +13,7 @@ pub fn handle_request(ctx: person.Context, req: Request) -> Response {
     ["comments"], Get -> list_comments()
     ["comments"], Post -> create_comment(req)
     ["comments", id], Get -> show_comment(req, id)
-    ["persons"], _ -> person.person_controller(req, ctx)
+    ["persons"], _ -> person_controller.routes(req, repository)
     _, _ -> wisp.not_found()
   }
 }

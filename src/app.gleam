@@ -1,4 +1,4 @@
-import app/web/person
+import app/web/person_repository_on_memory
 import gleam/erlang/process
 import mist
 import wisp
@@ -11,15 +11,9 @@ pub fn main() {
   // Here we generate a secret key, but in a real application you would want to
   // load this from somewhere so that it is not regenerated on every restart.
   let secret_key = wisp.random_string(64)
-  let ctx =
-    person.Context(
-      list: fn() { todo },
-      save: fn(p: person.Person) { todo },
-      read: fn(s: String) { todo },
-      delete: fn() { todo },
-    )
+  let repository = person_repository_on_memory.new()
 
-  let controller = router.handle_request(ctx, _)
+  let controller = router.handle_request(repository, _)
 
   let assert Ok(_) =
     wisp_mist.handler(controller, secret_key)
