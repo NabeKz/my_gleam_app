@@ -6,6 +6,7 @@
 ```sh
 gleam add my_gleam_app@1
 ```
+
 ```gleam
 import my_gleam_app
 
@@ -19,6 +20,6 @@ Further documentation can be found at <https://hexdocs.pm/my_gleam_app>.
 ## Development
 
 ```sh
-gleam run   # Run the project
+mise run serve   # Run the project
 gleam test  # Run the tests
 ```
