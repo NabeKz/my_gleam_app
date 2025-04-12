@@ -1,4 +1,4 @@
-import app/web/person.{
+import app/person/person.{
   type Person, type PersonReadModel, type PersonRepository, Person,
 }
 import gleam/dynamic/decode

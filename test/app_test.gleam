@@ -1,4 +1,5 @@
-import app/web/person
+import app/context
+import app/person/person.{PersonReadModel, PersonRepository}
 import gleam/json
 import gleeunit
 import gleeunit/should
@@ -6,12 +7,17 @@ import wisp/testing
 
 import app/router
 
-fn mock_repository() {
-  person.PersonRepository(
-    all: fn() { todo },
-    save: fn(_) { Ok("id") },
-    read: fn(_) { todo },
-    delete: fn(_) { todo },
+fn mock_context() -> context.Context {
+  context.Context(
+    ..context.new(),
+    person: PersonRepository(
+      all: fn() {
+        Ok([PersonReadModel(id: "hoge", name: "a", favorite_color: "FFF")])
+      },
+      save: fn(_) { Ok("1") },
+      read: fn(_) { todo },
+      delete: fn(_) { todo },
+    ),
   )
 }
 
@@ -19,16 +25,18 @@ pub fn main() {
   gleeunit.main()
 }
 
-pub fn get_comments_test() {
-  let req = testing.get("/comments", [])
-  let response = router.handle_request(mock_repository(), req)
+pub fn get_persons_test() {
+  let req = testing.get("/persons", [])
+  let response = router.handle_request(mock_context(), req)
 
   response.status
   |> should.equal(200)
 
   response
   |> testing.string_body
-  |> should.equal("Comments!")
+  |> should.equal(
+    "[{\"id\":\"hoge\",\"name\":\"a\",\"favorite_color\":\"FFF\"}]",
+  )
 }
 
 pub fn submit_successful_test() {
@@ -39,7 +47,7 @@ pub fn submit_successful_test() {
     ])
   let response =
     testing.post_json("/persons", [], object)
-    |> router.handle_request(mock_repository(), _)
+    |> router.handle_request(mock_context(), _)
 
   response.status
   |> should.equal(201)
