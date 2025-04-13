@@ -1,5 +1,6 @@
 import app/person/person.{type PersonRepository}
 import app/person/person_repository_on_memory as person_repository
+import app/ticket/infra/ticket_repository_on_memory
 import app/ticket/ticket_controller
 import app/ticket/usecase/ticket_listed
 
@@ -8,8 +9,12 @@ pub type Context {
 }
 
 pub fn new() -> Context {
-  Context(
-    person: person_repository.new(),
-    ticket: ticket_controller.Usecase(ticket_listed: ticket_listed.invoke),
-  )
+  let ticket =
+    fn() {
+      ticket_repository_on_memory.new().list
+      |> ticket_listed.invoke()
+    }
+    |> ticket_controller.Usecase()
+
+  Context(person: person_repository.new(), ticket:)
 }

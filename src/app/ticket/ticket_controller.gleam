@@ -1,5 +1,5 @@
-import app/ticket/domain
 import app/ticket/usecase/ticket_created
+import app/ticket/usecase/ticket_listed
 import gleam/dynamic/decode
 import gleam/http
 import gleam/json
@@ -7,11 +7,15 @@ import gleam/result
 import wisp
 
 pub type Usecase {
-  Usecase(ticket_listed: domain.TicketListed)
+  Usecase(ticket_listed: ticket_listed.Invoke)
 }
 
-pub fn routes(req: wisp.Request, usecase: Usecase) -> wisp.Response {
-  case wisp.path_segments(req), req.method {
+pub fn routes(
+  path: List(String),
+  req: wisp.Request,
+  usecase: Usecase,
+) -> wisp.Response {
+  case path, req.method {
     [], http.Get -> get_controller(req, usecase.ticket_listed)
     [], http.Post -> post_controller(req)
     _, _ -> wisp.not_found()
@@ -20,16 +24,10 @@ pub fn routes(req: wisp.Request, usecase: Usecase) -> wisp.Response {
 
 fn get_controller(
   _req: wisp.Request,
-  ticket_listed: domain.TicketListed,
+  query: ticket_listed.Invoke,
 ) -> wisp.Response {
-  ticket_listed()
-  |> json.array(fn(item) {
-    json.object([
-      #("id", json.string(item.id)),
-      #("title", json.string(item.id)),
-      #("status", json.string(item.id)),
-    ])
-  })
+  query()
+  |> deserialize()
   |> json.to_string_tree()
   |> wisp.json_response(200)
 }
@@ -51,4 +49,14 @@ fn decode_ticket() -> decode.Decoder(ticket_created.Dto) {
   use title <- decode.field("title", decode.string)
 
   decode.success(ticket_created.Dto(title:))
+}
+
+pub fn deserialize(items: List(ticket_listed.Dto)) -> json.Json {
+  json.array(items, fn(item) {
+    json.object([
+      #("id", json.string(item.id)),
+      #("title", json.string(item.title)),
+      #("status", json.string(item.status)),
+    ])
+  })
 }

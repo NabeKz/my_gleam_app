@@ -12,7 +12,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
   case wisp.path_segments(req), req.method {
     [], Get -> home_page(req)
     ["persons"], _ -> person_controller.routes(req, ctx.person)
-    ["tickets"], _ -> ticket_controller.routes(req, ctx.ticket)
+    ["tickets", ..path], _ -> ticket_controller.routes(path, req, ctx.ticket)
     _, _ -> wisp.not_found()
   }
 }

@@ -42,14 +42,7 @@ pub fn new_ticket(
   title title: String,
   created_at created_at: String,
 ) -> Ticket {
-  Ticket(
-    id: id,
-    title: title,
-    description: "",
-    status: Open,
-    created_at:,
-    replies: [],
-  )
+  Ticket(id:, title:, description: "", status: Open, created_at:, replies: [])
 }
 
 pub fn ticket_id(s: String) -> TicketId {
