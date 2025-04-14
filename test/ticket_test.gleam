@@ -50,17 +50,26 @@ pub fn get_tickets_test() {
   |> should.equal(result |> json.to_string())
 }
 
-pub fn post_tickets_test() {
-  let object =
-    json.object([
-      #("id", json.string("1")),
-      #("id", json.string("1")),
-      #("id", json.string("1")),
-    ])
+pub fn post_tickets_success_test() {
+  let object = json.object([#("title", json.string("hoge"))])
 
   let req = testing.post_json("/tickets", [], object)
   let response = router.handle_request(mock_context(), req)
 
   response.status
   |> should.equal(201)
+}
+
+pub fn post_tickets_failure_test() {
+  let object =
+    json.object([
+      #("title1", json.string("hoge")),
+      #("title2", json.string("hoge")),
+    ])
+
+  let req = testing.post_json("/tickets", [], object)
+  let response = router.handle_request(mock_context(), req)
+
+  response.status
+  |> should.equal(400)
 }

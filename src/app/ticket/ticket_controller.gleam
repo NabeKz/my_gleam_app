@@ -36,18 +36,21 @@ fn post_controller(req: wisp.Request) -> wisp.Response {
   use json <- wisp.require_json(req)
 
   let result = {
-    use dto <- result.try(decode.run(json, decode_ticket()))
-    todo
+    use _dto <- result.try(decode.run(json, decode_ticket()))
+
+    json.string("ok")
+    |> json.to_string_tree()
+    |> Ok()
   }
 
-  json.string("ok")
-  |> json.to_string_tree()
-  |> wisp.json_response(201)
+  case result {
+    Ok(json) -> wisp.json_response(json, 201)
+    Error(_) -> wisp.bad_request()
+  }
 }
 
 fn decode_ticket() -> decode.Decoder(ticket_created.Dto) {
   use title <- decode.field("title", decode.string)
-
   decode.success(ticket_created.Dto(title:))
 }
 
