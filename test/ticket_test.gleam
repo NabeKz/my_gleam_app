@@ -16,10 +16,9 @@ pub fn main() {
 fn mock_context() -> context.Context {
   context.Context(
     ..context.new(),
-    ticket: ticket_controller.Usecase(fn() {
-      ticket_repository_on_memory.new().list
-      |> ticket_listed.invoke
-    }),
+    ticket: ticket_repository_on_memory.new().list
+      |> ticket_listed.register
+      |> ticket_controller.Resolver,
   )
 }
 
@@ -51,7 +50,12 @@ pub fn get_tickets_test() {
 }
 
 pub fn post_tickets_success_test() {
-  let object = json.object([#("title", json.string("hoge"))])
+  let object =
+    json.object([
+      #("title", json.string("hoge")),
+      #("description", json.string("fugafuga")),
+      #("status", json.string("status")),
+    ])
 
   let req = testing.post_json("/tickets", [], object)
   let response = router.handle_request(mock_context(), req)

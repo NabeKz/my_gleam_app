@@ -1,10 +1,24 @@
 import app/ticket/domain.{type TicketCreated, type TicketId}
+import lib/date_time
 
 pub type Dto {
-  Dto(title: String)
+  Dto(title: String, description: String, status: String)
 }
 
-pub fn invoke(event: TicketCreated, dto: Dto) -> TicketId {
-  domain.new_ticket(id: "", title: dto.title, created_at: "")
-  |> event()
+pub type Invoke =
+  fn() -> Dto
+
+pub fn invoke(dto: Dto, command: TicketCreated) -> TicketId {
+  dto
+  |> convert()
+  |> command()
+}
+
+fn convert(dto: Dto) -> domain.TicketWriteModel {
+  domain.TicketWriteModel(
+    title: dto.title,
+    description: dto.description,
+    status: domain.Open,
+    created_at: date_time.now() |> date_time.to_string(),
+  )
 }

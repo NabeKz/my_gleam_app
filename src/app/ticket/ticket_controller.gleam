@@ -6,17 +6,17 @@ import gleam/json
 import gleam/result
 import wisp
 
-pub type Usecase {
-  Usecase(ticket_listed: ticket_listed.Invoke)
+pub type Resolver {
+  Resolver(ticket_listed: ticket_listed.Invoke)
 }
 
 pub fn routes(
   path: List(String),
   req: wisp.Request,
-  usecase: Usecase,
+  resolver: Resolver,
 ) -> wisp.Response {
   case path, req.method {
-    [], http.Get -> get_controller(req, usecase.ticket_listed)
+    [], http.Get -> get_controller(req, resolver.ticket_listed)
     [], http.Post -> post_controller(req)
     _, _ -> wisp.not_found()
   }
@@ -51,7 +51,9 @@ fn post_controller(req: wisp.Request) -> wisp.Response {
 
 fn decode_ticket() -> decode.Decoder(ticket_created.Dto) {
   use title <- decode.field("title", decode.string)
-  decode.success(ticket_created.Dto(title:))
+  use description <- decode.field("description", decode.string)
+  use status <- decode.field("status", decode.string)
+  decode.success(ticket_created.Dto(title:, description:, status:))
 }
 
 pub fn deserialize(items: List(ticket_listed.Dto)) -> json.Json {

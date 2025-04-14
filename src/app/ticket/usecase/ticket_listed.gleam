@@ -8,10 +8,18 @@ pub type Dto {
 pub type Invoke =
   fn() -> List(Dto)
 
-pub fn invoke(event: domain.TicketListed) -> List(Dto) {
-  event()
+pub fn register(event: domain.TicketListed) -> Invoke {
+  fn() { event() |> invoke }
+}
+
+fn invoke(items: List(domain.Ticket)) -> List(Dto) {
+  items
   |> list.map(fn(item) {
-    Dto(id: item.id, title: item.title, status: to_string(item.status))
+    Dto(
+      id: item.id |> domain.decode,
+      title: item.title,
+      status: to_string(item.status),
+    )
   })
 }
 

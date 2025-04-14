@@ -9,9 +9,13 @@ pub type Reply {
   Reply(author: String, content: String, created_at: String)
 }
 
+pub opaque type TicketId {
+  TicketId(value: String)
+}
+
 pub type Ticket {
   Ticket(
-    id: String,
+    id: TicketId,
     title: String,
     description: String,
     status: TicketStatus,
@@ -20,21 +24,30 @@ pub type Ticket {
   )
 }
 
-pub opaque type TicketId {
-  TicketId(value: String)
+pub type TicketWriteModel {
+  TicketWriteModel(
+    title: String,
+    description: String,
+    status: TicketStatus,
+    created_at: String,
+  )
 }
 
 pub type TicketListed =
   fn() -> List(Ticket)
 
 pub type TicketCreated =
-  fn(Ticket) -> TicketId
+  fn(TicketWriteModel) -> TicketId
 
 pub type TicketUpdated =
   fn() -> List(Ticket)
 
-pub type TicketRepository {
-  TicketRepository(list: TicketListed, create: TicketCreated)
+pub fn ticket_id(s: String) -> TicketId {
+  TicketId(s)
+}
+
+pub fn decode(s: TicketId) -> String {
+  s.value
 }
 
 pub fn new_ticket(
@@ -42,9 +55,23 @@ pub fn new_ticket(
   title title: String,
   created_at created_at: String,
 ) -> Ticket {
-  Ticket(id:, title:, description: "", status: Open, created_at:, replies: [])
+  Ticket(
+    id: ticket_id(id),
+    title:,
+    description: "",
+    status: Open,
+    created_at:,
+    replies: [],
+  )
 }
 
-pub fn ticket_id(s: String) -> TicketId {
-  TicketId(s)
+pub fn to(item: TicketWriteModel, id: TicketId) -> Ticket {
+  Ticket(
+    id:,
+    title: item.title,
+    description: item.description,
+    status: item.status,
+    created_at: item.created_at,
+    replies: [],
+  )
 }
