@@ -7,7 +7,7 @@ import gleam/result
 import wisp
 
 pub type Resolver {
-  Resolver(ticket_listed: ticket_listed.Invoke)
+  Resolver(ticket_listed: ticket_listed.Output)
 }
 
 pub fn routes(
@@ -16,23 +16,22 @@ pub fn routes(
   resolver: Resolver,
 ) -> wisp.Response {
   case path, req.method {
-    [], http.Get -> get_controller(req, resolver.ticket_listed)
-    [], http.Post -> post_controller(req)
+    [], http.Get -> get(req, resolver.ticket_listed)
+    [], http.Post -> post(req)
     _, _ -> wisp.not_found()
   }
 }
 
-fn get_controller(
-  _req: wisp.Request,
-  query: ticket_listed.Invoke,
-) -> wisp.Response {
-  query()
-  |> deserialize()
+///
+fn get(_req: wisp.Request, usecase: ticket_listed.Output) -> wisp.Response {
+  usecase()
   |> json.to_string_tree()
   |> wisp.json_response(200)
 }
 
-fn post_controller(req: wisp.Request) -> wisp.Response {
+///
+///
+fn post(req: wisp.Request) -> wisp.Response {
   use json <- wisp.require_json(req)
 
   let result = {
@@ -54,14 +53,4 @@ fn decode_ticket() -> decode.Decoder(ticket_created.Dto) {
   use description <- decode.field("description", decode.string)
   use status <- decode.field("status", decode.string)
   decode.success(ticket_created.Dto(title:, description:, status:))
-}
-
-pub fn deserialize(items: List(ticket_listed.Dto)) -> json.Json {
-  json.array(items, fn(item) {
-    json.object([
-      #("id", json.string(item.id)),
-      #("title", json.string(item.title)),
-      #("status", json.string(item.status)),
-    ])
-  })
 }
