@@ -1,13 +1,15 @@
 import app/ticket/usecase/ticket_created
 import app/ticket/usecase/ticket_listed
-import gleam/dynamic/decode
 import gleam/http
 import gleam/json
 import gleam/result
 import wisp
 
 pub type Resolver {
-  Resolver(ticket_listed: ticket_listed.Output)
+  Resolver(
+    ticket_listed: ticket_listed.Output,
+    ticket_created: ticket_created.Output,
+  )
 }
 
 pub fn routes(
@@ -17,25 +19,25 @@ pub fn routes(
 ) -> wisp.Response {
   case path, req.method {
     [], http.Get -> get(req, resolver.ticket_listed)
-    [], http.Post -> post(req)
+    [], http.Post -> post(req, resolver.ticket_created)
     _, _ -> wisp.not_found()
   }
 }
 
 ///
 fn get(_req: wisp.Request, usecase: ticket_listed.Output) -> wisp.Response {
-  usecase()
+  usecase(Nil)
   |> json.to_string_tree()
   |> wisp.json_response(200)
 }
 
 ///
 ///
-fn post(req: wisp.Request) -> wisp.Response {
+fn post(req: wisp.Request, usecase: ticket_created.Output) -> wisp.Response {
   use json <- wisp.require_json(req)
 
   let result = {
-    use _dto <- result.try(decode.run(json, decode_ticket()))
+    use _dto <- result.try(usecase(json))
 
     json.string("ok")
     |> json.to_string_tree()
@@ -46,11 +48,4 @@ fn post(req: wisp.Request) -> wisp.Response {
     Ok(json) -> wisp.json_response(json, 201)
     Error(_) -> wisp.bad_request()
   }
-}
-
-fn decode_ticket() -> decode.Decoder(ticket_created.Dto) {
-  use title <- decode.field("title", decode.string)
-  use description <- decode.field("description", decode.string)
-  use status <- decode.field("status", decode.string)
-  decode.success(ticket_created.Dto(title:, description:, status:))
 }

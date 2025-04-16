@@ -7,14 +7,10 @@ pub type Dto {
 }
 
 pub type Output =
-  fn() -> json.Json
+  fn(Nil) -> json.Json
 
-pub fn register(event: domain.TicketListed) -> Output {
-  fn() { event() |> invoke() |> deserialize() }
-}
-
-fn invoke(items: List(domain.Ticket)) -> List(Dto) {
-  items
+pub fn invoke(items: domain.TicketListed, _: Nil) -> json.Json {
+  items()
   |> list.map(fn(item) {
     Dto(
       id: item.id |> domain.decode,
@@ -22,6 +18,7 @@ fn invoke(items: List(domain.Ticket)) -> List(Dto) {
       status: to_string(item.status),
     )
   })
+  |> deserialize()
 }
 
 fn to_string(status: domain.TicketStatus) -> String {
