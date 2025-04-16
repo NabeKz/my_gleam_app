@@ -12,11 +12,13 @@ pub type Time {
 /// see
 /// https://www.erlang.org/doc/apps/stdlib/calendar.html
 @external(erlang, "calendar", "local_time")
-fn local_time() -> #(Date, Time)
+fn local_time() -> #(#(Int, Int, Int), #(Int, Int, Int))
 
 pub fn now() -> Date {
   let #(date, _) = local_time()
-  date
+  let #(year, month, day) = date
+
+  Date(year:, month:, day:)
 }
 
 pub fn to_string(date: Date) -> String {

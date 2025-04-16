@@ -6,10 +6,7 @@ import gleam/result
 import wisp
 
 pub type Resolver {
-  Resolver(
-    ticket_listed: ticket_listed.Output,
-    ticket_created: ticket_created.Output,
-  )
+  Resolver(listed: ticket_listed.Output, created: ticket_created.Output)
 }
 
 pub fn routes(
@@ -18,8 +15,8 @@ pub fn routes(
   resolver: Resolver,
 ) -> wisp.Response {
   case path, req.method {
-    [], http.Get -> get(req, resolver.ticket_listed)
-    [], http.Post -> post(req, resolver.ticket_created)
+    [], http.Get -> get(req, resolver.listed)
+    [], http.Post -> post(req, resolver.created)
     _, _ -> wisp.not_found()
   }
 }

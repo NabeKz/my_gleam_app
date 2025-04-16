@@ -1,3 +1,4 @@
+import app/ticket/usecase/ticket_created
 import gleam/json
 import gleeunit
 import gleeunit/should
@@ -14,11 +15,13 @@ pub fn main() {
 }
 
 fn mock_context() -> context.Context {
+  let repository = ticket_repository_on_memory.new()
   context.Context(
     ..context.new(),
-    ticket: ticket_repository_on_memory.new().list
-      |> ticket_listed.register
-      |> ticket_controller.Resolver,
+    ticket: ticket_controller.Resolver(
+      listed: ticket_listed.invoke(repository.list, _),
+      created: ticket_created.invoke(repository.create, _),
+    ),
   )
 }
 
@@ -54,7 +57,6 @@ pub fn post_tickets_success_test() {
     json.object([
       #("title", json.string("hoge")),
       #("description", json.string("fugafuga")),
-      #("status", json.string("status")),
     ])
 
   let req = testing.post_json("/tickets", [], object)
