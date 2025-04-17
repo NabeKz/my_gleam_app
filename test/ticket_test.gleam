@@ -1,4 +1,3 @@
-import app/ticket/usecase/ticket_created
 import gleam/json
 import gleeunit
 import gleeunit/should
@@ -8,7 +7,9 @@ import app/context
 import app/router
 import app/ticket/infra/ticket_repository_on_memory
 import app/ticket/ticket_controller
+import app/ticket/usecase/ticket_created
 import app/ticket/usecase/ticket_listed.{Dto}
+import app/ticket/usecase/ticket_searched
 
 pub fn main() {
   gleeunit.main()
@@ -21,6 +22,7 @@ fn mock_context() -> context.Context {
     ticket: ticket_controller.Resolver(
       listed: ticket_listed.invoke(repository.list, _),
       created: ticket_created.invoke(repository.create, _),
+      searched: ticket_searched.invoke(_, repository.find),
     ),
   )
 }

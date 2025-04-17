@@ -3,7 +3,11 @@ import gleam/int
 import gleam/list
 
 pub type MockRepository {
-  MockRepository(list: domain.TicketListed, create: domain.TicketCreated)
+  MockRepository(
+    list: domain.TicketListed,
+    create: domain.TicketCreated,
+    find: domain.TicketSearched,
+  )
 }
 
 pub fn new() -> MockRepository {
@@ -26,6 +30,14 @@ pub fn new() -> MockRepository {
       let model = domain.to(item, id)
       list.append(items, [model])
       model.id
+    },
+    find: fn(id: domain.TicketId) {
+      let item = list.find(items, fn(item) { item.id == id })
+
+      case item {
+        Ok(item) -> Ok(item)
+        Error(_) -> Error("not found")
+      }
     },
   )
 }

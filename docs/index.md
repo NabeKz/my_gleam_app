@@ -29,3 +29,5 @@
 - ステートフルな状態管理（注文中 → 配膳済みなど）があるので、Gleam の ADT が活きる
 
 - エンティティ：Table, Order, Item, Staff
+
+- <https://github.com/TahaSh/gleam-todo-web-app?tab=readme-ov-file>
