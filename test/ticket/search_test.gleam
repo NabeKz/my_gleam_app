@@ -26,6 +26,7 @@ fn mock_context() -> context.Context {
       listed: fn(_) { todo },
       created: fn(_) { todo },
       searched: ticket_searched.invoke(_, repository.find),
+      deleted: fn(_) { todo },
     ),
   )
 }

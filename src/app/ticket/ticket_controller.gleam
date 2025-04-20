@@ -4,6 +4,7 @@ import gleam/result
 import wisp
 
 import app/ticket/usecase/ticket_created
+import app/ticket/usecase/ticket_deleted
 import app/ticket/usecase/ticket_listed
 import app/ticket/usecase/ticket_searched
 
@@ -12,6 +13,7 @@ pub type Resolver {
     listed: ticket_listed.Output,
     created: ticket_created.Output,
     searched: ticket_searched.Output,
+    deleted: ticket_deleted.Output,
   )
 }
 
@@ -24,6 +26,7 @@ pub fn routes(
     [], http.Get -> get(req, resolver.listed)
     [], http.Post -> post(req, resolver.created)
     [id], http.Get -> get_one(id, resolver.searched)
+    [id], http.Delete -> delete(id, resolver.deleted)
     _, _ -> wisp.not_found()
   }
 }
@@ -57,6 +60,23 @@ fn post(req: wisp.Request, usecase: ticket_created.Output) -> wisp.Response {
 ///
 ///
 fn get_one(id: String, usecase: ticket_searched.Output) -> wisp.Response {
+  let result = {
+    use dto <- result.try(usecase(id))
+
+    dto
+    |> json.to_string_tree
+    |> Ok()
+  }
+
+  case result {
+    Ok(json) -> wisp.json_response(json, 200)
+    Error(_) -> wisp.bad_request()
+  }
+}
+
+///
+///
+fn delete(id: String, usecase: ticket_deleted.Output) -> wisp.Response {
   let result = {
     use dto <- result.try(usecase(id))
 

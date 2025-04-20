@@ -45,6 +45,9 @@ pub type TicketSearched =
 pub type TicketUpdated =
   fn(TicketWriteModel) -> TicketId
 
+pub type TicketDeleted =
+  fn(TicketId) -> Result(Nil, String)
+
 pub fn ticket_id(s: String) -> TicketId {
   TicketId(s)
 }

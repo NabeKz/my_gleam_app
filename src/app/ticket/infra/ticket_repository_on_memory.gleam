@@ -7,6 +7,7 @@ pub type MockRepository {
     list: domain.TicketListed,
     create: domain.TicketCreated,
     find: domain.TicketSearched,
+    delete: domain.TicketDeleted,
   )
 }
 
@@ -45,6 +46,10 @@ pub fn new(items: List(domain.Ticket)) -> MockRepository {
         Ok(item) -> Ok(item)
         Error(_) -> Error("not found")
       }
+    },
+    delete: fn(id: domain.TicketId) {
+      let item = list.filter(items, fn(item) { item.id != id })
+      Ok(Nil)
     },
   )
 }

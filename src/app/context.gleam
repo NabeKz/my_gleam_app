@@ -3,6 +3,7 @@ import app/person/person_repository_on_memory as person_repository
 import app/ticket/infra/ticket_repository_on_memory
 import app/ticket/ticket_controller
 import app/ticket/usecase/ticket_created
+import app/ticket/usecase/ticket_deleted
 import app/ticket/usecase/ticket_listed
 import app/ticket/usecase/ticket_searched
 
@@ -17,6 +18,7 @@ pub fn new() -> Context {
       listed: ticket_listed.invoke(ticket_repository.list, _),
       created: ticket_created.invoke(ticket_repository.create, _),
       searched: ticket_searched.invoke(_, ticket_repository.find),
+      deleted: ticket_deleted.invoke(_, ticket_repository.delete),
     )
 
   Context(person: person_repository.new(), ticket:)
