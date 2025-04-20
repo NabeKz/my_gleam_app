@@ -1,4 +1,5 @@
 import gleam/int
+import gleam/list
 import gleam/string
 
 pub type Date {
@@ -19,6 +20,18 @@ pub fn now() -> Date {
   let #(year, month, day) = date
 
   Date(year:, month:, day:)
+}
+
+pub fn from_string(value: String) -> Result(Date, String) {
+  let date =
+    value
+    |> string.split("-")
+    |> list.try_map(fn(val) { int.parse(val) })
+
+  case date {
+    Ok([year, month, day]) -> Ok(Date(year:, month:, day:))
+    _ -> Error("invalid date")
+  }
 }
 
 pub fn to_string(date: Date) -> String {

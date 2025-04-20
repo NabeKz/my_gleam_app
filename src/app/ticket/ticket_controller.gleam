@@ -66,7 +66,7 @@ fn get_one(id: String, usecase: ticket_searched.Output) -> wisp.Response {
   }
 
   case result {
-    Ok(json) -> wisp.json_response(json, 201)
+    Ok(json) -> wisp.json_response(json, 200)
     Error(_) -> wisp.bad_request()
   }
 }

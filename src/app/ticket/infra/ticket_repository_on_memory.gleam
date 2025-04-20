@@ -10,12 +10,19 @@ pub type MockRepository {
   )
 }
 
-pub fn new() -> MockRepository {
-  let items = [
+fn mock_items() {
+  [
     new_ticket(id: "1", title: "hoge", created_at: "2024-05-01"),
     new_ticket(id: "2", title: "fuga", created_at: "2024-05-01"),
     new_ticket(id: "3", title: "piyo", created_at: "2024-05-01"),
   ]
+}
+
+pub fn new(items: List(domain.Ticket)) -> MockRepository {
+  let items = case items {
+    [] -> mock_items()
+    _ -> items
+  }
 
   MockRepository(
     list: fn() { items },
