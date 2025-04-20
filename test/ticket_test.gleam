@@ -19,7 +19,7 @@ fn mock_context() -> context.Context {
   context.Context(
     ..context.new(),
     ticket: ticket_controller.Resolver(
-      listed: ticket_listed.invoke(repository.list, _),
+      listed: ticket_listed.invoke(_, repository.list),
       created: ticket_created.invoke(repository.create, _),
       searched: fn(_) { todo },
       deleted: fn(_) { todo },

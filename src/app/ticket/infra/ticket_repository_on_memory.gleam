@@ -26,7 +26,7 @@ pub fn new(items: List(domain.Ticket)) -> MockRepository {
   }
 
   MockRepository(
-    list: fn() { items },
+    list: fn(params: domain.ValidateSearchParams) { items },
     create: fn(item: domain.TicketWriteModel) {
       let id =
         items
@@ -48,7 +48,7 @@ pub fn new(items: List(domain.Ticket)) -> MockRepository {
       }
     },
     delete: fn(id: domain.TicketId) {
-      let item = list.filter(items, fn(item) { item.id != id })
+      list.filter(items, fn(item) { item.id != id })
       Ok(Nil)
     },
   )

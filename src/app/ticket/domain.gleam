@@ -1,3 +1,6 @@
+import gleam/option.{type Option}
+import lib/date_time
+
 pub type TicketStatus {
   Open
   Progress
@@ -33,8 +36,15 @@ pub type TicketWriteModel {
   )
 }
 
+pub type ValidateSearchParams {
+  ValidateSearchParams(
+    status: Option(TicketStatus),
+    created_at: Option(date_time.Date),
+  )
+}
+
 pub type TicketListed =
-  fn() -> List(Ticket)
+  fn(ValidateSearchParams) -> List(Ticket)
 
 pub type TicketCreated =
   fn(TicketWriteModel) -> TicketId
@@ -80,4 +90,11 @@ pub fn to(item: TicketWriteModel, id: TicketId) -> Ticket {
     created_at: item.created_at,
     replies: [],
   )
+}
+
+pub fn ticket_status(value: String) -> Result(TicketStatus, String) {
+  case value {
+    "open" -> Ok(Open)
+    _ -> Error(value <> "is invalid status")
+  }
 }

@@ -2,7 +2,6 @@ import app/ticket/domain
 import gleam/json
 import gleeunit
 import gleeunit/should
-import lib/date_time
 import wisp/testing
 
 import app/context

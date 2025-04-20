@@ -15,7 +15,7 @@ pub fn new() -> Context {
   let ticket_repository = ticket_repository_on_memory.new([])
   let ticket =
     ticket_controller.Resolver(
-      listed: ticket_listed.invoke(ticket_repository.list, _),
+      listed: ticket_listed.invoke(_, ticket_repository.list),
       created: ticket_created.invoke(ticket_repository.create, _),
       searched: ticket_searched.invoke(_, ticket_repository.find),
       deleted: ticket_deleted.invoke(_, ticket_repository.delete),

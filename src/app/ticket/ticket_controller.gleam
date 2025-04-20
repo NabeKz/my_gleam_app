@@ -10,7 +10,7 @@ import app/ticket/usecase/ticket_searched
 
 pub type Resolver {
   Resolver(
-    listed: ticket_listed.Output,
+    listed: ticket_listed.Workflow,
     created: ticket_created.Output,
     searched: ticket_searched.Output,
     deleted: ticket_deleted.Output,
@@ -23,7 +23,7 @@ pub fn routes(
   resolver: Resolver,
 ) -> wisp.Response {
   case path, req.method {
-    [], http.Get -> get(req, resolver.listed)
+    [], http.Get -> list(req, resolver.listed)
     [], http.Post -> post(req, resolver.created)
     [id], http.Get -> get_one(id, resolver.searched)
     [id], http.Delete -> delete(id, resolver.deleted)
@@ -32,10 +32,16 @@ pub fn routes(
 }
 
 ///
-fn get(_req: wisp.Request, usecase: ticket_listed.Output) -> wisp.Response {
-  usecase(Nil)
-  |> json.to_string_tree()
-  |> wisp.json_response(200)
+fn list(req: wisp.Request, usecase: ticket_listed.Workflow) -> wisp.Response {
+  let params = req |> wisp.get_query()
+
+  case usecase(params) {
+    Ok(tickets) ->
+      tickets
+      |> json.to_string_tree()
+      |> wisp.json_response(200)
+    Error(_) -> wisp.bad_request()
+  }
 }
 
 ///
