@@ -1,9 +1,11 @@
 import app/ticket/domain
 import gleam/json
 import gleam/list
-import gleam/option.{type Option, None, Some}
+import gleam/option.{type Option}
 import gleam/result
+
 import lib/date_time
+import lib/parser
 
 type ErrorMessage {
   InvalidParam(List(#(String, String)))
@@ -53,21 +55,8 @@ fn validate(
   params: UnValidateSearchParams,
 ) -> Result(domain.ValidateSearchParams, String) {
   let result = {
-    let status = case params.status {
-      Some(value) -> {
-        use status <- result.try(value |> domain.ticket_status)
-        status |> Some() |> Ok()
-      }
-      None -> None |> Ok()
-    }
-
-    let created_at = case params.created_at {
-      option.Some(value) -> {
-        use created_at <- result.try(value |> date_time.from_string)
-        created_at |> option.Some() |> Ok()
-      }
-      option.None -> option.None |> Ok()
-    }
+    let status = params.status |> parser.map_or(domain.ticket_status)
+    let created_at = params.created_at |> parser.map_or(date_time.from_string)
 
     use status <- result.try(status)
     use created_at <- result.try(created_at)
