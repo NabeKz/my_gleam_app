@@ -11,18 +11,21 @@ type ErrorMessage =
   List(#(String, String))
 
 pub type Dto {
-  Dto(id: String, title: String, status: String)
+  Dto(id: String, title: String, status: String, created_at: String)
 }
 
 pub type UnValidateSearchParams {
   UnValidateSearchParams(status: Option(String), created_at: Option(String))
 }
 
+type Params =
+  List(#(String, String))
+
 pub type Workflow =
-  fn(List(#(String, String))) -> Result(json.Json, ErrorMessage)
+  fn(Params) -> Result(json.Json, ErrorMessage)
 
 pub fn invoke(
-  params: List(#(String, String)),
+  params: Params,
   command: domain.TicketListed,
 ) -> Result(json.Json, ErrorMessage) {
   let result = {
@@ -84,7 +87,8 @@ fn decode(items: List(domain.Ticket)) -> List(Dto) {
     Dto(
       id: item.id |> domain.decode,
       title: item.title,
-      status: to_string(item.status),
+      status: item.status |> to_string(),
+      created_at: item.created_at,
     )
   })
 }
@@ -95,6 +99,7 @@ fn deserialize(items: List(Dto)) -> json.Json {
       #("id", json.string(item.id)),
       #("title", json.string(item.title)),
       #("status", json.string(item.status)),
+      #("created_at", json.string(item.created_at)),
     ])
   })
 }

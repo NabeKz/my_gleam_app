@@ -33,15 +33,16 @@ pub fn get_tickets_test() {
   let result =
     json.array(
       [
-        Dto(id: "1", title: "hoge", status: "open"),
-        Dto(id: "2", title: "fuga", status: "open"),
-        Dto(id: "3", title: "piyo", status: "open"),
+        Dto(id: "1", title: "hoge", status: "open", created_at: "2024-05-01"),
+        Dto(id: "2", title: "fuga", status: "open", created_at: "2024-05-01"),
+        Dto(id: "3", title: "piyo", status: "open", created_at: "2024-05-01"),
       ],
       fn(item) {
         json.object([
           #("id", json.string(item.id)),
           #("title", json.string(item.title)),
           #("status", json.string(item.status)),
+          #("created_at", json.string(item.created_at)),
         ])
       },
     )
