@@ -1,10 +1,10 @@
-import app/context
-import app/person/person.{PersonReadModel, PersonRepository}
 import gleam/json
 import gleeunit
 import gleeunit/should
 import wisp/testing
 
+import app/context
+import app/person/person.{PersonReadModel, PersonRepository}
 import app/router
 
 fn mock_context() -> context.Context {
@@ -15,8 +15,8 @@ fn mock_context() -> context.Context {
         Ok([PersonReadModel(id: "hoge", name: "a", favorite_color: "FFF")])
       },
       save: fn(_) { Ok("1") },
-      read: fn(_) { todo },
-      delete: fn(_) { todo },
+      read: fn(_) { Error([]) },
+      delete: fn(_) { Error([]) },
     ),
   )
 }

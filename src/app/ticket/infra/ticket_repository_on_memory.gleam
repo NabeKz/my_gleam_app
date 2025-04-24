@@ -26,7 +26,7 @@ pub fn new(items: List(domain.Ticket)) -> MockRepository {
   }
 
   MockRepository(
-    list: fn(params: domain.ValidateSearchParams) { items },
+    list: fn(_) { items },
     create: fn(item: domain.TicketWriteModel) {
       let id =
         items

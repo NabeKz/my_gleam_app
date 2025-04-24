@@ -1,6 +1,4 @@
-import app/person/person.{
-  type Person, type PersonReadModel, Person, PersonReadModel,
-}
+import app/person/person.{type Person, type PersonReadModel, PersonReadModel}
 import gleam/int
 import gleam/list
 
@@ -36,7 +34,7 @@ fn read(
   let result = items |> list.find(fn(item) { item.id == id })
   case result {
     Ok(item) -> Ok(item)
-    Error(Nil) -> Error(["not found"])
+    Error(_) -> Error(["not found"])
   }
 }
 

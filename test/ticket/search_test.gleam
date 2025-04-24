@@ -22,10 +22,10 @@ fn mock_context() -> context.Context {
   context.Context(
     ..context.new(),
     ticket: ticket_controller.Resolver(
-      listed: fn(_) { todo },
-      created: fn(_) { todo },
+      listed: fn(_) { Error([]) },
+      created: fn(_) { Error([]) },
       searched: ticket_searched.invoke(_, repository.find),
-      deleted: fn(_) { todo },
+      deleted: fn(_) { Error([]) },
     ),
   )
 }

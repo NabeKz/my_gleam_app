@@ -61,30 +61,6 @@ fn create_person(repository: PersonRepository, req: Request) -> Response {
   }
 }
 
-fn read_person(ctx: PersonRepository, id: String) -> Response {
-  let result = {
-    use person <- result.try(ctx.read(id))
-
-    [
-      #("id", json.string(id)),
-      #("name", json.string(person.name)),
-      #("favorite_color", json.string(person.favorite_color)),
-    ]
-    |> json.object()
-    |> json.to_string_tree()
-    |> Ok()
-  }
-
-  case result {
-    Ok(json) -> wisp.json_response(json, 200)
-    Error(_) -> wisp.internal_server_error()
-  }
-}
-
-fn delete_person() -> Response {
-  todo
-}
-
 fn decode_person() -> decode.Decoder(Person) {
   use name <- decode.field("name", decode.string)
   use favorite_color <- decode.field("favorite-color", decode.string)

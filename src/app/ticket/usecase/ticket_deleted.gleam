@@ -12,13 +12,13 @@ pub type ErrorMessage {
 }
 
 pub type Output =
-  fn(String) -> Result(json.Json, ErrorMessage)
+  fn(String) -> Result(json.Json, List(ErrorMessage))
 
 //
 pub fn invoke(
   id: String,
   event: domain.TicketDeleted,
-) -> Result(json.Json, ErrorMessage) {
+) -> Result(json.Json, List(ErrorMessage)) {
   let result = {
     let ticket_id = id |> domain.ticket_id
 
@@ -30,6 +30,6 @@ pub fn invoke(
 
   case result {
     Ok(_) -> Ok(json.null())
-    Error(err) -> Error(err)
+    Error(err) -> Error([err])
   }
 }

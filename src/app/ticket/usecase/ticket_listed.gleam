@@ -7,9 +7,8 @@ import gleam/result
 import lib/date_time
 import lib/parser
 
-type ErrorMessage {
-  InvalidParam(List(#(String, String)))
-}
+type ErrorMessage =
+  List(#(String, String))
 
 pub type Dto {
   Dto(id: String, title: String, status: String)
@@ -20,12 +19,12 @@ pub type UnValidateSearchParams {
 }
 
 pub type Workflow =
-  fn(List(#(String, String))) -> Result(json.Json, String)
+  fn(List(#(String, String))) -> Result(json.Json, ErrorMessage)
 
 pub fn invoke(
   params: List(#(String, String)),
   command: domain.TicketListed,
-) -> Result(json.Json, String) {
+) -> Result(json.Json, ErrorMessage) {
   let result = {
     use validate_params <- result.try(params |> parse() |> validate())
     validate_params |> Ok()
@@ -38,7 +37,7 @@ pub fn invoke(
       |> decode()
       |> deserialize()
       |> Ok()
-    Error(_) -> Error("invalid params")
+    Error(_) -> [#("field", "invalid params")] |> Error()
   }
 }
 
