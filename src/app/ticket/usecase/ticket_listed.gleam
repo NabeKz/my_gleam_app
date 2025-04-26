@@ -1,7 +1,7 @@
 import app/ticket/domain
 import gleam/json
 import gleam/list
-import gleam/option.{type Option}
+import gleam/option.{type Option, None, Some}
 import gleam/result
 
 import lib/date_time
@@ -34,9 +34,10 @@ pub fn invoke(
   }
 
   case result {
-    Ok(result) ->
-      result
+    Ok(form) ->
+      form
       |> command()
+      |> apply(form)
       |> decode()
       |> deserialize()
       |> Ok()
@@ -79,6 +80,16 @@ fn to_string(status: domain.TicketStatus) -> String {
     domain.Progress -> "progress"
     domain.Close -> "close"
     domain.Done -> "done"
+  }
+}
+
+fn apply(
+  items: List(domain.Ticket),
+  form: domain.ValidateSearchParams,
+) -> List(domain.Ticket) {
+  case form.status {
+    Some(status) -> items |> list.filter(fn(item) { item.status == status })
+    None -> items
   }
 }
 
