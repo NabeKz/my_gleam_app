@@ -95,6 +95,9 @@ pub fn to(item: TicketWriteModel, id: TicketId) -> Ticket {
 pub fn ticket_status(value: String) -> Result(TicketStatus, String) {
   case value {
     "open" -> Ok(Open)
-    _ -> Error(value <> "is invalid status")
+    "close" -> Ok(Close)
+    "progress" -> Ok(Progress)
+    "done" -> Ok(Done)
+    _ -> Error(value <> " is invalid status")
   }
 }

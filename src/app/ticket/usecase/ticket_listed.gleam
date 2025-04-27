@@ -49,6 +49,7 @@ fn parse(params: List(#(String, String))) -> UnValidateSearchParams {
   let find = list.key_find(params, _)
 
   UnValidateSearchParams(
+    // TODO: handle invalid status
     status: find("status") |> option.from_result,
     created_at: find("created_at") |> option.from_result,
   )
