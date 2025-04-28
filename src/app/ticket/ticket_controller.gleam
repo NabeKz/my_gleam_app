@@ -7,6 +7,7 @@ import app/ticket/usecase/ticket_created
 import app/ticket/usecase/ticket_deleted
 import app/ticket/usecase/ticket_listed
 import app/ticket/usecase/ticket_searched
+import lib/deserializer
 
 pub type Resolver {
   Resolver(
@@ -40,7 +41,12 @@ fn list(req: wisp.Request, usecase: ticket_listed.Workflow) -> wisp.Response {
       tickets
       |> json.to_string_tree()
       |> wisp.json_response(200)
-    Error(_) -> wisp.bad_request()
+    Error(error) -> {
+      error
+      |> deserializer.deserialize_error
+      |> json.to_string_tree()
+      |> wisp.json_response(400)
+    }
   }
 }
 
