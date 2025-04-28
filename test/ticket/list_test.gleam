@@ -74,7 +74,7 @@ pub fn get_ticket_success_test() {
   |> should.equal(result |> json.to_string())
 }
 
-pub fn get_ticket_not_exist_status() {
+pub fn get_ticket_not_exist_status_test() {
   let req = testing.get("/tickets?status=progress", [])
   let response = router.handle_request(mock_context(), req)
 
@@ -88,14 +88,16 @@ pub fn get_ticket_not_exist_status() {
   |> should.equal(result |> json.to_string())
 }
 
-pub fn get_ticket_with_invalid_status() {
+pub fn get_ticket_with_invalid_status_test() {
   let req = testing.get("/tickets?status=hoge", [])
   let response = router.handle_request(mock_context(), req)
 
-  let result = [] |> json.array(fn(it) { it })
+  let result =
+    [json.object([#("field", json.string("invalid params"))])]
+    |> json.array(fn(it) { it })
 
   response.status
-  |> should.equal(200)
+  |> should.equal(400)
 
   response
   |> testing.string_body

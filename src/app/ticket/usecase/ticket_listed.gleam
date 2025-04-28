@@ -57,7 +57,7 @@ fn parse(params: List(#(String, String))) -> UnValidateSearchParams {
 
 fn validate(
   params: UnValidateSearchParams,
-) -> Result(domain.ValidateSearchParams, String) {
+) -> Result(domain.ValidateSearchParams, ErrorMessage) {
   let result = {
     let status = params.status |> parser.map_or(domain.ticket_status)
     let created_at = params.created_at |> parser.map_or(date_time.from_string)
@@ -71,7 +71,7 @@ fn validate(
 
   case result {
     Ok(params) -> Ok(params)
-    Error(_) -> Error("invalid params")
+    Error(_) -> Error([#("field", "wrong")])
   }
 }
 
