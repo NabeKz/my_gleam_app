@@ -13,6 +13,9 @@ licences = ["MIT"]
 # https://gleam.run/writing-gleam/gleam-toml/.
 extra_applications = ["ssl"]
 
+# target = "javascript"
+# runtime = "nodejs"
+
 [dependencies]
 gleam_stdlib = ">= 0.34.0 and < 2.0.0"
 wisp = ">= 1.6.0 and < 2.0.0"

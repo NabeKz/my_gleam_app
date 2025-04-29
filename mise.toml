@@ -1,6 +1,7 @@
 [tools]
 erlang = "latest"
 gleam = "latest"
+node = "latest"
 rebar = "latest"
 
 [tasks.serve]

@@ -93,7 +93,7 @@ pub fn get_ticket_with_invalid_status_test() {
   let response = router.handle_request(mock_context(), req)
 
   let result =
-    [json.object([#("message", json.string("invalid params"))])]
+    [json.object([#("message", json.string("hoge is invalid status"))])]
     |> json.array(fn(it) { it })
 
   response.status

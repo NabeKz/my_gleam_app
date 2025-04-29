@@ -41,7 +41,7 @@ pub fn invoke(
       |> decode()
       |> deserialize()
       |> Ok()
-    Error(_) -> [#("field", "invalid params")] |> Error()
+    Error(err) -> err |> Error()
   }
 }
 
@@ -71,7 +71,7 @@ fn validate(
 
   case result {
     Ok(params) -> Ok(params)
-    Error(_) -> Error([#("field", "wrong")])
+    Error(err) -> Error([#("field", err)])
   }
 }
 
