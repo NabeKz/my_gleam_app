@@ -36,19 +36,19 @@ pub fn new(items: List(domain.Ticket)) -> MockRepository {
         |> domain.ticket_id
 
       let model = domain.to(item, id)
-      list.append(items, [model])
+      let _ = list.append(items, [model])
       model.id
     },
     find: fn(id: domain.TicketId) {
-      let item = list.find(items, fn(item) { item.id == id })
+      let item = list.find(items, fn(it) { it.id == id })
 
       case item {
-        Ok(item) -> Ok(item)
+        Ok(ticket) -> Ok(ticket)
         Error(_) -> Error("not found")
       }
     },
     delete: fn(id: domain.TicketId) {
-      list.filter(items, fn(item) { item.id != id })
+      let _ = list.filter(items, fn(item) { item.id != id })
       Ok(Nil)
     },
   )

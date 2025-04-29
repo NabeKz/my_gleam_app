@@ -13,6 +13,7 @@ pub type Time {
 /// see
 /// https://www.erlang.org/doc/apps/stdlib/calendar.html
 @external(erlang, "calendar", "local_time")
+@external(javascript, "./calendar.mjs", "local_time")
 fn local_time() -> #(#(Int, Int, Int), #(Int, Int, Int))
 
 pub fn now() -> Date {
