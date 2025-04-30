@@ -1,12 +1,7 @@
 import gleam/option.{type Option}
 import lib/date_time
 
-pub type TicketStatus {
-  Open
-  Progress
-  Done
-  Close
-}
+import app/ticket/domain/ticket_status.{type TicketStatus, Open}
 
 pub type Reply {
   Reply(author: String, content: String, created_at: String)
@@ -90,14 +85,4 @@ pub fn to(item: TicketWriteModel, id: TicketId) -> Ticket {
     created_at: item.created_at,
     replies: [],
   )
-}
-
-pub fn ticket_status(value: String) -> Result(TicketStatus, String) {
-  case value {
-    "open" -> Ok(Open)
-    "close" -> Ok(Close)
-    "progress" -> Ok(Progress)
-    "done" -> Ok(Done)
-    _ -> Error(value <> " is invalid status")
-  }
 }

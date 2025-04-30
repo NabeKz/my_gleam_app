@@ -1,9 +1,10 @@
-import app/ticket/domain
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 
+import app/ticket/domain
+import app/ticket/domain/ticket_status
 import lib/date_time
 import lib/parser
 
@@ -59,7 +60,7 @@ fn validate(
   params: UnValidateSearchParams,
 ) -> Result(domain.ValidateSearchParams, ErrorMessage) {
   let result = {
-    let status = params.status |> parser.map_or(domain.ticket_status)
+    let status = params.status |> parser.map_or(ticket_status.from_string)
     let created_at = params.created_at |> parser.map_or(date_time.from_string)
 
     use status <- result.try(status)
@@ -72,15 +73,6 @@ fn validate(
   case result {
     Ok(params) -> Ok(params)
     Error(err) -> Error([#("field", err)])
-  }
-}
-
-fn to_string(status: domain.TicketStatus) -> String {
-  case status {
-    domain.Open -> "open"
-    domain.Progress -> "progress"
-    domain.Close -> "close"
-    domain.Done -> "done"
   }
 }
 
@@ -99,7 +91,7 @@ fn decode(items: List(domain.Ticket)) -> List(Dto) {
     Dto(
       id: item.id |> domain.decode,
       title: item.title,
-      status: item.status |> to_string(),
+      status: item.status |> ticket_status.to_string(),
       created_at: item.created_at,
     )
   })

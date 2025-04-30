@@ -4,6 +4,7 @@ import gleam/result
 import lib/date_time
 
 import app/ticket/domain
+import app/ticket/domain/ticket_status
 
 pub type Dto {
   Dto(title: String, description: String)
@@ -43,7 +44,7 @@ fn convert(
   domain.TicketWriteModel(
     title: dto.title,
     description: dto.description,
-    status: domain.Open,
+    status: ticket_status.Open,
     created_at: date_time.now() |> date_time.to_string(),
   )
   |> Ok()

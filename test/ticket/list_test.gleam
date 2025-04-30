@@ -6,6 +6,7 @@ import wisp/testing
 import app/context
 import app/router
 import app/ticket/domain
+import app/ticket/domain/ticket_status
 import app/ticket/ticket_controller
 import app/ticket/usecase/ticket_listed
 
@@ -26,7 +27,7 @@ fn mock_context() -> context.Context {
             id: domain.ticket_id("1"),
             title: "hoge",
             description: "",
-            status: domain.Open,
+            status: ticket_status.Open,
             created_at: "2024-05-01",
             replies: [],
           ),
@@ -34,7 +35,7 @@ fn mock_context() -> context.Context {
             id: domain.ticket_id("2"),
             title: "fuga",
             description: "",
-            status: domain.Close,
+            status: ticket_status.Close,
             created_at: "2024-05-02",
             replies: [],
           ),
@@ -42,7 +43,7 @@ fn mock_context() -> context.Context {
             id: domain.ticket_id("3"),
             title: "piyo",
             description: "",
-            status: domain.Done,
+            status: ticket_status.Done,
             created_at: "2024-05-03",
             replies: [],
           ),

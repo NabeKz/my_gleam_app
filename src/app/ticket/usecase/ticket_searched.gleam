@@ -1,6 +1,7 @@
 import gleam/json
 
 import app/ticket/domain
+import app/ticket/domain/ticket_status
 
 pub type Dto {
   Dto(id: String, title: String, status: String)
@@ -38,16 +39,7 @@ fn deserialize(item: domain.Ticket) -> json.Json {
     #("id", json.string(item.id |> domain.decode)),
     #("title", json.string(item.title)),
     #("description", json.string(item.description)),
-    #("status", json.string(item.status |> to_string)),
+    #("status", json.string(item.status |> ticket_status.to_string)),
     #("created_at", json.string(item.created_at)),
   ])
-}
-
-fn to_string(value: domain.TicketStatus) -> String {
-  case value {
-    domain.Open -> "open"
-    domain.Done -> "done"
-    domain.Close -> "close"
-    domain.Progress -> "progress"
-  }
 }
