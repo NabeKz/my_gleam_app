@@ -31,7 +31,10 @@ pub fn create(conn: db.Conn, item: domain.TicketWriteModel) {
   db.exec(sql, conn)
 }
 
-pub fn find(conn: db.Conn, id: domain.TicketId) -> Result(domain.Ticket, String) {
+pub fn find(
+  conn: db.Conn,
+  id: domain.TicketId,
+) -> Result(domain.Ticket, db.ErrorMessage) {
   let sql = "select * from " <> table_name <> " "
   let sql = sql <> "
     where id = ?
@@ -41,12 +44,7 @@ pub fn find(conn: db.Conn, id: domain.TicketId) -> Result(domain.Ticket, String)
   let result =
     db.query(sql, conn, [id |> domain.decode |> db.placeholder], decoder())
 
-  case result {
-    Ok([first]) -> Ok(first)
-    Ok([]) -> Error("not found")
-    Ok([_, ..]) -> Error("found multi record")
-    Error(err) -> Error(err.message)
-  }
+  result |> db.handle_find_result
 }
 
 fn id_decoder(value: Int) -> domain.TicketId {
