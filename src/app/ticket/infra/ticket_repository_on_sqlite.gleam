@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/int
 
 import app/ticket/domain
 import app/ticket/domain/ticket_status
@@ -42,9 +43,14 @@ pub fn find(conn: db.Conn, id: domain.TicketId) -> Result(domain.Ticket, String)
 
   case result {
     Ok([first]) -> Ok(first)
-    Ok(_) -> Error("found multi record")
+    Ok([]) -> Error("not found")
+    Ok([_, ..]) -> Error("found multi record")
     Error(err) -> Error(err.message)
   }
+}
+
+fn id_decoder(value: Int) -> domain.TicketId {
+  value |> int.to_string |> domain.ticket_id
 }
 
 // TODO: handling
@@ -54,7 +60,7 @@ fn status_decoder(value: String) -> ticket_status.TicketStatus {
 }
 
 fn decoder() -> decode.Decoder(domain.Ticket) {
-  use id <- decode.field(0, decode.string |> decode.map(domain.ticket_id))
+  use id <- decode.field(0, decode.int |> decode.map(id_decoder))
   use title <- decode.field(1, decode.string)
   use description <- decode.field(2, decode.string)
   use status <- decode.field(3, decode.string |> decode.map(status_decoder))

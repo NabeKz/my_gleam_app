@@ -26,5 +26,7 @@ pub fn up(conn: sqlight.Connection) {
       created_at: "2025-05-01",
     ))
 
+  let assert Ok(_) = conn |> repo.find(domain.ticket_id("2"))
+
   conn
 }
