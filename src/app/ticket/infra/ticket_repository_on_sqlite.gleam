@@ -1,5 +1,4 @@
 import gleam/dynamic/decode
-import sqlight
 
 import app/ticket/domain
 import app/ticket/domain/ticket_status
@@ -31,26 +30,34 @@ pub fn create(conn: db.Conn, item: domain.TicketWriteModel) {
   db.exec(sql, conn)
 }
 
-pub fn find(conn: db.Conn, id: domain.TicketId) {
+pub fn find(conn: db.Conn, id: domain.TicketId) -> Result(domain.Ticket, String) {
   let sql = "select * from " <> table_name <> " "
   let sql = sql <> "
     where id = ?
     limit 1;
   "
 
-  db.query(sql, conn, [id |> domain.decode |> sqlight.text], decoder())
+  let result =
+    db.query(sql, conn, [id |> domain.decode |> db.placeholder], decoder())
+
+  case result {
+    Ok([first]) -> Ok(first)
+    Ok(_) -> Error("found multi record")
+    Error(err) -> Error(err.message)
+  }
+}
+
+// TODO: handling
+fn status_decoder(value: String) -> ticket_status.TicketStatus {
+  let assert Ok(status) = value |> ticket_status.from_string
+  status
 }
 
 fn decoder() -> decode.Decoder(domain.Ticket) {
-  use id <- decode.field(0, decode.string)
-  let id = id |> domain.ticket_id
-
+  use id <- decode.field(0, decode.string |> decode.map(domain.ticket_id))
   use title <- decode.field(1, decode.string)
   use description <- decode.field(2, decode.string)
-  use status <- decode.field(3, decode.string)
-
-  let assert Ok(status) = status |> ticket_status.from_string
-
+  use status <- decode.field(3, decode.string |> decode.map(status_decoder))
   use created_at <- decode.field(4, decode.string)
 
   decode.success(
