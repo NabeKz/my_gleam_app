@@ -7,6 +7,8 @@ pub type Conn =
 
 pub const exec = sqlight.exec
 
+pub const query = sqlight.query
+
 pub fn escape(values: List(String)) -> String {
   list.map(values, fn(it) { "'" <> it <> "'" })
   |> string.join(",")
