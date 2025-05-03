@@ -42,6 +42,11 @@ pub fn with_connection(name: String, f: fn(Conn) -> a) {
   value
 }
 
+pub fn transaction(conn: Conn) {
+  let _ = sqlight.exec("begin transaction", conn.value)
+  let _ = sqlight.exec("commit transaction", conn.value)
+}
+
 pub fn placeholder(value: a) -> sqlight.Value {
   let assert Ok(value) = dynamic.from(value) |> decode.run(decode.string)
   // let value = result.map(value |>)
