@@ -52,6 +52,16 @@ pub fn find(
   result |> db.handle_find_result
 }
 
+pub fn delete(conn: db.Conn, id: domain.TicketId) -> Result(Nil, String) {
+  let sql = "delete from " <> table_name <> "where id = ?"
+  let result = db.query(sql, conn, [id |> db.placeholder], decode.success(Nil))
+
+  case result {
+    Ok(_) -> Ok(Nil)
+    Error(error) -> Error(error.message)
+  }
+}
+
 fn id_decoder(value: Int) -> domain.TicketId {
   value |> int.to_string |> domain.ticket_id
 }
