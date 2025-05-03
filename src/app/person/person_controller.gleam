@@ -1,6 +1,4 @@
-import app/person/person.{
-  type Person, type PersonReadModel, type PersonRepository, Person,
-}
+import app/person/person.{type Person, type PersonRepository, Person}
 import gleam/dynamic/decode
 import gleam/http
 import gleam/json
@@ -19,7 +17,9 @@ fn list_person(repository: PersonRepository) -> Response {
   let result = {
     use persons <- result.try(repository.all())
 
-    let callback = fn(person: PersonReadModel) -> json.Json {
+    let persons = {
+      use person <- json.array(persons)
+
       json.object([
         #("id", json.string(person.id)),
         #("name", json.string(person.name)),
@@ -28,7 +28,6 @@ fn list_person(repository: PersonRepository) -> Response {
     }
 
     persons
-    |> json.array(callback)
     |> json.to_string_tree()
     |> Ok()
   }
