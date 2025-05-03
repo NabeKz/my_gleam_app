@@ -32,6 +32,7 @@ fn read(
   id: String,
 ) -> Result(PersonReadModel, List(String)) {
   let result = items |> list.find(fn(item) { item.id == id })
+
   case result {
     Ok(item) -> Ok(item)
     Error(_) -> Error(["not found"])

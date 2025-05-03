@@ -3,13 +3,13 @@ import gleam/dynamic/decode
 import gleam/http
 import gleam/json
 import gleam/result
-import wisp.{type Request, type Response}
+import lib/http_core.{type Request, type Response}
 
 pub fn routes(req: Request, ctx: PersonRepository) -> Response {
   case req.method {
     http.Get -> list_person(ctx)
     http.Post -> create_person(ctx, req)
-    _ -> wisp.method_not_allowed([http.Get, http.Post])
+    _ -> http_core.method_not_allowed([http.Get, http.Post])
   }
 }
 
@@ -33,13 +33,13 @@ fn list_person(repository: PersonRepository) -> Response {
   }
 
   case result {
-    Ok(json) -> wisp.json_response(json, 200)
-    Error(_) -> wisp.internal_server_error()
+    Ok(json) -> http_core.json_response(json, 200)
+    Error(_) -> http_core.internal_server_error()
   }
 }
 
 fn create_person(repository: PersonRepository, req: Request) -> Response {
-  use json <- wisp.require_json(req)
+  use json <- http_core.require_json(req)
 
   let result = {
     use person <- result.try(decode.run(json, decode_person()))
@@ -55,8 +55,8 @@ fn create_person(repository: PersonRepository, req: Request) -> Response {
   }
 
   case result {
-    Ok(json) -> wisp.json_response(json, 201)
-    Error(_) -> wisp.unprocessable_entity()
+    Ok(json) -> http_core.json_response(json, 201)
+    Error(_) -> http_core.unprocessable_entity()
   }
 }
 
