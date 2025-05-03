@@ -4,8 +4,9 @@ import gleam/list
 import gleam/string
 import sqlight
 
-pub type Conn =
-  sqlight.Connection
+pub opaque type Conn {
+  Conn(value: sqlight.Connection)
+}
 
 pub type Error =
   sqlight.Error
@@ -16,9 +17,23 @@ pub type ErrorMessage {
   SqlError(message: String)
 }
 
-pub const exec = sqlight.exec
+pub fn exec(sql: String, conn: Conn) -> Result(Nil, Error) {
+  sqlight.exec(sql, conn.value)
+}
 
-pub const query = sqlight.query
+pub fn query(
+  sql: String,
+  conn: Conn,
+  values: List(sqlight.Value),
+  decoder: decode.Decoder(a),
+) -> Result(List(a), Error) {
+  sqlight.query(sql, conn.value, values, decoder)
+}
+
+pub fn open(name: String) -> Conn {
+  use conn <- sqlight.with_connection(name)
+  Conn(conn)
+}
 
 pub fn placeholder(value: a) -> sqlight.Value {
   let assert Ok(value) = dynamic.from(value) |> decode.run(decode.string)
