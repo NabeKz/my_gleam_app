@@ -3,7 +3,7 @@ import gleeunit
 import gleeunit/should
 
 import app/ticket/infra/ticket_repository_on_sqlite as repo
-import db/db
+import lib/db
 
 pub fn main() {
   gleeunit.main()

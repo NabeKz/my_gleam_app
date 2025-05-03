@@ -3,7 +3,7 @@ import gleam/int
 
 import app/ticket/domain
 import app/ticket/domain/ticket_status
-import db/db
+import lib/db
 
 const table_name = "tickets"
 

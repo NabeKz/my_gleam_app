@@ -13,6 +13,6 @@ description = "run the CLI"
 
 [tasks.migrate]
 run = """
-  rm database.sqlite3
+  rm -f database.sqlite3
   gleam run -m db/migrate
 """

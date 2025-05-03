@@ -31,8 +31,15 @@ pub fn query(
 }
 
 pub fn open(name: String) -> Conn {
-  use conn <- sqlight.with_connection(name)
+  let assert Ok(conn) = sqlight.open(name)
   Conn(conn)
+}
+
+pub fn with_connection(name: String, f: fn(Conn) -> a) {
+  let conn = open(name)
+  let value = f(conn)
+  let assert Ok(Nil) = sqlight.close(conn.value)
+  value
 }
 
 pub fn placeholder(value: a) -> sqlight.Value {

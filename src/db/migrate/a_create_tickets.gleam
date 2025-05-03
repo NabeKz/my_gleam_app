@@ -1,8 +1,7 @@
-import db/db
-
 import app/ticket/domain.{TicketWriteModel}
 import app/ticket/domain/ticket_status
 import app/ticket/infra/ticket_repository_on_sqlite as repo
+import lib/db
 
 pub fn up(conn: db.Conn) {
   let sql =
