@@ -7,6 +7,11 @@ import db/db
 
 const table_name = "tickets"
 
+pub fn select(conn: db.Conn) {
+  let sql = "select * from  " <> table_name <> " limit 100"
+  db.query(sql, conn, [], decoder())
+}
+
 pub fn create(conn: db.Conn, item: domain.TicketWriteModel) {
   let sql = "insert into " <> table_name
   let sql = sql <> "
