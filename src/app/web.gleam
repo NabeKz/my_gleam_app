@@ -27,7 +27,7 @@ fn default_responses(handle_request: fn() -> Response) -> Response {
     404 | 405 ->
       "<h1>There's nothing here</h1>"
       |> string_tree.from_string()
-      |> http_core.html_body(response, _)
+      |> http_core.html_response(response.status)
     _ -> response
   }
 }
