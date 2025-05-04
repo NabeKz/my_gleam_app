@@ -17,7 +17,12 @@ pub fn main() {
 fn mock_context() -> context.Context {
   let repository =
     ticket_repository_on_memory.new([
-      domain.new_ticket(id: "1", title: "a", created_at: "2025-05-01"),
+      domain.new_ticket(
+        id: "1",
+        title: "a",
+        description: "",
+        created_at: "2025-05-01",
+      ),
     ])
   context.Context(
     ..context.new(),
