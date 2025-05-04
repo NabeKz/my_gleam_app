@@ -1,5 +1,7 @@
 import gleam/option.{type Option}
+
 import lib/date_time
+import lib/validator
 
 import app/ticket/domain/ticket_status.{type TicketStatus, Open}
 
@@ -64,16 +66,27 @@ pub fn decode(s: TicketId) -> String {
 pub fn new_ticket(
   id id: String,
   title title: String,
+  description description: String,
   created_at created_at: String,
-) -> Ticket {
-  Ticket(
-    id: ticket_id(id),
-    title:,
-    description: "",
-    status: Open,
-    created_at:,
-    replies: [],
-  )
+) -> Result(Ticket, List(String)) {
+  let title =
+    validator.run(title)
+    |> validator.required()
+    |> validator.less_than(200)
+
+  case title.errors {
+    [] ->
+      Ticket(
+        id: ticket_id(id),
+        title: title.value,
+        description:,
+        status: Open,
+        created_at:,
+        replies: [],
+      )
+      |> Ok
+    _ -> Error(title.errors)
+  }
 }
 
 pub fn to(item: TicketWriteModel, id: TicketId) -> Ticket {

@@ -15,15 +15,14 @@ pub fn main() {
 }
 
 fn mock_context() -> context.Context {
-  let repository =
-    ticket_repository_on_memory.new([
-      domain.new_ticket(
-        id: "1",
-        title: "a",
-        description: "",
-        created_at: "2025-05-01",
-      ),
-    ])
+  let assert Ok(ticket) =
+    domain.new_ticket(
+      id: "1",
+      title: "a",
+      description: "",
+      created_at: "2025-05-01",
+    )
+  let repository = ticket_repository_on_memory.new([ticket])
   context.Context(
     ..context.new(),
     ticket: ticket_controller.Resolver(

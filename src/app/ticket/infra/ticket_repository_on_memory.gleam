@@ -1,6 +1,7 @@
 import app/ticket/domain.{new_ticket}
 import gleam/int
 import gleam/list
+import gleam/result
 
 pub type MockRepository {
   MockRepository(
@@ -36,7 +37,13 @@ fn mock_items() {
 
 pub fn new(items: List(domain.Ticket)) -> MockRepository {
   let items = case items {
-    [] -> mock_items()
+    [] -> {
+      mock_items()
+      |> list.map(fn(it) {
+        let assert Ok(it) = it
+        it
+      })
+    }
     _ -> items
   }
 
