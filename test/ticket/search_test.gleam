@@ -31,7 +31,7 @@ fn mock_context() -> context.Context {
 }
 
 pub fn get_ticket_success_test() {
-  let req = testing.get("/tickets/1", [])
+  let req = testing.get("/api/tickets/1", [])
   let response = router.handle_request(mock_context(), req)
   let result =
     json.object([
@@ -51,7 +51,7 @@ pub fn get_ticket_success_test() {
 }
 
 pub fn get_ticket_failure_test() {
-  let req = testing.get("/tickets/2", [])
+  let req = testing.get("/api/tickets/2", [])
   let response = router.handle_request(mock_context(), req)
 
   response.status

@@ -26,7 +26,7 @@ pub fn main() {
 }
 
 pub fn get_persons_test() {
-  let req = testing.get("/persons", [])
+  let req = testing.get("/api/persons", [])
   let response = router.handle_request(mock_context(), req)
 
   response.status
@@ -46,7 +46,7 @@ pub fn submit_successful_test() {
       #("favorite-color", json.string("#FFF")),
     ])
   let response =
-    testing.post_json("/persons", [], object)
+    testing.post_json("/api/persons", [], object)
     |> router.handle_request(mock_context(), _)
 
   response.status

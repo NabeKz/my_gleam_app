@@ -54,7 +54,7 @@ fn mock_context() -> context.Context {
 }
 
 pub fn get_ticket_success_test() {
-  let req = testing.get("/tickets?status=close", [])
+  let req = testing.get("/api/tickets?status=close", [])
   let response = router.handle_request(mock_context(), req)
   let result =
     [
@@ -76,7 +76,7 @@ pub fn get_ticket_success_test() {
 }
 
 pub fn get_ticket_not_exist_status_test() {
-  let req = testing.get("/tickets?status=progress", [])
+  let req = testing.get("/api/tickets?status=progress", [])
   let response = router.handle_request(mock_context(), req)
 
   let result = [] |> json.array(fn(it) { it })
@@ -90,7 +90,7 @@ pub fn get_ticket_not_exist_status_test() {
 }
 
 pub fn get_ticket_with_invalid_status_test() {
-  let req = testing.get("/tickets?status=hoge", [])
+  let req = testing.get("/api/tickets?status=hoge", [])
   let response = router.handle_request(mock_context(), req)
 
   let result =

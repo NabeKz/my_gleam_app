@@ -33,7 +33,7 @@ pub fn post_tickets_success_test() {
       #("description", json.string("fugafuga")),
     ])
 
-  let req = testing.post_json("/tickets", [], object)
+  let req = testing.post_json("/api/tickets", [], object)
   let response = router.handle_request(mock_context(), req)
 
   response.status
@@ -47,7 +47,7 @@ pub fn post_tickets_failure_test() {
       #("title2", json.string("hoge")),
     ])
 
-  let req = testing.post_json("/tickets", [], object)
+  let req = testing.post_json("/api/tickets", [], object)
   let response = router.handle_request(mock_context(), req)
 
   response.status
