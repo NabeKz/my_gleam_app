@@ -6,13 +6,9 @@ pub type Validator(t) {
   Validator(name: String, errors: List(String), function: fn() -> t)
 }
 
-pub type Rule(t) =
-  fn(Validator(t)) -> Validator(t)
-
 pub fn run(validator: Validator(t)) -> Result(t, List(String)) {
-  let result = validator.function()
   case validator.errors {
-    [] -> Ok(result)
+    [] -> Ok(validator.function())
     _ -> Error(validator.errors)
   }
 }

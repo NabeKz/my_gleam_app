@@ -70,6 +70,36 @@ pub fn new_ticket(
   created_at created_at: String,
 ) -> Result(Ticket, List(String)) {
   let decode = {
+    // not use ver.
+    // validator.field(
+    //   validator.wrap("id", id)
+    //     |> validator.required()
+    //     |> validator.less_than(200),
+    //   fn(id) {
+    //     validator.field(
+    //       validator.wrap("title", title)
+    //         |> validator.required()
+    //         |> validator.less_than(200),
+    //       fn(title) {
+    //         validator.field(
+    //           validator.wrap("created_at", created_at)
+    //             |> validator.required(),
+    //           fn(created_at) {
+    //             Ticket(
+    //               id: ticket_id(id),
+    //               title: title,
+    //               description:,
+    //               status: Open,
+    //               created_at:,
+    //               replies: [],
+    //             )
+    //             |> validator.success()
+    //           },
+    //         )
+    //       },
+    //     )
+    //   },
+    // )
     use id <- validator.field(
       validator.wrap("id", id)
       |> validator.required()
