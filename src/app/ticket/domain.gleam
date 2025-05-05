@@ -69,24 +69,30 @@ pub fn new_ticket(
   description description: String,
   created_at created_at: String,
 ) -> Result(Ticket, List(String)) {
-  let title =
-    validator.run(title)
-    |> validator.required()
-    |> validator.less_than(200)
+  let decode = {
+    use id <- validator.field(
+      validator.wrap("id", id)
+      |> validator.required()
+      |> validator.less_than(200),
+    )
+    use title <- validator.field(
+      validator.wrap("title", title)
+      |> validator.required()
+      |> validator.less_than(200),
+    )
 
-  case title.errors {
-    [] ->
-      Ticket(
-        id: ticket_id(id),
-        title: title.value,
-        description:,
-        status: Open,
-        created_at:,
-        replies: [],
-      )
-      |> Ok
-    _ -> Error(title.errors)
+    Ticket(
+      id: ticket_id(id),
+      title: title,
+      description:,
+      status: Open,
+      created_at:,
+      replies: [],
+    )
+    |> validator.success()
   }
+
+  validator.run(decode)
 }
 
 pub fn to(item: TicketWriteModel, id: TicketId) -> Ticket {

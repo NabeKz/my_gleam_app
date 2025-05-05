@@ -1,7 +1,6 @@
 import app/ticket/domain.{new_ticket}
 import gleam/int
 import gleam/list
-import gleam/result
 
 pub type MockRepository {
   MockRepository(
