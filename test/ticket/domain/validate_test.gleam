@@ -45,6 +45,19 @@ pub fn validation_title_is_empty_test() {
   |> should.equal(Error(["title required"]))
 }
 
+pub fn validation_created_at_is_empty_test() {
+  let ticket =
+    domain.new_ticket(
+      id: "1",
+      title: "a",
+      description: "fugafuga",
+      created_at: "",
+    )
+
+  ticket
+  |> should.equal(Error(["created_at required"]))
+}
+
 pub fn validation_failure_multi_field_test() {
   let ticket =
     domain.new_ticket(

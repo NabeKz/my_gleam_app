@@ -80,6 +80,10 @@ pub fn new_ticket(
       |> validator.required()
       |> validator.less_than(200),
     )
+    use created_at <- validator.field(
+      validator.wrap("created_at", created_at)
+      |> validator.required(),
+    )
 
     Ticket(
       id: ticket_id(id),
