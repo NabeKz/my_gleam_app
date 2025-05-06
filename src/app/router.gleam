@@ -12,8 +12,10 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
-    ["tickets"], Get -> req |> ticket_page
-    ["tickets"], http.Post -> req |> ticket_page
+    ["tickets"], Get -> req |> ticket_page.get(ctx.ticket.listed) |> to_page()
+    ["tickets"], http.Post -> {
+      todo
+    }
     ["api", ..path], method ->
       case path, method {
         ["persons"], _ -> person_controller.routes(req, ctx.person)
@@ -32,11 +34,6 @@ fn home_page(_req: Request) -> Response {
     <a href=/tickets> tickets </a>
   </ul>
   "
-  |> to_page()
-}
-
-fn ticket_page(req: Request) -> Response {
-  ticket_page.handle_request(req)
   |> to_page()
 }
 

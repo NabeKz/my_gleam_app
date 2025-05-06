@@ -23,12 +23,12 @@ type Params =
   List(#(String, String))
 
 pub type Workflow =
-  fn(Params) -> Result(json.Json, ErrorMessage)
+  fn(Params) -> Result(List(Dto), ErrorMessage)
 
 pub fn invoke(
   params: Params,
   command: domain.TicketListed,
-) -> Result(json.Json, ErrorMessage) {
+) -> Result(List(Dto), ErrorMessage) {
   let result = {
     use validate_params <- result.try(params |> parse() |> validate())
     validate_params |> Ok()
@@ -40,7 +40,6 @@ pub fn invoke(
       |> command()
       |> apply(form)
       |> decode()
-      |> deserialize()
       |> Ok()
     Error(err) -> err |> Error()
   }
@@ -97,7 +96,7 @@ fn decode(items: List(domain.Ticket)) -> List(Dto) {
   })
 }
 
-fn deserialize(items: List(Dto)) -> json.Json {
+pub fn deserialize(items: List(Dto)) -> json.Json {
   json.array(items, fn(item) {
     json.object([
       #("id", json.string(item.id)),

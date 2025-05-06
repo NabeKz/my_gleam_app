@@ -35,6 +35,7 @@ fn list(req: Request, usecase: ticket_listed.Workflow) -> http_core.Response {
   case usecase(params) {
     Ok(tickets) ->
       tickets
+      |> ticket_listed.deserialize()
       |> json.to_string_tree()
       |> http_core.json_response(200)
     Error(error) -> {
