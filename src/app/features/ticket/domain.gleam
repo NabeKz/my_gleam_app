@@ -3,7 +3,7 @@ import gleam/option.{type Option}
 import lib/date_time
 import lib/validator
 
-import app/ticket/domain/ticket_status.{type TicketStatus, Open}
+import app/features/ticket/domain/ticket_status.{type TicketStatus, Open}
 
 pub type Reply {
   Reply(author: String, content: String, created_at: String)

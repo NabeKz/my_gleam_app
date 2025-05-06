@@ -3,8 +3,8 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 
-import app/ticket/domain
-import app/ticket/domain/ticket_status
+import app/features/ticket/domain
+import app/features/ticket/domain/ticket_status
 import lib/date_time
 import lib/parser
 

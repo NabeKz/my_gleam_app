@@ -1,4 +1,4 @@
-import app/ticket/domain
+import app/features/ticket/domain
 import gleeunit
 import gleeunit/should
 

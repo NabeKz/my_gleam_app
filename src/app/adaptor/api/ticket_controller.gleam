@@ -2,10 +2,10 @@ import gleam/http
 import gleam/json
 import gleam/result
 
-import app/ticket/usecase/ticket_created
-import app/ticket/usecase/ticket_deleted
-import app/ticket/usecase/ticket_listed
-import app/ticket/usecase/ticket_searched
+import app/features/ticket/usecase/ticket_created
+import app/features/ticket/usecase/ticket_deleted
+import app/features/ticket/usecase/ticket_listed
+import app/features/ticket/usecase/ticket_searched
 import lib/deserializer
 import lib/http_core.{type Request, type Response}
 

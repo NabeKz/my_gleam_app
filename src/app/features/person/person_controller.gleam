@@ -1,8 +1,9 @@
-import app/person/person.{type Person, type PersonRepository, Person}
 import gleam/dynamic/decode
 import gleam/http
 import gleam/json
 import gleam/result
+
+import app/features/person/person.{type Person, type PersonRepository, Person}
 import lib/http_core.{type Request, type Response}
 
 pub fn routes(req: Request, ctx: PersonRepository) -> Response {

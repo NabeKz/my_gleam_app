@@ -1,14 +1,14 @@
-import app/ticket/domain
+import app/features/ticket/domain
 import gleam/json
 import gleeunit
 import gleeunit/should
 import wisp/testing
 
+import app/adaptor/api/ticket_controller
 import app/context
+import app/features/ticket/infra/ticket_repository_on_memory
+import app/features/ticket/usecase/ticket_searched
 import app/router
-import app/ticket/infra/ticket_repository_on_memory
-import app/ticket/ticket_controller
-import app/ticket/usecase/ticket_searched
 
 pub fn main() {
   gleeunit.main()

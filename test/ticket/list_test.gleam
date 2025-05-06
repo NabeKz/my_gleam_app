@@ -3,12 +3,12 @@ import gleeunit
 import gleeunit/should
 import wisp/testing
 
+import app/adaptor/api/ticket_controller
 import app/context
+import app/features/ticket/domain
+import app/features/ticket/domain/ticket_status
+import app/features/ticket/usecase/ticket_listed
 import app/router
-import app/ticket/domain
-import app/ticket/domain/ticket_status
-import app/ticket/ticket_controller
-import app/ticket/usecase/ticket_listed
 
 pub fn main() {
   gleeunit.main()

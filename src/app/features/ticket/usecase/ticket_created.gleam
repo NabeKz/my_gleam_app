@@ -3,8 +3,8 @@ import gleam/dynamic/decode
 import gleam/result
 import lib/date_time
 
-import app/ticket/domain
-import app/ticket/domain/ticket_status
+import app/features/ticket/domain
+import app/features/ticket/domain/ticket_status
 
 pub type Dto {
   Dto(title: String, description: String)

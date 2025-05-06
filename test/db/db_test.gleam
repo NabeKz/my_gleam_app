@@ -1,8 +1,8 @@
-import app/ticket/domain
+import app/features/ticket/domain
 import gleeunit
 import gleeunit/should
 
-import app/ticket/infra/ticket_repository_on_sqlite as repo
+import app/features/ticket/infra/ticket_repository_on_sqlite as repo
 import lib/db
 
 pub fn main() {

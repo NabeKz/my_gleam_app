@@ -1,11 +1,11 @@
-import app/person/person.{type PersonRepository}
-import app/person/person_repository_on_memory as person_repository
-import app/ticket/infra/ticket_repository_on_memory
-import app/ticket/ticket_controller
-import app/ticket/usecase/ticket_created
-import app/ticket/usecase/ticket_deleted
-import app/ticket/usecase/ticket_listed
-import app/ticket/usecase/ticket_searched
+import app/adaptor/api/ticket_controller
+import app/features/person/person.{type PersonRepository}
+import app/features/person/person_repository_on_memory as person_repository
+import app/features/ticket/infra/ticket_repository_on_memory
+import app/features/ticket/usecase/ticket_created
+import app/features/ticket/usecase/ticket_deleted
+import app/features/ticket/usecase/ticket_listed
+import app/features/ticket/usecase/ticket_searched
 
 pub type Context {
   Context(person: PersonRepository, ticket: ticket_controller.Resolver)

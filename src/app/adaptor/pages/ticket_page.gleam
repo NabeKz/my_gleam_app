@@ -1,7 +1,7 @@
 import gleam/list
 import gleam/string
 
-import app/ticket/usecase/ticket_listed
+import app/features/ticket/usecase/ticket_listed
 import lib/http_core
 
 const header = "<h1> tickets </h1>"

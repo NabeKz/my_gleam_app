@@ -1,8 +1,8 @@
 import gleam/dynamic/decode
 import gleam/int
 
-import app/ticket/domain
-import app/ticket/domain/ticket_status
+import app/features/ticket/domain
+import app/features/ticket/domain/ticket_status
 import lib/db
 
 const table_name = "tickets"

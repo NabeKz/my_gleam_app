@@ -1,6 +1,9 @@
-import app/person/person.{type Person, type PersonReadModel, PersonReadModel}
 import gleam/int
 import gleam/list
+
+import app/features/person/person.{
+  type Person, type PersonReadModel, PersonReadModel,
+}
 
 pub fn new() -> person.PersonRepository {
   let items = [
@@ -31,7 +34,7 @@ fn read(
   items: List(PersonReadModel),
   id: String,
 ) -> Result(PersonReadModel, List(String)) {
-  let result = items |> list.find(fn(item) { item.id == id })
+  let result = list.find(items, fn(item) { item.id == id })
 
   case result {
     Ok(item) -> Ok(item)

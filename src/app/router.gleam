@@ -1,10 +1,11 @@
-import app/context
-import app/pages/ticket_page
-import app/person/person_controller
-import app/ticket/ticket_controller
-import app/web
-import gleam/http.{Get}
+import gleam/http.{Get, Post}
 import gleam/string_tree
+
+import app/adaptor/api/ticket_controller
+import app/adaptor/pages/ticket_page
+import app/context
+import app/features/person/person_controller
+import app/web
 import lib/http_core.{type Request, type Response}
 
 pub fn handle_request(ctx: context.Context, req: Request) -> Response {
@@ -13,7 +14,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
     ["tickets"], Get -> req |> ticket_page.get(ctx.ticket.listed) |> to_page()
-    ["tickets"], http.Post -> {
+    ["tickets"], Post -> {
       todo
     }
     ["api", ..path], method ->

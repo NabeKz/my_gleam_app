@@ -4,7 +4,7 @@ import gleeunit/should
 import wisp/testing
 
 import app/context
-import app/person/person.{PersonReadModel, PersonRepository}
+import app/features/person/person.{PersonReadModel, PersonRepository}
 import app/router
 
 fn mock_context() -> context.Context {
