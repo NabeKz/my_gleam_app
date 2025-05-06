@@ -7,25 +7,13 @@ import lib/http_core
 const header = "<h1> tickets </h1>"
 
 const form = "
-  <form action=/tickets method=POST >
+  <form action=/tickets method=GET >
     <div>
-      <div>
-        <label>
-          title
-        </label>
-      </div>
-      <input />
+      <label>
+        title
+      </label>
+      <input name=title />
     </div>
-    
-    <div>
-      <div>
-        <label>
-          description
-        </label>
-      <div>
-      <textarea></textarea>
-    </div>
-
     <button type=submit> submit </button>
   </form>
 "
@@ -37,19 +25,13 @@ pub fn get(req: http_core.Request, listed: ticket_listed.Workflow) -> String {
     Ok(tickets) -> success(tickets)
     Error(errors) -> failure(errors)
   }
-
-  "
-    <h1>
-      tickets
-    </h1>
-    " <> body
+  header <> form <> body
 }
 
 fn success(items: List(ticket_listed.Dto)) -> String {
   let items = list.map(items, fn(it) { [it.title, it.created_at] })
-  "
-  <table>
-  " <> t_head(["title", "created_at"]) <> t_data(items) <> "</table>"
+
+  table(t_head(["title", "created_at"]), t_data(items))
 }
 
 fn failure(errors: List(#(String, String))) -> String {
@@ -60,23 +42,28 @@ fn failure(errors: List(#(String, String))) -> String {
   "<ul>" <> items <> "</ul>"
 }
 
-fn table(t_header: String, items: List(List(String))) -> String {
-  "<table>" <> t_header <> "</table>"
+fn table(t_head: List(String), t_data: List(String)) -> String {
+  ""
+  |> string.append("<table>")
+  |> string.append(t_head |> to_string())
+  |> string.append(t_data |> to_string())
+  |> string.append("</table>")
 }
 
-fn t_head(items: List(String)) -> String {
-  list.map(items, fn(it) { "<th>" <> it <> "</th>" })
-  |> string.join("")
+fn t_head(items: List(String)) -> List(String) {
+  items
+  |> list.map(fn(it) { "<th>" <> it <> "</th>" })
 }
 
-fn t_data(items: List(List(String))) -> String {
-  list.map(items, fn(item) {
-    let td = list.map(item, fn(it) { td(it) }) |> string.join("")
-    "<tr>" <> td <> "</tr>"
+fn t_data(items: List(List(String))) -> List(String) {
+  let f = fn(it) { "<td>" <> it <> "</td>" }
+  items
+  |> list.flat_map(fn(item) {
+    let td = list.map(item, f) |> to_string()
+    ["<tr>", td, "</tr>"]
   })
-  |> string.join("")
 }
 
-fn td(value: String) -> String {
-  "<td>" <> value <> "</td>"
+fn to_string(data: List(String)) -> String {
+  data |> string.join("")
 }
