@@ -1,3 +1,4 @@
+import app/adaptor/pages/ticket_detail_page
 import gleam/http.{Get, Post}
 import gleam/string_tree
 
@@ -14,6 +15,9 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
     ["tickets"], Get -> req |> ticket_page.get(ctx.ticket.listed) |> to_page()
+    ["tickets", id], Get -> {
+      ticket_detail_page.get(id, ctx.ticket.searched) |> to_page()
+    }
     ["tickets"], Post -> {
       todo
     }
