@@ -9,7 +9,7 @@ pub fn get(id: String, usecase: ticket_searched.Workflow) -> String {
   let body = case usecase(id) {
     Ok(tickets) -> success(tickets)
     Error([error, _]) -> failure(error)
-    _ -> "unknown error"
+    _ -> failure(ticket_searched.NotFound)
   }
   header <> body
 }
