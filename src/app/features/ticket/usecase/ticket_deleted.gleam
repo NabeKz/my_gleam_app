@@ -1,5 +1,3 @@
-import gleam/json
-
 import app/features/ticket/domain
 
 pub type Dto {
@@ -11,14 +9,14 @@ pub type ErrorMessage {
   NotFound
 }
 
-pub type Output =
-  fn(String) -> Result(json.Json, List(ErrorMessage))
+pub type Workflow =
+  fn(String) -> Result(Nil, List(ErrorMessage))
 
 //
 pub fn invoke(
   id: String,
   event: domain.TicketDeleted,
-) -> Result(json.Json, List(ErrorMessage)) {
+) -> Result(Nil, List(ErrorMessage)) {
   let result = {
     let ticket_id = id |> domain.ticket_id
 
@@ -29,7 +27,7 @@ pub fn invoke(
   }
 
   case result {
-    Ok(_) -> Ok(json.null())
+    Ok(_) -> Ok(Nil)
     Error(err) -> Error([err])
   }
 }

@@ -12,9 +12,9 @@ import lib/http_core.{type Request, type Response}
 pub type Resolver {
   Resolver(
     listed: ticket_listed.Workflow,
-    created: ticket_created.Output,
-    searched: ticket_searched.Output,
-    deleted: ticket_deleted.Output,
+    created: ticket_created.Workflow,
+    searched: ticket_searched.Workflow,
+    deleted: ticket_deleted.Workflow,
   )
 }
 
@@ -49,7 +49,7 @@ fn list(req: Request, usecase: ticket_listed.Workflow) -> http_core.Response {
 
 ///
 ///
-fn post(req: Request, usecase: ticket_created.Output) -> Response {
+fn post(req: Request, usecase: ticket_created.Workflow) -> Response {
   use json <- http_core.require_json(req)
 
   let result = {
@@ -68,12 +68,13 @@ fn post(req: Request, usecase: ticket_created.Output) -> Response {
 
 ///
 ///
-fn get_one(id: String, usecase: ticket_searched.Output) -> http_core.Response {
+fn get_one(id: String, usecase: ticket_searched.Workflow) -> http_core.Response {
   let result = {
     use dto <- result.try(usecase(id))
 
     dto
-    |> json.to_string_tree
+    |> ticket_searched.deserialize()
+    |> json.to_string_tree()
     |> Ok()
   }
 
@@ -85,12 +86,12 @@ fn get_one(id: String, usecase: ticket_searched.Output) -> http_core.Response {
 
 ///
 ///
-fn delete(id: String, usecase: ticket_deleted.Output) -> http_core.Response {
+fn delete(id: String, usecase: ticket_deleted.Workflow) -> http_core.Response {
   let result = {
-    use dto <- result.try(usecase(id))
+    use _ <- result.try(usecase(id))
 
-    dto
-    |> json.to_string_tree
+    json.null()
+    |> json.to_string_tree()
     |> Ok()
   }
 

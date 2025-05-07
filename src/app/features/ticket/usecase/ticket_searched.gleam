@@ -4,7 +4,13 @@ import app/features/ticket/domain
 import app/features/ticket/domain/ticket_status
 
 pub type Dto {
-  Dto(id: String, title: String, status: String)
+  Dto(
+    id: String,
+    title: String,
+    description: String,
+    status: String,
+    created_at: String,
+  )
 }
 
 pub type ErrorMessage {
@@ -12,13 +18,13 @@ pub type ErrorMessage {
   NotFound
 }
 
-pub type Output =
-  fn(String) -> Result(json.Json, List(ErrorMessage))
+pub type Workflow =
+  fn(String) -> Result(Dto, List(ErrorMessage))
 
 pub fn invoke(
   id: String,
   event: domain.TicketSearched,
-) -> Result(json.Json, List(ErrorMessage)) {
+) -> Result(Dto, List(ErrorMessage)) {
   let result = {
     let ticket_id = id |> domain.ticket_id
 
@@ -29,17 +35,27 @@ pub fn invoke(
   }
 
   case result {
-    Ok(ticket) -> Ok(ticket |> deserialize)
+    Ok(ticket) -> Ok(ticket |> decode)
     Error(err) -> Error([err])
   }
 }
 
-fn deserialize(item: domain.Ticket) -> json.Json {
+fn decode(item: domain.Ticket) -> Dto {
+  Dto(
+    id: item.id |> domain.decode,
+    title: item.title,
+    description: item.description,
+    status: item.status |> ticket_status.to_string,
+    created_at: item.created_at,
+  )
+}
+
+pub fn deserialize(item: Dto) -> json.Json {
   json.object([
-    #("id", json.string(item.id |> domain.decode)),
+    #("id", json.string(item.id)),
     #("title", json.string(item.title)),
     #("description", json.string(item.description)),
-    #("status", json.string(item.status |> ticket_status.to_string)),
+    #("status", json.string(item.status)),
     #("created_at", json.string(item.created_at)),
   ])
 }

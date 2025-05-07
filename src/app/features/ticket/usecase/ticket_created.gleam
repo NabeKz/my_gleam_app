@@ -10,7 +10,7 @@ pub type Dto {
   Dto(title: String, description: String)
 }
 
-pub type Output =
+pub type Workflow =
   fn(dynamic.Dynamic) -> Result(domain.TicketId, List(decode.DecodeError))
 
 pub fn invoke(
