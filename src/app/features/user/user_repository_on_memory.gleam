@@ -1,34 +1,27 @@
 import gleam/int
 import gleam/list
-import gleam/option
 
-import app/features/user/user.{
-  type Person, type PersonReadModel, PersonReadModel,
-}
+import app/features/user/user.{type User, type UserReadModel, UserReadModel}
 
-pub fn new() -> user.PersonRepository {
+pub fn new() -> user.UserRepository {
   let items = [
-    PersonReadModel(id: "1", name: "hoge", favorite_color: option.Some("#FFF")),
-    PersonReadModel(id: "2", name: "fuga", favorite_color: option.Some("#999")),
-    PersonReadModel(id: "3", name: "piyo", favorite_color: option.Some("#000")),
+    UserReadModel(id: "1", name: "hoge", favorite_color: "#FFF"),
+    UserReadModel(id: "2", name: "fuga", favorite_color: "#999"),
+    UserReadModel(id: "3", name: "piyo", favorite_color: "#000"),
   ]
 
-  user.PersonRepository(
+  user.UserRepository(
     all: fn() { Ok(items) },
-    save: fn(item: Person) { save(items, item) },
+    save: fn(item: User) { save(items, item) },
     read: fn(id: String) { read(items, id) },
     delete: fn(id: String) { delete(items, id) },
   )
 }
 
-fn save(items: List(PersonReadModel), item: Person) -> Result(String, _) {
+fn save(items: List(UserReadModel), item: User) -> Result(String, _) {
   let id = list.length(of: items) |> int.to_string()
-  let favorite_color = case item {
-    user.Guest(_) -> option.None
-    user.Member(_, favorite_color) -> option.Some(favorite_color)
-    user.Admin(_, favorite_color) -> option.Some(favorite_color)
-  }
-  PersonReadModel(id: id, name: item.name, favorite_color:)
+
+  user.user_read_model_from_user(id, item)
   |> list.wrap()
   |> list.append(items, _)
 
@@ -36,9 +29,9 @@ fn save(items: List(PersonReadModel), item: Person) -> Result(String, _) {
 }
 
 fn read(
-  items: List(PersonReadModel),
+  items: List(UserReadModel),
   id: String,
-) -> Result(PersonReadModel, List(String)) {
+) -> Result(UserReadModel, List(String)) {
   let result = list.find(items, fn(item) { item.id == id })
 
   case result {
@@ -48,9 +41,9 @@ fn read(
 }
 
 fn delete(
-  items: List(PersonReadModel),
+  items: List(UserReadModel),
   id: String,
-) -> Result(List(PersonReadModel), List(String)) {
+) -> Result(List(UserReadModel), List(String)) {
   let result = items |> list.find(fn(item) { item.id == id })
   case result {
     Ok(_) -> Ok(list.filter(items, fn(item) { item.id == id }))

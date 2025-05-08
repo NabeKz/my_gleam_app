@@ -5,21 +5,15 @@ import gleeunit/should
 import wisp/testing
 
 import app/context
-import app/features/user/user.{PersonReadModel, PersonRepository}
+import app/features/user/user.{UserReadModel, UserRepository}
 import app/router
 
 fn mock_context() -> context.Context {
   context.Context(
     ..context.new(),
-    user: PersonRepository(
+    user: UserRepository(
       all: fn() {
-        Ok([
-          PersonReadModel(
-            id: "hoge",
-            name: "a",
-            favorite_color: option.Some("FFF"),
-          ),
-        ])
+        Ok([UserReadModel(id: "hoge", name: "a", favorite_color: "FFF")])
       },
       save: fn(_) { Ok("1") },
       read: fn(_) { Error([]) },

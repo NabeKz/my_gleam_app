@@ -8,7 +8,7 @@ import app/features/user/user
 import app/features/user/user_repository_on_memory as user_repository
 
 pub type Context {
-  Context(user: user.PersonRepository, ticket: ticket_controller.Resolver)
+  Context(user: user.UserRepository, ticket: ticket_controller.Resolver)
 }
 
 pub fn new() -> Context {

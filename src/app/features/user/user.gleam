@@ -1,31 +1,35 @@
-import gleam/option
-
-pub type Person {
+pub type Guest {
   Guest(name: String)
+}
+
+pub type User {
   Member(name: String, favorite_color: String)
   Admin(name: String, favorite_color: String)
 }
 
-pub type PersonReadModel {
-  PersonReadModel(
-    id: String,
-    name: String,
-    favorite_color: option.Option(String),
-  )
+pub type UserReadModel {
+  UserReadModel(id: UserId, name: String, favorite_color: String)
 }
 
+pub type UserId =
+  String
+
 pub type All =
-  fn() -> Result(List(PersonReadModel), List(String))
+  fn() -> Result(List(UserReadModel), List(String))
 
 pub type Save =
-  fn(Person) -> Result(String, List(String))
+  fn(User) -> Result(String, List(String))
 
 pub type Read =
-  fn(String) -> Result(PersonReadModel, List(String))
+  fn(String) -> Result(UserReadModel, List(String))
 
 pub type Delete =
-  fn(String) -> Result(List(PersonReadModel), List(String))
+  fn(String) -> Result(List(UserReadModel), List(String))
 
-pub type PersonRepository {
-  PersonRepository(all: All, save: Save, read: Read, delete: Delete)
+pub type UserRepository {
+  UserRepository(all: All, save: Save, read: Read, delete: Delete)
+}
+
+pub fn user_read_model_from_user(id: String, user: User) {
+  UserReadModel(id: id, name: user.name, favorite_color: user.favorite_color)
 }
