@@ -1,4 +1,5 @@
 import gleam/json
+import gleam/option
 import gleeunit
 import gleeunit/should
 import wisp/testing
@@ -12,7 +13,13 @@ fn mock_context() -> context.Context {
     ..context.new(),
     person: PersonRepository(
       all: fn() {
-        Ok([PersonReadModel(id: "hoge", name: "a", favorite_color: "FFF")])
+        Ok([
+          PersonReadModel(
+            id: "hoge",
+            name: "a",
+            favorite_color: option.Some("FFF"),
+          ),
+        ])
       },
       save: fn(_) { Ok("1") },
       read: fn(_) { Error([]) },

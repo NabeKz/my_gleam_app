@@ -1,5 +1,6 @@
 import gleam/int
 import gleam/list
+import gleam/option
 
 import app/features/person/person.{
   type Person, type PersonReadModel, PersonReadModel,
@@ -7,9 +8,9 @@ import app/features/person/person.{
 
 pub fn new() -> person.PersonRepository {
   let items = [
-    PersonReadModel(id: "1", name: "hoge", favorite_color: "#FFF"),
-    PersonReadModel(id: "2", name: "fuga", favorite_color: "#999"),
-    PersonReadModel(id: "3", name: "piyo", favorite_color: "#000"),
+    PersonReadModel(id: "1", name: "hoge", favorite_color: option.Some("#FFF")),
+    PersonReadModel(id: "2", name: "fuga", favorite_color: option.Some("#999")),
+    PersonReadModel(id: "3", name: "piyo", favorite_color: option.Some("#000")),
   ]
 
   person.PersonRepository(
@@ -22,8 +23,12 @@ pub fn new() -> person.PersonRepository {
 
 fn save(items: List(PersonReadModel), item: Person) -> Result(String, _) {
   let id = list.length(of: items) |> int.to_string()
-
-  PersonReadModel(id: id, name: item.name, favorite_color: item.favorite_color)
+  let favorite_color = case item {
+    person.Guest(_) -> option.None
+    person.Member(_, favorite_color) -> option.Some(favorite_color)
+    person.Admin(_, favorite_color) -> option.Some(favorite_color)
+  }
+  PersonReadModel(id: id, name: item.name, favorite_color:)
   |> list.wrap()
   |> list.append(items, _)
 

@@ -1,9 +1,17 @@
+import gleam/option
+
 pub type Person {
-  Person(name: String, favorite_color: String)
+  Guest(name: String)
+  Member(name: String, favorite_color: String)
+  Admin(name: String, favorite_color: String)
 }
 
 pub type PersonReadModel {
-  PersonReadModel(id: String, name: String, favorite_color: String)
+  PersonReadModel(
+    id: String,
+    name: String,
+    favorite_color: option.Option(String),
+  )
 }
 
 pub type All =

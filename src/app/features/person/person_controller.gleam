@@ -1,9 +1,10 @@
 import gleam/dynamic/decode
 import gleam/http
 import gleam/json
+import gleam/option
 import gleam/result
 
-import app/features/person/person.{type Person, type PersonRepository, Person}
+import app/features/person/person.{type Person, type PersonRepository}
 import lib/http_core.{type Request, type Response}
 
 pub fn routes(req: Request, ctx: PersonRepository) -> Response {
@@ -21,10 +22,15 @@ fn list_person(repository: PersonRepository) -> Response {
     let persons = {
       use person <- json.array(persons)
 
+      let favorite_color = case person.favorite_color {
+        option.Some(value) -> value
+        option.None -> ""
+      }
+
       json.object([
         #("id", json.string(person.id)),
         #("name", json.string(person.name)),
-        #("favorite_color", json.string(person.favorite_color)),
+        #("favorite_color", json.string(favorite_color)),
       ])
     }
 
@@ -61,8 +67,9 @@ fn create_person(repository: PersonRepository, req: Request) -> Response {
   }
 }
 
-fn decode_person() -> decode.Decoder(Person) {
+fn decode_person() -> decode.Decoder(person.Person) {
   use name <- decode.field("name", decode.string)
   use favorite_color <- decode.field("favorite-color", decode.string)
-  decode.success(Person(name:, favorite_color:))
+
+  decode.success(person.Member(name:, favorite_color:))
 }
