@@ -4,7 +4,7 @@ import gleam/json
 import gleam/option
 import gleam/result
 
-import app/features/person/person.{type Person, type PersonRepository}
+import app/features/user/user.{type PersonRepository}
 import lib/http_core.{type Request, type Response}
 
 pub fn routes(req: Request, ctx: PersonRepository) -> Response {
@@ -17,24 +17,24 @@ pub fn routes(req: Request, ctx: PersonRepository) -> Response {
 
 fn list_person(repository: PersonRepository) -> Response {
   let result = {
-    use persons <- result.try(repository.all())
+    use users <- result.try(repository.all())
 
-    let persons = {
-      use person <- json.array(persons)
+    let users = {
+      use user <- json.array(users)
 
-      let favorite_color = case person.favorite_color {
+      let favorite_color = case user.favorite_color {
         option.Some(value) -> value
         option.None -> ""
       }
 
       json.object([
-        #("id", json.string(person.id)),
-        #("name", json.string(person.name)),
+        #("id", json.string(user.id)),
+        #("name", json.string(user.name)),
         #("favorite_color", json.string(favorite_color)),
       ])
     }
 
-    persons
+    users
     |> json.to_string_tree()
     |> Ok()
   }
@@ -67,9 +67,9 @@ fn create_person(repository: PersonRepository, req: Request) -> Response {
   }
 }
 
-fn decode_person() -> decode.Decoder(person.Person) {
+fn decode_person() -> decode.Decoder(user.Person) {
   use name <- decode.field("name", decode.string)
   use favorite_color <- decode.field("favorite-color", decode.string)
 
-  decode.success(person.Member(name:, favorite_color:))
+  decode.success(user.Member(name:, favorite_color:))
 }

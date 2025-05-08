@@ -1,6 +1,6 @@
 curl -X GET http://127.0.0.1:8000
 ###
-curl -X GET http://127.0.0.1:8000/persons/
+curl -X GET http://127.0.0.1:8000/users/
 ###
 curl -X GET http://127.0.0.1:8000/tickets/
 ###

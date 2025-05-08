@@ -1,15 +1,14 @@
 import app/adaptor/api/ticket_controller
 import app/context
-import app/features/person/person_controller
+import app/features/user/user_controller
 import lib/http_core.{type Request, type Response}
 
 pub fn handle_request(ctx: context.Context, req: Request) -> Response {
   use req <- middleware(req)
   use path <- parse_path(req)
 
-  echo path
   case path, req.method {
-    ["persons"], _ -> person_controller.routes(req, ctx.person)
+    ["users"], _ -> user_controller.routes(req, ctx.user)
     ["tickets", ..path], _ -> ticket_controller.routes(path, req, ctx.ticket)
     _, _ -> http_core.not_found()
   }

@@ -5,13 +5,13 @@ import gleeunit/should
 import wisp/testing
 
 import app/context
-import app/features/person/person.{PersonReadModel, PersonRepository}
+import app/features/user/user.{PersonReadModel, PersonRepository}
 import app/router
 
 fn mock_context() -> context.Context {
   context.Context(
     ..context.new(),
-    person: PersonRepository(
+    user: PersonRepository(
       all: fn() {
         Ok([
           PersonReadModel(
@@ -32,8 +32,8 @@ pub fn main() {
   gleeunit.main()
 }
 
-pub fn get_persons_test() {
-  let req = testing.get("/api/persons", [])
+pub fn get_users_test() {
+  let req = testing.get("/api/users", [])
   let response = router.handle_request(mock_context(), req)
 
   response.status
@@ -53,7 +53,7 @@ pub fn submit_successful_test() {
       #("favorite-color", json.string("#FFF")),
     ])
   let response =
-    testing.post_json("/api/persons", [], object)
+    testing.post_json("/api/users", [], object)
     |> router.handle_request(mock_context(), _)
 
   response.status
