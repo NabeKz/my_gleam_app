@@ -5,6 +5,7 @@ import wisp
 
 import app/adaptor/pages/ticket/detail_page
 import app/adaptor/pages/ticket/list_page
+import app/adaptor/pages/user/list_page as user_list_page
 import app/context
 import lib/http_core.{type Request, type Response}
 
@@ -13,6 +14,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
+    ["users"], Get -> user_list_page.get(req) |> to_page()
     ["tickets"], Get -> req |> list_page.get(ctx.ticket.listed) |> to_page()
     ["tickets", id], Get -> {
       detail_page.get(id, ctx.ticket.searched) |> to_page()

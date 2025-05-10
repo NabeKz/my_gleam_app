@@ -1,6 +1,6 @@
 import app/adaptor/api/ticket_controller
+import app/adaptor/api/user_controller
 import app/context
-import app/features/user/user_controller
 import lib/http_core.{type Request, type Response}
 
 pub fn handle_request(ctx: context.Context, req: Request) -> Response {
