@@ -14,13 +14,11 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
-    ["users"], Get -> user_list_page.get(req) |> to_page()
-    ["tickets"], Get -> req |> list_page.get(ctx.ticket.listed) |> to_page()
-    ["tickets", id], Get -> {
-      detail_page.get(id, ctx.ticket.searched) |> to_page()
-    }
+    ["users"], Get -> user_list_page.get(req)
+    ["tickets"], Get -> req |> list_page.get(ctx.ticket.listed)
+    ["tickets", id], Get -> detail_page.get(id, ctx.ticket.searched)
     ["tickets"], Post -> todo
-    _, _ -> http_core.not_found()
+    _, _ -> ""
   }
 }
 
@@ -28,13 +26,14 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
 /// 
 pub fn middleware(
   req: Request,
-  handle_request: fn(Request) -> Response,
+  handle_request: fn(Request) -> String,
 ) -> Response {
   let req = http_core.method_override(req)
   // use <- wisp.log_request(req)
   // use <- wisp.rescue_crashes()
   use req <- http_core.handle_head(req)
   use <- default_responses()
+  use req <- to_page(req)
 
   handle_request(req)
 }
@@ -53,18 +52,23 @@ fn default_responses(handle_request: fn() -> Response) -> Response {
   }
 }
 
-fn home_page(_req: Request) -> Response {
+fn home_page(_req: Request) -> String {
   "
   <h1>Welcome!!</h1>
   <ul>
     <a href=/tickets> tickets </a>
   </ul>
   "
-  |> to_page()
 }
 
-fn to_page(body: String) -> Response {
-  body
-  |> string_tree.from_string()
-  |> http_core.html_response(200)
+fn to_page(req: Request, handle_request: fn(Request) -> String) -> Response {
+  let res = handle_request(req)
+
+  case res {
+    "" -> http_core.not_found()
+    _ ->
+      res
+      |> string_tree.from_string()
+      |> http_core.html_response(200)
+  }
 }
