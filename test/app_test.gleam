@@ -12,7 +12,7 @@ fn mock_context() -> context.Context {
   context.Context(
     ..context.new(),
     user: UserRepository(
-      all: fn() {
+      listed: fn() {
         Ok([UserReadModel(id: "hoge", name: "a", favorite_color: "FFF")])
       },
       save: fn(_) { Ok("1") },

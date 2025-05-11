@@ -10,21 +10,24 @@ const form = "
   <form action=/users method=GET >
     <div>
       <label>
-        title
+        name
       </label>
-      <input name=title />
+      <input name=name />
     </div>
     <button type=submit> submit </button>
   </form>
 "
 
-pub fn get(_req: http_core.Request) -> String {
-  let body = "success"
+pub fn get(_req: http_core.Request, usecase: user.Listed) -> String {
+  let body = case usecase() {
+    Ok(items) -> success(items)
+    Error(_) -> html.failure([#("error", "error")])
+  }
   header <> form <> body
 }
 
-pub fn success(items: List(user.User)) -> String {
+pub fn success(items: List(user.UserReadModel)) -> String {
   let items = list.map(items, fn(it) { [it.name, it.favorite_color] })
 
-  html.table(html.th(["name", "created_at"]), html.td(items))
+  html.table(html.th(["name", "favorite_color"]), html.td(items))
 }

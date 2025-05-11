@@ -8,15 +8,15 @@ import lib/http_core.{type Request, type Response}
 
 pub fn routes(req: Request, ctx: UserRepository) -> Response {
   case req.method {
-    http.Get -> list_person(ctx)
-    http.Post -> create_person(ctx, req)
+    http.Get -> list_user(ctx)
+    http.Post -> create_user(ctx, req)
     _ -> http_core.method_not_allowed([http.Get, http.Post])
   }
 }
 
-fn list_person(repository: UserRepository) -> Response {
+fn list_user(repository: UserRepository) -> Response {
   let result = {
-    use users <- result.try(repository.all())
+    use users <- result.try(repository.listed())
 
     let users = {
       use user <- json.array(users)
@@ -39,11 +39,11 @@ fn list_person(repository: UserRepository) -> Response {
   }
 }
 
-fn create_person(repository: UserRepository, req: Request) -> Response {
+fn create_user(repository: UserRepository, req: Request) -> Response {
   use json <- http_core.require_json(req)
 
   let result = {
-    use person <- result.try(decode.run(json, decode_person()))
+    use person <- result.try(decode.run(json, decode_user()))
     let id = case repository.save(person) {
       Ok(value) -> value
       Error(_) -> ""
@@ -61,7 +61,7 @@ fn create_person(repository: UserRepository, req: Request) -> Response {
   }
 }
 
-fn decode_person() -> decode.Decoder(user.User) {
+fn decode_user() -> decode.Decoder(user.User) {
   use name <- decode.field("name", decode.string)
   use favorite_color <- decode.field("favorite-color", decode.string)
 

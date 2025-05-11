@@ -14,10 +14,10 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
-    ["users"], Get -> user_list_page.get(req)
+    ["users"], Get -> user_list_page.get(req, ctx.user.listed)
     ["tickets"], Get -> req |> list_page.get(ctx.ticket.listed)
-    ["tickets", id], Get -> detail_page.get(id, ctx.ticket.searched)
     ["tickets"], Post -> todo
+    ["tickets", id], Get -> detail_page.get(id, ctx.ticket.searched)
     _, _ -> ""
   }
 }
@@ -56,7 +56,12 @@ fn home_page(_req: Request) -> String {
   "
   <h1>Welcome!!</h1>
   <ul>
-    <a href=/tickets> tickets </a>
+    <li>
+      <a href=/users> users </a>
+    </li>
+    <li>
+      <a href=/tickets> tickets </a>
+    </li>
   </ul>
   "
 }

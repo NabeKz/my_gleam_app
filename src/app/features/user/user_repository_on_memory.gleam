@@ -11,7 +11,7 @@ pub fn new() -> user.UserRepository {
   ]
 
   user.UserRepository(
-    all: fn() { Ok(items) },
+    listed: fn() { Ok(items) },
     save: fn(item: User) { save(items, item) },
     read: fn(id: String) { read(items, id) },
     delete: fn(id: String) { delete(items, id) },

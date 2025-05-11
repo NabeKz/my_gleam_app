@@ -14,7 +14,7 @@ pub type UserReadModel {
 pub type UserId =
   String
 
-pub type All =
+pub type Listed =
   fn() -> Result(List(UserReadModel), List(String))
 
 pub type Save =
@@ -27,7 +27,7 @@ pub type Delete =
   fn(String) -> Result(List(UserReadModel), List(String))
 
 pub type UserRepository {
-  UserRepository(all: All, save: Save, read: Read, delete: Delete)
+  UserRepository(listed: Listed, save: Save, read: Read, delete: Delete)
 }
 
 pub fn user_read_model_from_user(id: String, user: User) {
