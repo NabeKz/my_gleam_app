@@ -16,7 +16,7 @@ pub fn main() {
 fn mock_context() -> context.Context {
   let repository = ticket_repository_on_memory.new([])
   context.Context(
-    ..context.new(),
+    ..context.mock(),
     ticket: ticket_controller.Resolver(
       listed: fn(_) { Error([]) },
       created: ticket_created.invoke(repository.create, _),

@@ -9,7 +9,7 @@ import app/router
 
 fn mock_context() -> context.Context {
   context.Context(
-    ..context.new(),
+    ..context.mock(),
     user: UserRepository(
       listed: fn() {
         Ok([UserReadModel(id: "hoge", name: "a", favorite_color: "FFF")])

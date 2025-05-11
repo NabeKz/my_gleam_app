@@ -13,7 +13,7 @@ pub fn main() {
 
 fn mock_context() -> context.Context {
   context.Context(
-    ..context.new(),
+    ..context.mock(),
     ticket: ticket_controller.Resolver(
       created: fn(_) { Error([]) },
       searched: fn(_) { Error([]) },

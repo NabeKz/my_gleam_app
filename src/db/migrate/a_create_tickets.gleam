@@ -28,4 +28,20 @@ pub fn seed(conn: db.Conn) {
       status: ticket_status.Open,
       created_at: "2025-05-01",
     ))
+  let assert Ok(Nil) =
+    conn
+    |> repo.create(TicketWriteModel(
+      title: "fuga",
+      description: "bbb",
+      status: ticket_status.Progress,
+      created_at: "2025-05-02",
+    ))
+  let assert Ok(Nil) =
+    conn
+    |> repo.create(TicketWriteModel(
+      title: "piyo",
+      description: "ccc",
+      status: ticket_status.Close,
+      created_at: "2025-05-03",
+    ))
 }

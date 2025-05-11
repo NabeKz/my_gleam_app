@@ -9,11 +9,15 @@ import lib/db
 
 const table_name = "tickets"
 
-pub fn list(conn: db.Conn, params: domain.ValidateSearchParams) {
-  let sql = "select * from  " <> table_name
+pub fn list(
+  conn: db.Conn,
+  params: domain.ValidateSearchParams,
+) -> List(domain.Ticket) {
+  let sql = "select * from " <> table_name
   let where = []
   let where = case params.title {
-    option.Some(_) -> ["name = ?", ..where]
+    option.Some("") -> where
+    option.Some(_) -> ["title = ?", ..where]
     option.None -> where
   }
   let where = case params.status {
@@ -22,14 +26,22 @@ pub fn list(conn: db.Conn, params: domain.ValidateSearchParams) {
   }
   let sql = case where {
     [] -> sql
-    _ -> sql <> string.join(where, " and ")
+    _ -> sql <> " where " <> string.join(where, " and ")
   }
   let sql = sql <> ";"
   let values = case params.title {
+    option.Some("") -> []
     option.Some(value) -> [value |> db.string()]
     option.None -> []
   }
-  db.query(sql, conn, values, decoder())
+  let result = db.query(sql, conn, values, decoder())
+  case result {
+    Ok(value) -> value
+    Error(error) -> {
+      echo error
+      []
+    }
+  }
 }
 
 pub fn create(conn: db.Conn, item: domain.TicketWriteModel) {
