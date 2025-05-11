@@ -1,5 +1,4 @@
 import gleam/json
-import gleam/option
 import gleeunit
 import gleeunit/should
 import wisp/testing

@@ -68,3 +68,5 @@ pub fn handle_find_result(
     Error(err) -> Error(SqlError(err.message))
   }
 }
+
+pub const string = sqlight.text

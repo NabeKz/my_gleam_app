@@ -1,6 +1,6 @@
 import gleam/json
 import gleam/list
-import gleam/option.{type Option, None, Some}
+import gleam/option.{type Option}
 import gleam/result
 
 import app/features/ticket/domain
@@ -16,7 +16,11 @@ pub type Dto {
 }
 
 pub type UnValidateSearchParams {
-  UnValidateSearchParams(status: Option(String), created_at: Option(String))
+  UnValidateSearchParams(
+    title: Option(String),
+    status: Option(String),
+    created_at: Option(String),
+  )
 }
 
 type Params =
@@ -38,7 +42,6 @@ pub fn invoke(
     Ok(form) ->
       form
       |> command()
-      |> apply(form)
       |> decode()
       |> Ok()
     Error(err) -> err |> Error()
@@ -50,6 +53,7 @@ fn parse(params: List(#(String, String))) -> UnValidateSearchParams {
 
   UnValidateSearchParams(
     // TODO: handle invalid status
+    title: find("title") |> option.from_result,
     status: find("status") |> option.from_result,
     created_at: find("created_at") |> option.from_result,
   )
@@ -59,29 +63,19 @@ fn validate(
   params: UnValidateSearchParams,
 ) -> Result(domain.ValidateSearchParams, ErrorMessage) {
   let result = {
+    let title = params.title
     let status = params.status |> parser.map_or(ticket_status.from_string)
     let created_at = params.created_at |> parser.map_or(date_time.from_string)
-
     use status <- result.try(status)
     use created_at <- result.try(created_at)
 
-    domain.ValidateSearchParams(status:, created_at:)
+    domain.ValidateSearchParams(title:, status:, created_at:)
     |> Ok()
   }
 
   case result {
     Ok(params) -> Ok(params)
     Error(err) -> Error([#("field", err)])
-  }
-}
-
-fn apply(
-  items: List(domain.Ticket),
-  form: domain.ValidateSearchParams,
-) -> List(domain.Ticket) {
-  case form.status {
-    Some(status) -> items |> list.filter(fn(item) { item.status == status })
-    None -> items
   }
 }
 

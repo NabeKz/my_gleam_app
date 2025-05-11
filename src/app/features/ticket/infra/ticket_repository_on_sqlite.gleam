@@ -1,5 +1,7 @@
 import gleam/dynamic/decode
 import gleam/int
+import gleam/option
+import gleam/string
 
 import app/features/ticket/domain
 import app/features/ticket/domain/ticket_status
@@ -7,9 +9,27 @@ import lib/db
 
 const table_name = "tickets"
 
-pub fn list(conn: db.Conn) {
-  let sql = "select * from  " <> table_name <> " limit 100"
-  db.query(sql, conn, [], decoder())
+pub fn list(conn: db.Conn, params: domain.ValidateSearchParams) {
+  let sql = "select * from  " <> table_name
+  let where = []
+  let where = case params.title {
+    option.Some(_) -> ["name = ?", ..where]
+    option.None -> where
+  }
+  let where = case params.status {
+    option.Some(_) -> ["status = ?", ..where]
+    option.None -> where
+  }
+  let sql = case where {
+    [] -> sql
+    _ -> sql <> string.join(where, " and ")
+  }
+  let sql = sql <> ";"
+  let values = case params.title {
+    option.Some(value) -> [value |> db.string()]
+    option.None -> []
+  }
+  db.query(sql, conn, values, decoder())
 }
 
 pub fn create(conn: db.Conn, item: domain.TicketWriteModel) {

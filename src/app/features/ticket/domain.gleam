@@ -35,6 +35,7 @@ pub type TicketWriteModel {
 
 pub type ValidateSearchParams {
   ValidateSearchParams(
+    title: Option(String),
     status: Option(TicketStatus),
     created_at: Option(date_time.Date),
   )
