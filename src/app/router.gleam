@@ -9,3 +9,8 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
     _, _ -> web_router.handle_request(ctx, req)
   }
 }
+
+fn auth_middleware(req: Request) -> Result(String, Nil) {
+  let cookie = http_core.get_cookie_with_signed(req, "auth")
+  todo
+}

@@ -6,6 +6,9 @@ pub type Request =
 pub type Response =
   wisp.Response
 
+pub type Security =
+  wisp.Security
+
 /// request handler
 pub const path_segments = wisp.path_segments
 
@@ -34,3 +37,11 @@ pub const not_found = wisp.not_found
 pub const method_override = wisp.method_override
 
 pub const internal_server_error = wisp.internal_server_error
+
+pub fn get_cookie_with_plan_text(req: Request, name: String) {
+  wisp.get_cookie(req, name, wisp.PlainText)
+}
+
+pub fn get_cookie_with_signed(req: Request, name: String) {
+  wisp.get_cookie(req, name, wisp.Signed)
+}
