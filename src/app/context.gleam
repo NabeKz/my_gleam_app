@@ -9,11 +9,19 @@ import app/features/user/user
 import app/features/user/user_repository_on_memory as user_repository
 import lib/db
 
+type Auth =
+  String
+
 pub type Context {
-  Context(user: user.UserRepository, ticket: ticket_controller.Resolver)
+  Context(
+    auth: Auth,
+    user: user.UserRepository,
+    ticket: ticket_controller.Resolver,
+  )
 }
 
 pub fn new(db: db.Conn) -> Context {
+  let auth = ""
   let user = user_repository.new()
 
   let ticket_repository = ticket_repository_on_memory.new([])
@@ -25,10 +33,11 @@ pub fn new(db: db.Conn) -> Context {
       deleted: ticket_deleted.invoke(_, ticket_repository.delete),
     )
 
-  Context(user:, ticket:)
+  Context(auth:, user:, ticket:)
 }
 
 pub fn mock() -> Context {
+  let auth = ""
   let user = user_repository.new()
 
   let ticket_repository = ticket_repository_on_memory.new([])
@@ -40,5 +49,5 @@ pub fn mock() -> Context {
       deleted: ticket_deleted.invoke(_, ticket_repository.delete),
     )
 
-  Context(user:, ticket:)
+  Context(auth:, user:, ticket:)
 }
