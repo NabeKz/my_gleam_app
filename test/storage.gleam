@@ -8,9 +8,18 @@ pub fn main() {
 }
 
 pub fn post_tickets_success_test() {
-  storage.new("sample")
+  storage.init("sample")
+  storage.put("sample", #("a", "b"))
+  storage.put("sample", #("c", "d"))
 
-  201
-  |> should.equal(201)
-  // |> should.equal(201)
+  storage.get("sample", "a")
+  |> should.equal([#("a", "b")])
+
+  storage.put("sample", #("a", "c"))
+  storage.get("sample", "a")
+  |> should.equal([#("a", "c")])
+
+  storage.delete("sample", "a")
+  storage.get("sample", "a")
+  |> should.equal([])
 }
