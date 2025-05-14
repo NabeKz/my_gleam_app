@@ -49,17 +49,3 @@ fn convert(
   )
   |> Ok()
 }
-// fn to_status(
-//   value: String,
-// ) -> Result(domain.TicketStatus, List(decode.DecodeError)) {
-//   case value {
-//     "open" -> Ok(domain.Open)
-//     "done" -> Ok(domain.Done)
-//     "close" -> Ok(domain.Close)
-//     "progress" -> Ok(domain.Progress)
-//     _ -> {
-//       decode.decode_error("not exist in ticket status", dynamic.from(value))
-//       |> Error()
-//     }
-//   }
-// }
