@@ -7,7 +7,7 @@ pub fn main() {
   gleeunit.main()
 }
 
-pub fn post_tickets_success_test() {
+pub fn storage_success_test() {
   storage.init("sample")
   storage.put("sample", #("a", "b"))
   storage.put("sample", #("c", "d"))
