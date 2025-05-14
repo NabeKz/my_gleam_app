@@ -31,3 +31,13 @@
 - エンティティ：Table, Order, Item, Staff
 
 - <https://github.com/TahaSh/gleam-todo-web-app?tab=readme-ov-file>
+
+5. 図書館 API
+
+- 貸出
+
+- 検索
+
+- 予約
+
+- 催促

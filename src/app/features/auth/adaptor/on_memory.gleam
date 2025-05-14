@@ -5,7 +5,7 @@ import lib/storage
 const table = "auth"
 
 fn authenticated(form form: domain.Form) -> Bool {
-  storage.get(table, "a")
+  storage.get(table, form.email)
   |> list.is_empty()
 }
 
