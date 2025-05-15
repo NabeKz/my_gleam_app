@@ -1,7 +1,12 @@
 import gleam/erlang/atom
 
 pub type Conn(k, v) {
-  Conn(all: fn() -> List(#(k, v)))
+  Conn(
+    all: fn() -> List(#(k, v)),
+    get: fn(k) -> Result(#(k, v), String),
+    put: fn(#(k, v)) -> String,
+    delete: fn(k) -> Nil,
+  )
 }
 
 @external(erlang, "ets", "new")
@@ -60,6 +65,10 @@ pub fn delete(table: String, key: k) -> Nil {
 
 pub fn conn(name: String) -> Conn(k, v) {
   init(name)
-  let name = atom.create_from_string(name)
-  Conn(all: fn() { all_private(name) })
+  Conn(
+    all: fn() { name |> all() },
+    get: get(name, _),
+    put: put(name, _),
+    delete: delete(name, _),
+  )
 }
