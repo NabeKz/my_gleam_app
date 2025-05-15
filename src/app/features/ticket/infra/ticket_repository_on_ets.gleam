@@ -1,3 +1,4 @@
+import gleam/int
 import gleam/list
 import gleam/result
 import lib/storage
@@ -52,7 +53,18 @@ pub fn new() -> MockRepository {
       use it <- list.map(storage.all(table))
       it.1
     },
-    create: fn(item: domain.TicketWriteModel) { todo },
+    create: fn(item: domain.TicketWriteModel) {
+      let item =
+        storage.all(table)
+        |> list.length()
+        |> int.add(1)
+        |> int.to_string()
+        |> domain.ticket_id()
+        |> domain.to(item, _)
+
+      storage.put(table, #(item.id, item))
+      item.id
+    },
     find: fn(id: domain.TicketId) { todo },
     delete: fn(id: domain.TicketId) { todo },
   )
