@@ -37,10 +37,16 @@ pub fn put(name: String, tuple: #(k, v)) -> String {
 @external(erlang, "ets", "lookup")
 fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
 
-pub fn get(table: String, key: k) -> List(#(k, v)) {
-  table
-  |> atom.create_from_string()
-  |> lookup(key)
+pub fn get(table: String, key: k) -> Result(#(k, v), String) {
+  let result =
+    table
+    |> atom.create_from_string()
+    |> lookup(key)
+
+  case result {
+    [value] -> Ok(value)
+    _ -> Error("not found")
+  }
 }
 
 @external(erlang, "ets", "delete")
