@@ -2,6 +2,8 @@ import gleam/list
 import gleeunit
 import gleeunit/should
 
+import app/features/ticket/domain
+import app/features/ticket/domain/ticket_status
 import lib/storage
 
 pub fn main() {
@@ -32,4 +34,32 @@ pub fn repository_select_success_test() {
   storage.all("sample2")
   |> list.length()
   |> should.equal(2)
+}
+
+pub fn opaque_key_test() {
+  storage.init("sample3")
+  let ticket1 =
+    domain.Ticket(
+      id: domain.ticket_id("1"),
+      title: "hoge",
+      description: "a",
+      status: ticket_status.Done,
+      created_at: "2025-01-01",
+      replies: [],
+    )
+  let ticket2 =
+    domain.Ticket(
+      id: domain.ticket_id("2"),
+      title: "hoge",
+      description: "a",
+      status: ticket_status.Done,
+      created_at: "2025-01-01",
+      replies: [],
+    )
+  storage.put("sample3", #(ticket1.id, ticket1))
+  storage.put("sample3", #(ticket2.id, ticket2))
+  storage.delete("sample3", ticket1.id)
+  storage.all("sample3")
+  |> list.length()
+  |> should.equal(1)
 }

@@ -17,8 +17,9 @@ fn new(name: atom.Atom, props: List(atom.Atom)) -> Nil
 pub fn init(name: String) -> String {
   atom.create_from_string(name)
   |> new([
-    atom.create_from_string("set"),
+    atom.create_from_string("ordered_set"),
     atom.create_from_string("named_table"),
+    atom.create_from_string("public"),
   ])
   name
 }

@@ -1,5 +1,5 @@
 import gleam/bool
-import gleam/http.{Delete, Get, Post}
+import gleam/http.{Get, Post}
 import gleam/string_tree
 import wisp
 
