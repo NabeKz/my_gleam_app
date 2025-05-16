@@ -9,6 +9,8 @@ pub type Conn(k, v) {
   )
 }
 
+pub type MatchSpec
+
 @external(erlang, "ets", "new")
 fn new(name: atom.Atom, props: List(atom.Atom)) -> Nil
 
@@ -21,12 +23,15 @@ pub fn init(name: String) -> String {
   name
 }
 
-@external(erlang, "ets", "select")
-fn all_private(name: atom.Atom, params: List(#(k, v))) -> List(#(k, v))
+@external(erlang, "ets", "fun2ms")
+pub fn fun2ms(f: fn() -> a) -> fn(a) -> a
+
+@external(erlang, "ets", "tab2list")
+fn all_private(name: atom.Atom) -> List(#(k, v))
 
 pub fn all(name: String) -> List(#(k, v)) {
   atom.create_from_string(name)
-  |> all_private([])
+  |> all_private()
 }
 
 @external(erlang, "ets", "insert")

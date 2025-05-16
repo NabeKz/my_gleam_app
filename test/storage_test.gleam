@@ -1,9 +1,7 @@
-import app/features/ticket/domain
-import gleam/option
+import gleam/list
 import gleeunit
 import gleeunit/should
 
-import app/features/ticket/infra/ticket_repository_on_ets as ets
 import lib/storage
 
 pub fn main() {
@@ -28,11 +26,10 @@ pub fn storage_success_test() {
 }
 
 pub fn repository_select_success_test() {
-  domain.ValidateSearchParams(
-    title: option.None,
-    status: option.None,
-    created_at: option.None,
-  )
-  |> ets.new().list()
-  |> should.equal([])
+  storage.init("sample2")
+  storage.put("sample2", #("a", "b"))
+  storage.put("sample2", #("c", "d"))
+  storage.all("sample2")
+  |> list.length()
+  |> should.equal(2)
 }
