@@ -1,4 +1,6 @@
+import app/features/ticket/domain/ticket_id
 import gleam/int
+import gleam/io
 import gleam/list
 import gleam/result
 import lib/storage
@@ -70,7 +72,8 @@ pub fn new() -> MockRepository {
       value
     },
     delete: fn(id: domain.TicketId) {
-      storage.delete(table, id)
+      storage.delete(table, id |> domain.decode())
+      |> io.debug()
       |> Ok()
     },
   )

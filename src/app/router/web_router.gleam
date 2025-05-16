@@ -17,7 +17,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
     ["tickets"], Get -> req |> ticket.list_page(ctx.ticket.listed)
     ["tickets"], Post -> todo
     ["tickets", id], Get -> ticket.detail_page(id, ctx.ticket.searched)
-    ["tickets", id], Delete -> ticket.delete_page(id, ctx.ticket.searched)
+    ["tickets", id], Post -> ticket.delete_page(id, ctx.ticket.deleted)
     _, _ -> ""
   }
 }

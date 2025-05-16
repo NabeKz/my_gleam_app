@@ -1,57 +1,25 @@
-import gleam/list
-import gleam/string
-
-import app/features/ticket/usecase/ticket_searched
+import app/features/ticket/usecase/ticket_deleted
 
 const header = "<h1> tickets </h1>"
 
-const form = "
-  <form action=/tickets method=POST >
-    <input hidden value=DELETE />
-    <button type=submit> delete </button>
-  </form>
-"
-
-pub fn delete(id: String, usecase: ticket_searched.Workflow) -> String {
+pub fn delete(id: String, usecase: ticket_deleted.Workflow) -> String {
   let body = case usecase(id) {
-    Ok(tickets) -> success(tickets)
+    Ok(_) -> success(id)
     Error([error, _]) -> failure(error)
-    _ -> failure(ticket_searched.NotFound)
+    _ -> failure(ticket_deleted.NotFound)
   }
-  header <> form <> body
+  header <> body
 }
 
-fn success(item: ticket_searched.Dto) -> String {
-  let items = [
-    item.id,
-    item.title,
-    item.description,
-    item.status,
-    item.created_at,
-  ]
-
-  use data <- table(items)
-
-  li(data)
+fn success(id) -> String {
+  "id " <> id <> " is deleted"
 }
 
-fn failure(error: ticket_searched.ErrorMessage) -> String {
+fn failure(error: ticket_deleted.ErrorMessage) -> String {
   let message = case error {
-    ticket_searched.InvalidPath -> "invalid path"
-    ticket_searched.NotFound -> "not found"
+    ticket_deleted.InvalidPath -> "invalid path"
+    ticket_deleted.NotFound -> "not found"
   }
 
   "<ul>" <> message <> "</ul>"
-}
-
-fn table(li: List(String), f: fn(List(String)) -> List(String)) -> String {
-  ""
-  |> string.append("<ul>")
-  |> string.append(f(li) |> string.join(""))
-  |> string.append("</ul>")
-}
-
-fn li(items: List(String)) -> List(String) {
-  items
-  |> list.map(fn(it) { "<li>" <> it <> "</li>" })
 }
