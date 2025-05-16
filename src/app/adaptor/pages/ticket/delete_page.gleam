@@ -5,13 +5,20 @@ import app/features/ticket/usecase/ticket_searched
 
 const header = "<h1> tickets </h1>"
 
+const form = "
+  <form action=/tickets method=POST >
+    <input hidden value=DELETE />
+    <button type=submit> delete </button>
+  </form>
+"
+
 pub fn delete(id: String, usecase: ticket_searched.Workflow) -> String {
   let body = case usecase(id) {
     Ok(tickets) -> success(tickets)
     Error([error, _]) -> failure(error)
     _ -> failure(ticket_searched.NotFound)
   }
-  header <> body
+  header <> form <> body
 }
 
 fn success(item: ticket_searched.Dto) -> String {

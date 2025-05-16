@@ -29,8 +29,8 @@ pub fn middleware(
   handle_request: fn(Request) -> String,
 ) -> Response {
   let req = http_core.method_override(req)
-  // use <- wisp.log_request(req)
-  // use <- wisp.rescue_crashes()
+  use <- wisp.log_request(req)
+  use <- wisp.rescue_crashes()
   use req <- http_core.handle_head(req)
   use <- default_responses()
   use req <- to_page(req)
