@@ -1,4 +1,7 @@
+import app/features/ticket/usecase/ticket_created
+import gleam/json
 import gleam/list
+import gleam/result
 import gleam/string
 
 import app/features/ticket/usecase/ticket_listed
@@ -6,29 +9,34 @@ import lib/http_core
 
 const header = "<h1> tickets </h1>"
 
-const link = "<div><a href=/tickets/create > create </a></div>"
-
 const form = "
-  <form action=/tickets method=GET >
+  <form action=/tickets method=POST >
     <div>
-      <label>
-        title
-      </label>
-      <input name=title />
+      <label>title</label>
+      <div><input name=title /></div>
     </div>
-    <button type=submit> submit </button>
+    <div>
+      <label>description</label>
+      <div><input name=description /></div>
+    </div>
+    <div style=padding-top:10px>
+      <button type=submit> submit </button>
+    </div>
   </form>
 "
 
-pub fn get(req: http_core.Request, listed: ticket_listed.Workflow) -> String {
-  let params = req |> http_core.get_query()
-
-  let body = case listed(params) {
-    Ok(tickets) -> success(tickets)
-    Error(errors) -> failure(errors)
-  }
-  header <> link <> form <> body
+pub fn get(_req: http_core.Request) -> String {
+  header <> form
 }
+
+// pub fn post(req: http_core.Request, usecase: ticket_created.Workflow) -> String {
+//   let json = req |> http_core.require_json(fn(it) { it |> Ok() })
+
+//   case result {
+//     Ok(id) -> "success"
+//     Error(_) -> "failure"
+//   }
+// }
 
 fn success(items: List(ticket_listed.Dto)) -> String {
   let items = list.map(items, fn(it) { [it.id, it.title, it.created_at] })

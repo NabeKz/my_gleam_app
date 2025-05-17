@@ -15,7 +15,8 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
     [], Get -> home_page(req)
     ["users"], Get -> user_list_page.get(req, ctx.user.listed)
     ["tickets"], Get -> req |> ticket.list_page(ctx.ticket.listed)
-    ["tickets"], Post -> todo
+    ["tickets", "create"], Get -> req |> ticket.create_page()
+    // ["tickets/create"], Post -> req |> ticket.create_page(ctx.ticket.listed)
     ["tickets", id], Get -> ticket.detail_page(id, ctx.ticket.searched)
     ["tickets", id], Post -> ticket.delete_page(id, ctx.ticket.deleted)
     _, _ -> ""
