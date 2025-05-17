@@ -1,0 +1,9 @@
+- [ ] create ticket page
+- [ ] auth middleware
+- [ ] sign in and store session
+- [ ] sign out and delete session
+- [ ] ticket update
+- [ ] create reply
+- [ ] relation ticket and reply
+- [ ] monorepo
+- [ ] gleam add glen
