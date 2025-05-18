@@ -7,3 +7,4 @@
 - [ ] relation ticket and reply
 - [ ] monorepo
 - [ ] gleam add glen
+- [ ] cli
