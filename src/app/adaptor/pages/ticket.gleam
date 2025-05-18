@@ -7,6 +7,8 @@ pub const list_page = list_page.get
 
 pub const create_page = create.get
 
+pub const create_result_page = create.post
+
 pub const detail_page = detail_page.get
 
 pub const delete_page = delete_page.delete

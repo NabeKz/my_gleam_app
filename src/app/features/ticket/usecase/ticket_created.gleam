@@ -10,6 +10,8 @@ pub type Dto {
   Dto(title: String, description: String)
 }
 
+// TODO: 
+// dynamic.Dynamic to dict.from_list
 pub type Workflow =
   fn(dynamic.Dynamic) -> Result(domain.TicketId, List(decode.DecodeError))
 

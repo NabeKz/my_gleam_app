@@ -1,3 +1,6 @@
+import gleam/bit_array
+import gleam/result
+import gleam/uri
 import wisp
 
 pub type Request =
@@ -9,6 +12,9 @@ pub type Response =
 pub type Security =
   wisp.Security
 
+pub type FormData =
+  wisp.FormData
+
 /// request handler
 pub const path_segments = wisp.path_segments
 
@@ -17,6 +23,17 @@ pub const require_method = wisp.require_method
 pub const method_not_allowed = wisp.method_not_allowed
 
 pub const get_query = wisp.get_query
+
+pub fn require_form(req: Request) -> FormData {
+  let values =
+    wisp.read_body_to_bitstring(req)
+    |> result.map(bit_array.to_string)
+    |> result.flatten()
+    |> result.map(uri.parse_query)
+    |> result.flatten()
+    |> result.unwrap([])
+  wisp.FormData(values:, files: [])
+}
 
 pub const require_json = wisp.require_json
 
