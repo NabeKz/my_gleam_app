@@ -27,7 +27,6 @@ pub fn invoke(
 ) -> Result(Dto, List(ErrorMessage)) {
   let result = {
     let ticket_id = id |> domain.ticket_id
-
     case event(ticket_id) {
       Ok(ticket) -> Ok(ticket)
       Error(_) -> Error(NotFound)

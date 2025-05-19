@@ -1,11 +1,6 @@
-import app/adaptor/pages/shared/html
-import app/features/ticket/domain
-import app/features/ticket/usecase/ticket_created
-import app/features/ticket/usecase/ticket_searched
-import gleam/dict
-import gleam/dynamic
 import gleam/string
-import lib/http_core
+
+import app/features/ticket/usecase/ticket_searched
 
 const header = "<h1> tickets </h1>"
 

@@ -66,9 +66,9 @@ pub fn new() -> MockRepository {
       storage.put(table, #(item.id, item))
       item.id
     },
-    find: fn(id: domain.TicketId) {
+    find: fn(id: domain.TicketId) -> Result(domain.Ticket, String) {
       use #(_, value) <- result.try(storage.get(table, id))
-      value
+      value |> Ok()
     },
     delete: fn(id: domain.TicketId) {
       storage.delete(table, id)

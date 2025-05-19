@@ -24,9 +24,6 @@ pub fn init(name: String) -> String {
   name
 }
 
-@external(erlang, "ets", "fun2ms")
-pub fn fun2ms(f: fn() -> a) -> fn(a) -> a
-
 @external(erlang, "ets", "tab2list")
 fn all_private(name: atom.Atom) -> List(#(k, v))
 

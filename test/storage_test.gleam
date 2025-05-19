@@ -58,6 +58,10 @@ pub fn opaque_key_test() {
     )
   storage.put("sample3", #(ticket1.id, ticket1))
   storage.put("sample3", #(ticket2.id, ticket2))
+
+  storage.get("sample3", ticket2.id)
+  |> should.be_ok()
+
   storage.delete("sample3", ticket1.id)
   storage.all("sample3")
   |> list.length()
