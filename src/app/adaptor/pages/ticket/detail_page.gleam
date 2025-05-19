@@ -16,14 +16,14 @@ pub fn get(id: String, usecase: ticket_searched.Workflow) -> String {
 
 fn success(item: ticket_searched.Dto) -> String {
   let items = [
-    item.id,
-    item.title,
-    item.description,
-    item.status,
-    item.created_at,
+    #("id", item.id),
+    #("title", item.title),
+    #("description", item.description),
+    #("status", item.status),
+    #("created_at", item.created_at),
   ]
 
-  use data <- table(items)
+  use data <- list(items)
 
   li(data)
 }
@@ -37,14 +37,24 @@ fn failure(error: ticket_searched.ErrorMessage) -> String {
   "<ul>" <> message <> "</ul>"
 }
 
-fn table(li: List(String), f: fn(List(String)) -> List(String)) -> String {
+fn list(
+  li: List(#(String, String)),
+  f: fn(List(#(String, String))) -> List(String),
+) -> String {
   ""
-  |> string.append("<ul>")
-  |> string.append(f(li) |> string.join(""))
-  |> string.append("</ul>")
+  |> string.append("<div>")
+  |> string.append(f(li) |> string.concat)
+  |> string.append("</div>")
 }
 
-fn li(items: List(String)) -> List(String) {
+fn li(items: List(#(String, String))) -> List(String) {
   items
-  |> list.map(fn(it) { "<li>" <> it <> "</li>" })
+  |> list.map(fn(it) {
+    "
+      <h2>$it0</h2>
+      <span>$it1</span>
+    "
+    |> string.replace("$it0", it.0)
+    |> string.replace("$it1", it.1)
+  })
 }
