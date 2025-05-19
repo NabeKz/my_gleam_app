@@ -18,6 +18,8 @@ pub type Body {
 
 // TODO: 
 // dynamic.Dynamic to dict.from_list
+// [ ] redirect
+// [ ] set success message to session
 pub type Workflow =
   fn(dynamic.Dynamic) -> Result(domain.TicketId, List(decode.DecodeError))
 

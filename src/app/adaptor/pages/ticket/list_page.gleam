@@ -33,7 +33,7 @@ pub fn get(req: http_core.Request, listed: ticket_listed.Workflow) -> String {
 fn success(items: List(ticket_listed.Dto)) -> String {
   let items = list.map(items, fn(it) { [it.id, it.title, it.created_at] })
 
-  table(t_head(["title", "created_at"]), t_data(items))
+  table(t_head(["title", "created_at", "detail", "delete"]), t_data(items))
 }
 
 fn failure(errors: List(#(String, String))) -> String {
@@ -65,13 +65,19 @@ fn t_data(items: List(List(String))) -> List(String) {
     let td =
       list.map(rest, f)
       |> list.append([
-        "<td>",
-        "  <form action=/tickets/" <> id <> " method=POST >",
-        "    <button type=submit> delete </button>",
-        "  </form>",
-        "</td>",
+        "
+        <td>  
+          <a href=/tickets/$id>to $id</a>
+        </td>  
+        <td>  
+          <form action=/tickets/$id method=POST >
+            <button type=submit> delete </button>
+          </form>
+        </td>
+        ",
       ])
       |> to_string()
+      |> string.replace("$id", id)
 
     ["<tr>", td, "</tr>"]
   })
@@ -87,5 +93,5 @@ fn slice(items: List(String)) {
 }
 
 fn to_string(data: List(String)) -> String {
-  data |> string.join("")
+  data |> string.concat
 }
