@@ -1,11 +1,10 @@
-import app/features/ticket/domain/ticket_status
 import gleam/dict
 import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/result
-import lib/date_time
 
 import app/features/ticket/domain
+import app/features/ticket/domain/ticket_status
 
 pub type Dto {
   Dto(title: String, description: String)
@@ -35,7 +34,7 @@ pub fn invoke2(
   searched: domain.TicketSearched,
   updated: domain.TicketUpdated,
 ) -> Result(domain.TicketId, List(String)) {
-  let result = {
+  let ticket = {
     let ticket_id = id |> domain.ticket_id
     case searched(ticket_id) {
       Ok(ticket) -> Ok(ticket)
@@ -43,15 +42,19 @@ pub fn invoke2(
     }
   }
 
-  let form = {
+  let dto = {
     use dto <- result.try(decode.run(form, decode_ticket()))
-    use converted <- result.try(dto |> convert())
 
-    converted
+    dto
     |> Ok()
   }
 
-  let result = case result {
+  let ticket = case ticket, dto {
+    Ok(ticket), Ok(dto) -> partial_update(ticket, dto) |> Ok()
+    _, _ -> Error("failure")
+  }
+
+  let result = case ticket {
     Ok(value) -> updated(value) |> Ok()
     Error(_) -> Error("Invalid")
   }
@@ -68,14 +71,13 @@ fn decode_ticket() -> decode.Decoder(Dto) {
   decode.success(Dto(title:, description:))
 }
 
-fn convert(
-  dto: Dto,
-) -> Result(domain.TicketWriteModel, List(decode.DecodeError)) {
-  domain.TicketWriteModel(
+fn partial_update(ticket: domain.Ticket, dto: Dto) -> domain.Ticket {
+  domain.Ticket(
+    id: ticket.id,
     title: dto.title,
     description: dto.description,
     status: ticket_status.Open,
-    created_at: date_time.now() |> date_time.to_string(),
+    created_at: ticket.created_at,
+    replies: [],
   )
-  |> Ok()
 }

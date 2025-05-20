@@ -154,3 +154,17 @@ pub fn update(
     Error(_) -> Error("invalid")
   }
 }
+
+pub fn update2(
+  ticket: Ticket,
+  ticket_status: ticket_status.TicketStatus,
+) -> Result(Ticket, String) {
+  let status = case ticket.status, ticket_status {
+    _, ticket_status.Done -> Error("invalid")
+    _, status -> Ok(status)
+  }
+  case status {
+    Ok(status) -> Ok(Ticket(..ticket, status:))
+    Error(_) -> Error("invalid")
+  }
+}
