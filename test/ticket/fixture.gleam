@@ -6,6 +6,6 @@ pub fn ticket_resolver_mock() {
     created: fn(_) { Error([]) },
     searched: fn(_) { Error([]) },
     deleted: fn(_) { Error([]) },
-    updated: fn(_) { Error([]) },
+    updated: fn(_) { fn(_) { Error([]) } },
   )
 }
