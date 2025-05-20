@@ -1,6 +1,5 @@
+import app/adaptor/pages/shared/html
 import app/features/ticket/domain
-import gleam/dict
-import gleam/dynamic
 import gleam/string
 
 import app/features/ticket/usecase/ticket_searched
@@ -35,11 +34,14 @@ pub fn get(id: String, usecase: ticket_searched.Workflow) -> String {
   header <> body
 }
 
-pub fn post(req: http_core.Request, usecase: ticket_updated.Workflow) -> String {
+pub fn post(
+  req: http_core.Request,
+  id: String,
+  usecase: ticket_updated.Workflow,
+) -> String {
   let form = http_core.require_form(req)
-  let result = form.values |> dict.from_list |> dynamic.from |> usecase()
 
-  case result {
+  case usecase(id) {
     Ok(id) -> domain.decode(id) |> update_success()
     Error(_) -> "failure"
   }
@@ -47,20 +49,20 @@ pub fn post(req: http_core.Request, usecase: ticket_updated.Workflow) -> String 
 
 fn success(item: ticket_searched.Dto) -> String {
   form
-  |> string.replace("$title", item.title)
-  |> string.replace("$description", item.description)
+  |> string.replace("$title", item.title |> html.escape)
+  |> string.replace("$description", item.description |> html.escape())
 }
 
 fn update_success(id: String) -> String {
-  [
-    "<div>",
-    "  updated id is " <> id,
-    "</div>",
-    "<div>",
-    "  <a href=/tickets > back </a>",
-    "</div>",
-  ]
-  |> string.join("")
+  " 
+    <div>
+      updated id is $id
+    </div>
+    <div>
+      <a href=/tickets > back </a>
+    </div>
+  "
+  |> string.replace("$id", id)
 }
 
 fn failure(error: ticket_searched.ErrorMessage) -> String {

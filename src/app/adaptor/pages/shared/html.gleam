@@ -1,6 +1,10 @@
 import gleam/list
 import gleam/string
 
+pub fn escape(value: String) -> String {
+  "\"" <> value <> "\""
+}
+
 pub fn table(t_head: List(String), t_data: List(String)) -> String {
   ""
   |> string.append("<table>")

@@ -74,6 +74,6 @@ pub fn new(items: List(domain.Ticket)) -> MockRepository {
       let _ = list.filter(items, fn(item) { item.id != id })
       Ok(Nil)
     },
-    update: fn(_) { todo },
+    update: fn(item: domain.Ticket) { item.id },
   )
 }

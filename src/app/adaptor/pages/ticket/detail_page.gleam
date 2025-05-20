@@ -11,7 +11,9 @@ pub fn get(id: String, usecase: ticket_searched.Workflow) -> String {
     Error([error, _]) -> failure(error)
     _ -> failure(ticket_searched.NotFound)
   }
-  header <> body
+  header
+  <> "<a href=/tickets/$id/edit> edit </a>" |> string.replace("$id", id)
+  <> body
 }
 
 fn success(item: ticket_searched.Dto) -> String {

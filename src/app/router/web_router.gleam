@@ -19,8 +19,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
     ["tickets", "create"], Post ->
       req |> ticket.create_result_page(ctx.ticket.created)
     ["tickets", id], Get -> ticket.detail_page(id, ctx.ticket.searched)
-    ["tickets", id, "update"], Get ->
-      ticket.detail_page(id, ctx.ticket.searched)
+    ["tickets", id, "edit"], Get -> ticket.update_page(id, ctx.ticket.searched)
     // TODO: method override
     ["tickets", id], Post -> ticket.delete_page(id, ctx.ticket.deleted)
     _, _ -> ""
