@@ -1,5 +1,6 @@
 import app/adaptor/pages/shared/html
 import app/features/ticket/domain
+import gleam/dynamic
 import gleam/string
 
 import app/features/ticket/usecase/ticket_searched
@@ -39,9 +40,9 @@ pub fn post(
   id: String,
   usecase: ticket_updated.Workflow,
 ) -> String {
-  let form = http_core.require_form(req)
+  let form = http_core.require_form(req) |> dynamic.from
 
-  case usecase(id) {
+  case usecase(id)(form) {
     Ok(id) -> domain.decode(id) |> update_success()
     Error(_) -> "failure"
   }
