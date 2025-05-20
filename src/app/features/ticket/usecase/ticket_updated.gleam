@@ -72,12 +72,5 @@ fn decode_ticket() -> decode.Decoder(Dto) {
 }
 
 fn partial_update(ticket: domain.Ticket, dto: Dto) -> domain.Ticket {
-  domain.Ticket(
-    id: ticket.id,
-    title: dto.title,
-    description: dto.description,
-    status: ticket_status.Open,
-    created_at: ticket.created_at,
-    replies: [],
-  )
+  domain.Ticket(..ticket, title: dto.title, description: dto.description)
 }
