@@ -2,6 +2,7 @@ import app/features/ticket/domain
 import gleam/json
 import gleeunit
 import gleeunit/should
+import ticket/fixture
 import wisp/testing
 
 import app/adaptor/api/ticket_controller
@@ -26,10 +27,8 @@ fn mock_context() -> context.Context {
   context.Context(
     ..context.mock(),
     ticket: ticket_controller.Resolver(
-      listed: fn(_) { Error([]) },
-      created: fn(_) { Error([]) },
+      ..fixture.ticket_resolver_mock(),
       searched: ticket_searched.invoke(_, repository.find),
-      deleted: fn(_) { Error([]) },
     ),
   )
 }

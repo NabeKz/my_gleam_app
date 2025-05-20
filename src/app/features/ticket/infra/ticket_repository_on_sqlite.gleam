@@ -84,6 +84,37 @@ pub fn find(
   result |> db.handle_find_result
 }
 
+pub fn update(
+  conn: db.Conn,
+  id: domain.TicketId,
+  item: domain.TicketWriteModel,
+) -> Result(domain.Ticket, db.ErrorMessage) {
+  let sql = "update " <> table_name <> " set "
+  let sql = sql <> "
+    title = ?,
+    description = ?,
+    status = ?,
+    created_at = ?
+    where id = ?
+  "
+
+  let result =
+    db.query(
+      sql,
+      conn,
+      [
+        item.title |> db.string(),
+        item.description |> db.string(),
+        item.status |> ticket_status.to_string |> db.string(),
+        item.created_at |> db.string(),
+        id |> db.placeholder,
+      ],
+      decoder(),
+    )
+
+  result |> db.handle_find_result
+}
+
 pub fn delete(conn: db.Conn, id: domain.TicketId) -> Result(Nil, String) {
   let sql = "delete from " <> table_name <> "where id = ?"
   let result = db.query(sql, conn, [id |> db.placeholder], decode.success(Nil))

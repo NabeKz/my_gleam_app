@@ -20,8 +20,8 @@ pub type Workflow =
   fn(dynamic.Dynamic) -> Result(domain.TicketId, List(decode.DecodeError))
 
 pub fn invoke(
-  event: domain.TicketCreated,
   json: dynamic.Dynamic,
+  event: domain.TicketCreated,
 ) -> Result(domain.TicketId, List(decode.DecodeError)) {
   let result = {
     use dto <- result.try(decode.run(json, decode_ticket()))

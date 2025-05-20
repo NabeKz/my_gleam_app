@@ -6,6 +6,7 @@ import app/features/ticket/usecase/ticket_created
 import app/features/ticket/usecase/ticket_deleted
 import app/features/ticket/usecase/ticket_listed
 import app/features/ticket/usecase/ticket_searched
+import app/features/ticket/usecase/ticket_updated
 import lib/deserializer
 import lib/http_core.{type Request, type Response}
 
@@ -14,6 +15,7 @@ pub type Resolver {
     listed: ticket_listed.Workflow,
     created: ticket_created.Workflow,
     searched: ticket_searched.Workflow,
+    updated: ticket_updated.Workflow,
     deleted: ticket_deleted.Workflow,
   )
 }

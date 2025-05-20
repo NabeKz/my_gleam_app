@@ -9,6 +9,8 @@ import app/features/ticket/infra/ticket_repository_on_memory
 import app/features/ticket/usecase/ticket_created
 import app/router
 
+import ticket/fixture
+
 pub fn main() {
   gleeunit.main()
 }
@@ -18,10 +20,8 @@ fn mock_context() -> context.Context {
   context.Context(
     ..context.mock(),
     ticket: ticket_controller.Resolver(
-      listed: fn(_) { Error([]) },
+      ..fixture.ticket_resolver_mock(),
       created: ticket_created.invoke(repository.create, _),
-      searched: fn(_) { Error([]) },
-      deleted: fn(_) { Error([]) },
     ),
   )
 }

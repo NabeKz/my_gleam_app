@@ -28,6 +28,7 @@ pub fn new(db: db.Conn) -> Context {
       listed: ticket_usecase.listed(_, ticket_repository_on_sqlite.list(db, _)),
       created: ticket_usecase.created(ticket_repository.create, _),
       searched: ticket_usecase.searched(_, ticket_repository.find),
+      updated: ticket_usecase.updated(_, ticket_repository.update),
       deleted: ticket_usecase.deleted(_, ticket_repository.delete),
     )
 
@@ -44,6 +45,7 @@ pub fn on_ets() -> Context {
       listed: ticket_usecase.listed(_, ticket_repository.list),
       created: ticket_usecase.created(ticket_repository.create, _),
       searched: ticket_usecase.searched(_, ticket_repository.find),
+      updated: ticket_usecase.updated(_, ticket_repository.update),
       deleted: ticket_usecase.deleted(_, ticket_repository.delete),
     )
 
@@ -60,6 +62,7 @@ pub fn mock() -> Context {
       listed: ticket_usecase.listed(_, ticket_repository.list),
       created: ticket_usecase.created(ticket_repository.create, _),
       searched: ticket_usecase.searched(_, ticket_repository.find),
+      updated: ticket_usecase.updated(_, ticket_repository.update),
       deleted: ticket_usecase.deleted(_, ticket_repository.delete),
     )
 

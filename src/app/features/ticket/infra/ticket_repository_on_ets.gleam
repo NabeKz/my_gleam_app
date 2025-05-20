@@ -1,5 +1,4 @@
 import gleam/int
-import gleam/io
 import gleam/list
 import gleam/result
 import lib/storage
@@ -13,6 +12,7 @@ pub type MockRepository {
     list: domain.TicketListed,
     create: domain.TicketCreated,
     find: domain.TicketSearched,
+    update: domain.TicketUpdated,
     delete: domain.TicketDeleted,
   )
 }
@@ -72,8 +72,8 @@ pub fn new() -> MockRepository {
     },
     delete: fn(id: domain.TicketId) {
       storage.delete(table, id)
-      |> io.debug()
       |> Ok()
     },
+    update: fn(_) { todo },
   )
 }
