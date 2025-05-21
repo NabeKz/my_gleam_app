@@ -67,3 +67,16 @@ pub fn opaque_key_test() {
   |> list.length()
   |> should.equal(1)
 }
+
+pub fn delete_key_test() {
+  storage.init("sample4")
+
+  storage.put("sample4", #("1", "a"))
+  storage.put("sample4", #("2", "b"))
+
+  storage.delete("sample4", "2")
+
+  storage.all("sample4")
+  |> list.length()
+  |> should.equal(1)
+}

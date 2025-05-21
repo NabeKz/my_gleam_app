@@ -7,6 +7,8 @@ import app/features/ticket/domain.{new_ticket}
 
 const table = "tickets"
 
+const table_index = "tickets_index"
+
 pub type MockRepository {
   MockRepository(
     list: domain.TicketListed,
@@ -44,10 +46,12 @@ fn mock_items() -> List(domain.Ticket) {
 
 pub fn new() -> MockRepository {
   storage.init(table)
+  storage.init(table_index)
   {
     use it <- list.each(mock_items())
     storage.put(table, #(it.id, it))
   }
+  storage.put(table_index, #("index", mock_items() |> list.length()))
 
   MockRepository(
     list: fn(_) {
@@ -55,9 +59,12 @@ pub fn new() -> MockRepository {
       it.1
     },
     create: fn(item: domain.TicketWriteModel) {
+      let index =
+        storage.all(table_index)
+        |> list.first()
+        |> result.unwrap(#("index", 0))
       let item =
-        storage.all(table)
-        |> list.length()
+        index.1
         |> int.add(1)
         |> int.to_string()
         |> domain.ticket_id()
