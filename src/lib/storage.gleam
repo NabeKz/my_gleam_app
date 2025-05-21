@@ -11,6 +11,8 @@ pub type Conn(k, v) {
 
 pub type MatchSpec
 
+// TODO: ffi
+
 @external(erlang, "ets", "new")
 fn new(name: atom.Atom, props: List(atom.Atom)) -> Nil
 

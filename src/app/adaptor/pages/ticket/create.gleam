@@ -38,13 +38,13 @@ pub fn post(req: http_core.Request, usecase: ticket_created.Workflow) -> String 
 }
 
 fn create_success(id: String) -> String {
-  [
-    "<div>",
-    "  created id is " <> id,
-    "</div>",
-    "<div>",
-    "  <a href=/tickets > back </a>",
-    "</div>",
-  ]
-  |> string.join("")
+  "
+    <div>
+      created id is $id
+    </div>
+    <div>
+      <a href=/tickets > back </a>
+    </div>
+    "
+  |> string.replace("$id", id)
 }
