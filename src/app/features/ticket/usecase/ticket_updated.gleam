@@ -4,7 +4,6 @@ import gleam/dynamic/decode
 import gleam/result
 
 import app/features/ticket/domain
-import app/features/ticket/domain/ticket_status
 
 pub type Dto {
   Dto(title: String, description: String)

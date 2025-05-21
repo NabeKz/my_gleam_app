@@ -1,5 +1,6 @@
 import app/adaptor/pages/shared/html
 import app/features/ticket/domain
+import gleam/dict
 import gleam/dynamic
 import gleam/string
 
@@ -10,7 +11,7 @@ import lib/http_core
 const header = "<h1> tickets </h1>"
 
 const form = "
-  <form action=/tickets/create method=POST >
+  <form action=/tickets/$id/edit method=POST >
     <div>
       <label>title</label>
       <div><input name=title value=$title /></div>
@@ -40,7 +41,8 @@ pub fn post(
   id: String,
   usecase: ticket_updated.Workflow,
 ) -> String {
-  let form = http_core.require_form(req) |> dynamic.from
+  let form = http_core.require_form(req)
+  let form = form.values |> dict.from_list |> dynamic.from
 
   case usecase(id)(form) {
     Ok(id) -> domain.decode(id) |> update_success()
@@ -50,6 +52,7 @@ pub fn post(
 
 fn success(item: ticket_searched.Dto) -> String {
   form
+  |> string.replace("$id", item.id)
   |> string.replace("$title", item.title |> html.escape)
   |> string.replace("$description", item.description |> html.escape())
 }

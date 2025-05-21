@@ -12,7 +12,7 @@ pub const create_result_page = create.post
 
 pub const update_page = update.get
 
-// pub const update_result_page = update.post
+pub const update_result_page = update.post
 
 pub const detail_page = detail_page.get
 
