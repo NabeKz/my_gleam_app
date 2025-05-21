@@ -74,6 +74,9 @@ pub fn new() -> MockRepository {
       storage.delete(table, id)
       |> Ok()
     },
-    update: fn(item: domain.Ticket) { item.id },
+    update: fn(item: domain.Ticket) {
+      storage.put(table, #(item.id, item))
+      item.id
+    },
   )
 }
