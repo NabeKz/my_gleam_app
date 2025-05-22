@@ -38,3 +38,7 @@ pub fn failure(errors: List(#(String, String))) -> String {
 
   "<ul>" <> items <> "</ul>"
 }
+
+pub fn div(tag: String) -> String {
+  "<div>" <> tag <> "</div>"
+}

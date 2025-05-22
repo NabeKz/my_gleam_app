@@ -1,3 +1,4 @@
+import app/adaptor/pages/shared/html
 import gleam/list
 import gleam/string
 
@@ -5,15 +6,17 @@ import app/features/ticket/usecase/ticket_searched
 
 const header = "<h1> tickets </h1>"
 
+const back = "<a href=/tickets> back </a>"
+
+const link = "<a href=/tickets/$id/edit> edit </a>"
+
 pub fn get(id: String, usecase: ticket_searched.Workflow) -> String {
   let body = case usecase(id) {
     Ok(tickets) -> success(tickets)
     Error([error, _]) -> failure(error)
     _ -> failure(ticket_searched.NotFound)
   }
-  header
-  <> "<a href=/tickets/$id/edit> edit </a>" |> string.replace("$id", id)
-  <> body
+  header <> html.div(back) <> body
 }
 
 fn success(item: ticket_searched.Dto) -> String {
@@ -25,9 +28,12 @@ fn success(item: ticket_searched.Dto) -> String {
     #("created_at", item.created_at),
   ]
 
-  use data <- list(items)
-
-  li(data)
+  let body = {
+    use data <- list(items)
+    li(data)
+  }
+  let link = link |> string.replace("$id", item.id)
+  html.div(link) <> body
 }
 
 fn failure(error: ticket_searched.ErrorMessage) -> String {
@@ -35,7 +41,6 @@ fn failure(error: ticket_searched.ErrorMessage) -> String {
     ticket_searched.InvalidPath -> "invalid path"
     ticket_searched.NotFound -> "not found"
   }
-
   "<ul>" <> message <> "</ul>"
 }
 
