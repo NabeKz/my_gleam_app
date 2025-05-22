@@ -55,10 +55,17 @@ pub const method_override = wisp.method_override
 
 pub const internal_server_error = wisp.internal_server_error
 
+pub const redirect = wisp.redirect
+
 pub fn get_cookie_with_plan_text(req: Request, name: String) {
   wisp.get_cookie(req, name, wisp.PlainText)
 }
 
 pub fn get_cookie_with_signed(req: Request, name: String) {
   wisp.get_cookie(req, name, wisp.Signed)
+}
+
+pub fn set_cookie(request: Request, name: String, value: String) {
+  wisp.ok()
+  |> wisp.set_cookie(request, name, value, wisp.PlainText, 60 * 60)
 }
