@@ -1,8 +1,8 @@
-- [ ] create ticket page
+- [x] create ticket page
 - [ ] auth middleware
 - [ ] sign in and store session
 - [ ] sign out and delete session
-- [ ] ticket update
+- [x] ticket update
 - [ ] create reply
 - [ ] relation ticket and reply
 - [ ] monorepo
