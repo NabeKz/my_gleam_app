@@ -65,7 +65,12 @@ pub fn get_cookie_with_signed(req: Request, name: String) {
   wisp.get_cookie(req, name, wisp.Signed)
 }
 
-pub fn set_cookie(request: Request, name: String, value: String) {
-  wisp.ok()
-  |> wisp.set_cookie(request, name, value, wisp.PlainText, 60 * 60)
+pub fn set_cookie_with_signed(
+  request: Request,
+  response: Response,
+  name: String,
+  value: String,
+) {
+  response
+  |> wisp.set_cookie(request, name, value, wisp.Signed, 60 * 60)
 }

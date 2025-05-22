@@ -1,6 +1,8 @@
 import gleam/list
 import gleam/string
 
+pub type Html
+
 pub fn escape(value: String) -> String {
   "\"" <> value <> "\""
 }

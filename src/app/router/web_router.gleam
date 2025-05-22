@@ -17,10 +17,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
-    ["signin"], Get -> {
-      http_core.set_cookie(req, "auth", "test")
-      "ok"
-    }
+    ["signin"], Get -> "signin"
     ["users"], Get -> user_list_page.get(req, ctx.user.listed)
     ["tickets"], Get -> req |> ticket.list_page(ctx.ticket.listed)
     ["tickets", "create"], Get -> req |> ticket.create_page()
@@ -54,9 +51,6 @@ pub fn middleware(
 
 pub fn auth_middleware(req: Request, ctx: context.Context) -> Bool {
   let token = http_core.get_cookie_with_signed(req, "auth")
-  echo token
-  let token = http_core.get_cookie_with_plan_text(req, "auth")
-  echo token
 
   case token {
     Ok(token) -> True
@@ -97,6 +91,12 @@ fn to_page(req: Request, handle_request: fn(Request) -> String) -> Response {
 
   case res {
     "" -> http_core.not_found()
+    "signin" -> {
+      "ok"
+      |> string_tree.from_string()
+      |> http_core.html_response(200)
+      |> http_core.set_cookie_with_signed(req, _, "auth", "test")
+    }
     _ ->
       res
       |> string_tree.from_string()
