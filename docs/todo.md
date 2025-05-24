@@ -1,8 +1,8 @@
 - [x] create ticket page
-- [ ] auth middleware
+- [x] auth middleware
 - [x] sign in and store session
 - [ ] validate id and password
-- [ ] sign out and delete session
+- [x] sign out and delete session
 - [x] ticket update
 - [ ] create reply
 - [ ] relation ticket and reply
