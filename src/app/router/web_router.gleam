@@ -60,8 +60,8 @@ pub fn auth_middleware(
   handle_request: fn() -> Response,
 ) -> Response {
   let auth = case http_core.path_segments(req), req.method {
-    ["signin"], Post -> Challenge
     ["signin"], Get -> Signin
+    ["signin"], Post -> Challenge
     _, _ ->
       Authenticated(
         http_core.get_cookie_with_signed(req, "auth")
@@ -76,6 +76,7 @@ pub fn auth_middleware(
 
       http_core.redirect(callback)
       |> http_core.set_cookie_with_signed(req, "auth", "ok")
+      |> http_core.delete_cookie(req, "callback")
     }
     Authenticated(True) | Signin -> handle_request()
     Authenticated(False) -> {

@@ -1,4 +1,6 @@
 import gleam/bit_array
+import gleam/http/cookie
+import gleam/http/response
 import gleam/result
 import gleam/uri
 import wisp
@@ -83,4 +85,9 @@ pub fn set_cookie_with_plain_text(
 ) {
   response
   |> wisp.set_cookie(request, name, value, wisp.PlainText, 60 * 60)
+}
+
+pub fn delete_cookie(response: Response, request: Request, name: String) {
+  response
+  |> wisp.set_cookie(request, name, "", wisp.PlainText, 0)
 }
