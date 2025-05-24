@@ -16,6 +16,7 @@ pub fn get(id: String, usecase: ticket_searched.Workflow) -> String {
     Error([error, _]) -> failure(error)
     _ -> failure(ticket_searched.NotFound)
   }
+
   header <> html.div(back) <> body
 }
 
