@@ -13,6 +13,7 @@ import lib/http_core.{type Request, type Response}
 type Auth {
   Signin
   Challenge
+  Signout
   Authenticated(Bool)
 }
 
@@ -62,6 +63,7 @@ pub fn auth_middleware(
   let auth = case http_core.path_segments(req), req.method {
     ["signin"], Get -> Signin
     ["signin"], Post -> Challenge
+    ["signout"], Get -> Signout
     _, _ ->
       Authenticated(
         http_core.get_cookie_with_signed(req, "auth")
@@ -77,6 +79,10 @@ pub fn auth_middleware(
       http_core.redirect(callback)
       |> http_core.set_cookie_with_signed(req, "auth", "ok")
       |> http_core.delete_cookie(req, "callback")
+    }
+    Signout -> {
+      http_core.redirect("/signin")
+      |> http_core.delete_cookie(req, "auth")
     }
     Authenticated(True) | Signin -> handle_request()
     Authenticated(False) -> {
