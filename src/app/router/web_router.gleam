@@ -1,5 +1,7 @@
+import app/adaptor/pages/auth
 import gleam/bool
 import gleam/http.{Get, Post}
+import gleam/result
 import gleam/string_tree
 import wisp
 
@@ -14,7 +16,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
-    ["signin"], Get -> "signin"
+    ["signin"], Get -> auth.signin(req)
     ["users"], Get -> user_list_page.get(req, ctx.user.listed)
     ["tickets"], Get -> req |> ticket.list_page(ctx.ticket.listed)
     ["tickets", "create"], Get -> req |> ticket.create_page()
@@ -50,12 +52,13 @@ pub fn auth_middleware(
   req: Request,
   handle_request: fn() -> Response,
 ) -> Response {
-  let token = http_core.get_cookie_with_signed(req, "auth")
-
-  case token {
-    Ok(_) -> handle_request()
-    Error(_) -> req |> to_page(fn(_) { "ng" })
+  let when = case http_core.path_segments(req), req.method {
+    ["signin"], Get -> True
+    _, _ -> http_core.get_cookie_with_signed(req, "auth") |> result.is_ok()
   }
+
+  use <- bool.guard(when:, return: handle_request())
+  http_core.redirect("/signin")
 }
 
 fn default_responses(handle_request: fn() -> Response) -> Response {

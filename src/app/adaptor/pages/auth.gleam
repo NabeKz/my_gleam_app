@@ -1,4 +1,6 @@
-pub fn signin() {
+import lib/http_core
+
+pub fn signin(_req: http_core.Request) {
   "
   <div>
     <h1>signin</h1>
