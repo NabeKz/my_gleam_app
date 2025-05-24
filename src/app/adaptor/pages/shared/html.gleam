@@ -44,3 +44,7 @@ pub fn failure(errors: List(#(String, String))) -> String {
 pub fn div(tag: String) -> String {
   "<div>" <> tag <> "</div>"
 }
+
+pub fn button(text: String) -> String {
+  "<div style=padding-top:10px><button>" <> text <> "</button></div>"
+}
