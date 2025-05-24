@@ -9,10 +9,7 @@ import app/context
 import lib/http_core.{type Request, type Response}
 
 pub fn handle_request(ctx: context.Context, req: Request) -> Response {
-  let auth = auth_middleware(req, ctx)
-
-  echo auth
-
+  use <- auth_middleware(req)
   use req <- middleware(req)
 
   case http_core.path_segments(req), req.method {
@@ -49,12 +46,15 @@ pub fn middleware(
   handle_request(req)
 }
 
-pub fn auth_middleware(req: Request, ctx: context.Context) -> Bool {
+pub fn auth_middleware(
+  req: Request,
+  handle_request: fn() -> Response,
+) -> Response {
   let token = http_core.get_cookie_with_signed(req, "auth")
 
   case token {
-    Ok(token) -> True
-    Error(_) -> False
+    Ok(_) -> handle_request()
+    Error(_) -> req |> to_page(fn(_) { "ng" })
   }
 }
 
