@@ -10,6 +10,12 @@ import app/adaptor/pages/user/list_page as user_list_page
 import app/context
 import lib/http_core.{type Request, type Response}
 
+type Auth {
+  Signin
+  Challenge
+  Authenticated(Bool)
+}
+
 pub fn handle_request(ctx: context.Context, req: Request) -> Response {
   use <- auth_middleware(req)
   use req <- middleware(req)
@@ -53,19 +59,28 @@ pub fn auth_middleware(
   req: Request,
   handle_request: fn() -> Response,
 ) -> Response {
-  case http_core.path_segments(req), req.method {
-    ["signin"], Post -> {
-      http_core.redirect("/")
-      |> http_core.set_cookie_with_signed(req, _, "auth", "ok")
-    }
-    _, _ -> {
-      let when = case http_core.path_segments(req), req.method {
-        ["signin"], Get -> True
-        _, _ -> http_core.get_cookie_with_signed(req, "auth") |> result.is_ok()
-      }
+  let auth = case http_core.path_segments(req), req.method {
+    ["signin"], Post -> Challenge
+    ["signin"], Get -> Signin
+    _, _ ->
+      Authenticated(
+        http_core.get_cookie_with_signed(req, "auth")
+        |> result.is_ok(),
+      )
+  }
+  case auth {
+    Challenge -> {
+      let callback =
+        http_core.get_cookie_with_plan_text(req, "callback")
+        |> result.unwrap("/")
 
-      use <- bool.guard(when:, return: handle_request())
+      http_core.redirect(callback)
+      |> http_core.set_cookie_with_signed(req, "auth", "ok")
+    }
+    Authenticated(True) | Signin -> handle_request()
+    Authenticated(False) -> {
       http_core.redirect("/signin")
+      |> http_core.set_cookie_with_plain_text(req, "callback", req.path)
     }
   }
 }
