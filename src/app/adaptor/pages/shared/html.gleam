@@ -54,7 +54,7 @@ pub fn form(method: String, action: String, tag: String) -> String {
   head
   <> tag
   <> "<div style=padding-top:10px>"
-  <> "  <button>submit</button>"
+  <> "  <button type=submit >submit</button>"
   <> "</div>"
   <> "</form>"
 }

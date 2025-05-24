@@ -48,17 +48,26 @@ pub fn middleware(
   handle_request(req)
 }
 
+// TODO: refactor nest
 pub fn auth_middleware(
   req: Request,
   handle_request: fn() -> Response,
 ) -> Response {
-  let when = case http_core.path_segments(req), req.method {
-    ["signin"], Get -> True
-    _, _ -> http_core.get_cookie_with_signed(req, "auth") |> result.is_ok()
-  }
+  case http_core.path_segments(req), req.method {
+    ["signin"], Post -> {
+      http_core.redirect("/")
+      |> http_core.set_cookie_with_signed(req, _, "auth", "ok")
+    }
+    _, _ -> {
+      let when = case http_core.path_segments(req), req.method {
+        ["signin"], Get -> True
+        _, _ -> http_core.get_cookie_with_signed(req, "auth") |> result.is_ok()
+      }
 
-  use <- bool.guard(when:, return: handle_request())
-  http_core.redirect("/signin")
+      use <- bool.guard(when:, return: handle_request())
+      http_core.redirect("/signin")
+    }
+  }
 }
 
 fn default_responses(handle_request: fn() -> Response) -> Response {
@@ -94,12 +103,6 @@ fn to_page(req: Request, handle_request: fn(Request) -> String) -> Response {
 
   case res {
     "" -> http_core.not_found()
-    "signin" -> {
-      "ok"
-      |> string_tree.from_string()
-      |> http_core.html_response(200)
-      |> http_core.set_cookie_with_signed(req, _, "auth", "test")
-    }
     _ ->
       res
       |> string_tree.from_string()
