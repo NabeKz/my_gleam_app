@@ -1,4 +1,5 @@
 import app/adaptor/pages/auth
+import app/features/auth/usecase
 import gleam/bool
 import gleam/http.{Get, Post}
 import gleam/result
@@ -72,13 +73,19 @@ pub fn auth_middleware(
   }
   case auth {
     Challenge -> {
-      let callback =
-        http_core.get_cookie_with_plan_text(req, "callback")
-        |> result.unwrap("/")
+      let form = http_core.require_form(req)
+      case usecase.invoke(form.values) {
+        True -> {
+          let callback =
+            http_core.get_cookie_with_plan_text(req, "callback")
+            |> result.unwrap("/")
 
-      http_core.redirect(callback)
-      |> http_core.set_cookie_with_signed(req, "auth", "ok")
-      |> http_core.delete_cookie(req, "callback")
+          http_core.redirect(callback)
+          |> http_core.set_cookie_with_signed(req, "auth", "ok")
+          |> http_core.delete_cookie(req, "callback")
+        }
+        False -> http_core.redirect("/signin")
+      }
     }
     Signout -> {
       http_core.redirect("/signin")
