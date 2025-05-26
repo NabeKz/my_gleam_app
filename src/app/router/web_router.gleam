@@ -84,7 +84,9 @@ pub fn auth_middleware(
           |> http_core.set_cookie_with_signed(req, "auth", "ok")
           |> http_core.delete_cookie(req, "callback")
         }
-        False -> http_core.redirect("/signin")
+        False ->
+          http_core.redirect("/signin")
+          |> http_core.set_cookie_with_plain_text(req, "errors", "ng")
       }
     }
     Signout -> {

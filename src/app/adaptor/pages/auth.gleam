@@ -1,4 +1,5 @@
 import app/adaptor/pages/shared/html
+import gleam/result
 import lib/http_core
 
 const form = "
@@ -12,8 +13,14 @@ const form = "
   </label>
 "
 
-pub fn signin(_req: http_core.Request) {
+pub fn signin(req: http_core.Request) {
+  let cookie =
+    req |> http_core.get_cookie_with_plan_text("errors") |> result.unwrap("")
+
   let form = html.form("POST", "/signin", form)
 
-  html.div("<h1>signin</h1>" <> form)
+  case cookie {
+    "" -> html.div("<h1>signin</h1>" <> form)
+    _ -> html.div(cookie) <> html.div("<h1>signin</h1>" <> form)
+  }
 }

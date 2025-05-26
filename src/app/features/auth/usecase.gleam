@@ -1,3 +1,4 @@
+import gleam/dict
 import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/result
@@ -7,7 +8,8 @@ type Dto {
 }
 
 pub fn invoke(values: List(#(String, String))) {
-  let json = values |> dynamic.from
+  echo values
+  let json = values |> dict.from_list |> dynamic.from
   let result = {
     use dto <- result.try(decode.run(json, decode_ticket()))
     dto |> Ok()
@@ -15,7 +17,7 @@ pub fn invoke(values: List(#(String, String))) {
 
   case result {
     Ok(values) -> validate(values)
-    Error(_) -> True
+    Error(_) -> False
   }
 }
 
