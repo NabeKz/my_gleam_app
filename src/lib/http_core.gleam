@@ -1,6 +1,4 @@
 import gleam/bit_array
-import gleam/http/cookie
-import gleam/http/response
 import gleam/result
 import gleam/uri
 import wisp
