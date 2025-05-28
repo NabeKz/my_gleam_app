@@ -21,6 +21,7 @@ type Auth {
 pub fn handle_request(ctx: context.Context, req: Request) -> Response {
   use <- auth_middleware(req)
   use req <- middleware(req)
+  use req <- layout(req)
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)
@@ -54,6 +55,14 @@ pub fn middleware(
   use req <- to_page(req)
 
   handle_request(req)
+}
+
+pub fn layout(req: Request, handle_request: fn(Request) -> String) -> String {
+  "<head>
+    <style>
+      ul, li { margin: 0; }
+    </style>
+  </head>" <> handle_request(req)
 }
 
 // TODO: refactor nest
