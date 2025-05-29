@@ -5,11 +5,11 @@ import lib/http_core
 const form = "
   <label for=id>
     id
-    <div><input name=id id=id /><div>
+    <div><input name=id id=id /></div>
   </label>
   <label for=password>
     password
-    <div><input name=password id=password /><div>
+    <div><input name=password id=password /></div>
   </label>
 "
 

@@ -6,7 +6,8 @@ pub fn style_sheet(
 ) -> String {
   "<head>
     <style>
-      ul, li { margin: 0; }
+      ul, li, form { margin: 0; }
+      form { button[type=submit] { margin-top: 10px; }}
     </style>
   </head>" <> handle_request(req)
 }

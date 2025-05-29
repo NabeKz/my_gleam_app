@@ -46,15 +46,16 @@ pub fn div(tag: String) -> String {
 }
 
 pub fn form(method: String, action: String, tag: String) -> String {
-  let head =
-    "<form method=$method action=$action>"
-    |> string.replace("$method", method)
-    |> string.replace("$action", action)
-
-  head
+  "<form method=$method action=$action>"
+  |> string.replace("$method", method)
+  |> string.replace("$action", action)
   <> tag
-  <> "<div style=padding-top:10px>"
-  <> "  <button type=submit >submit</button>"
-  <> "</div>"
+  <> submit()
   <> "</form>"
+}
+
+pub fn submit() -> String {
+  "
+    <button type=submit >submit</button>
+  "
 }
