@@ -2,7 +2,7 @@ import app/adaptor/pages/auth
 import app/adaptor/pages/shared/layout
 import app/features/auth/usecase
 import gleam/bool
-import gleam/http.{Get, Post}
+import gleam/http.{Delete, Get, Post}
 import gleam/result
 import gleam/string_tree
 import wisp
@@ -20,7 +20,8 @@ type Auth {
 }
 
 pub fn handle_request(ctx: context.Context, req: Request) -> Response {
-  use <- auth_middleware(req)
+  let req = http_core.method_override(req)
+  // use <- auth_middleware(req)
   use req <- middleware(req)
   use req <- layout.style_sheet(req)
 
@@ -36,8 +37,8 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
     ["tickets", id, "edit"], Get -> ticket.update_page(id, ctx.ticket.searched)
     ["tickets", id, "edit"], Post ->
       ticket.update_result_page(req, id, ctx.ticket.updated)
-    // TODO: method override
-    ["tickets", id], Post -> ticket.delete_page(id, ctx.ticket.deleted)
+    ["tickets", "delete", id], Delete ->
+      ticket.delete_page(id, ctx.ticket.deleted)
     _, _ -> ""
   }
 }

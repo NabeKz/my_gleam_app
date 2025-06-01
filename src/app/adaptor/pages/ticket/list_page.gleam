@@ -70,7 +70,7 @@ fn t_data(items: List(List(String))) -> List(String) {
           <a href=/tickets/$id>to $id</a>
         </td>  
         <td>  
-          <form action=/tickets/$id method=POST >
+          <form action=/tickets/delete/$id?_method=DELETE method=POST >
             <button type=submit> delete </button>
           </form>
         </td>
