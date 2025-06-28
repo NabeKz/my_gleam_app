@@ -71,7 +71,7 @@ pub fn new_ticket(
   created_at created_at: String,
 ) -> Result(Ticket, List(String)) {
   let decode = {
-    // not use ver.
+    // MEMO: not use ver. - equivalent code without using 'use' syntax
     // validator.field(
     //   validator.wrap("id", id)
     //     |> validator.required()
