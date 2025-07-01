@@ -2,6 +2,8 @@ import gleam/erlang/process.{type Subject}
 import gleam/list
 import gleam/otp/actor
 
+const max_history = 10
+
 pub type MockRepository(a) {
   MockRepository(subject: Subject(Message(a)))
 }
@@ -10,7 +12,6 @@ pub type Message(a) {
   Push(a, Subject(Nil))
   GetAll(Subject(List(a)))
   Clear(Subject(Nil))
-  Length(Subject(Int))
 }
 
 pub fn new() -> MockRepository(a) {
@@ -33,17 +34,18 @@ pub fn clear(repo: MockRepository(a)) -> Nil {
   Nil
 }
 
-pub fn length(repo: MockRepository(a)) -> Int {
-  let count = process.call(repo.subject, Length, 1000)
-  count
-}
-
 fn handle_message(
   message: Message(a),
   state: List(a),
 ) -> actor.Next(Message(a), List(a)) {
   case message {
     Push(item, reply_to) -> {
+      let state = case list.length(state) >= max_history {
+        True -> {
+          [item, ..list.take(state, max_history)]
+        }
+        False -> [item, ..state]
+      }
       process.send(reply_to, Nil)
       actor.continue([item, ..state])
     }
@@ -54,10 +56,6 @@ fn handle_message(
     Clear(reply_to) -> {
       process.send(reply_to, Nil)
       actor.continue([])
-    }
-    Length(reply_to) -> {
-      process.send(reply_to, list.length(state))
-      actor.continue(state)
     }
   }
 }
