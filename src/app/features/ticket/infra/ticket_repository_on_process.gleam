@@ -1,61 +1,121 @@
+import app/features/ticket/domain
 import gleam/erlang/process.{type Subject}
+import gleam/int
 import gleam/list
 import gleam/otp/actor
+import gleam/result
 
 const max_history = 10
 
-pub type MockRepository(a) {
-  MockRepository(subject: Subject(Message(a)))
+pub type MockRepo(a) {
+  MockRepo(subject: Subject(Message(a)))
+}
+
+pub type MockRepository {
+  MockRepository(
+    list: domain.TicketListed,
+    create: domain.TicketCreated,
+    find: domain.TicketSearched,
+    delete: domain.TicketDeleted,
+    update: domain.TicketUpdated,
+  )
 }
 
 pub type Message(a) {
   Push(a, Subject(Nil))
+  GetId(Subject(Int))
   GetAll(Subject(List(a)))
   Clear(Subject(Nil))
 }
 
-pub fn new() -> MockRepository(a) {
-  let assert Ok(subject) = actor.start([], handle_message)
-  MockRepository(subject)
+pub fn new() -> Subject(Message(domain.Ticket)) {
+  let items =
+    [
+      domain.new_ticket(
+        id: "1",
+        title: "hoge",
+        description: "",
+        created_at: "2024-05-01",
+      ),
+      domain.new_ticket(
+        id: "2",
+        title: "fuga",
+        description: "",
+        created_at: "2024-05-01",
+      ),
+      domain.new_ticket(
+        id: "3",
+        title: "piyo",
+        description: "",
+        created_at: "2024-05-01",
+      ),
+    ]
+    |> result.values
+
+  let id = items |> list.length |> int.add(1)
+  let assert Ok(subject) = actor.start(#(id, items), handle_message)
+  subject
 }
 
-pub fn push(repo: MockRepository(a), item: a) -> Nil {
-  let _ = process.call(repo.subject, Push(item, _), 1000)
+pub fn new_repository() -> MockRepository {
+  let subject = new()
+
+  MockRepository(
+    list: fn(_) { subject |> get_all },
+    create: fn(item: domain.TicketWriteModel) {
+      let id = process.call(subject, GetId, 1000) |> int.to_string()
+      let model = domain.to(item, domain.ticket_id(id))
+      push(subject, model)
+      model.id
+    },
+    find: fn(id: domain.TicketId) { todo },
+    delete: fn(id: domain.TicketId) { todo },
+    update: fn(item: domain.Ticket) { todo },
+  )
+}
+
+fn push(subject: Subject(Message(a)), item: a) -> Nil {
+  let _ = process.call(subject, Push(item, _), 1000)
   Nil
 }
 
-pub fn get_all(repo: MockRepository(a)) -> List(a) {
-  let items = process.call(repo.subject, GetAll, 1000)
+fn get_all(subject: Subject(Message(a))) -> List(a) {
+  let items = process.call(subject, GetAll, 1000)
   list.reverse(items)
 }
 
-pub fn clear(repo: MockRepository(a)) -> Nil {
-  let _ = process.call(repo.subject, Clear, 1000)
+fn clear(subject: Subject(Message(a))) -> Nil {
+  let _ = process.call(subject, Clear, 1000)
   Nil
 }
 
 fn handle_message(
   message: Message(a),
-  state: List(a),
-) -> actor.Next(Message(a), List(a)) {
+  state: #(Int, List(a)),
+) -> actor.Next(Message(a), #(Int, List(a))) {
   case message {
     Push(item, reply_to) -> {
-      let state = case list.length(state) >= max_history {
+      let id = state.0 + 1
+      let state = case list.length(state.1) >= max_history {
         True -> {
-          [item, ..list.take(state, max_history)]
+          #(id, [item, ..list.take(state.1, max_history)])
         }
-        False -> [item, ..state]
+        False -> #(id, [item, ..list.take(state.1, max_history)])
       }
       process.send(reply_to, Nil)
-      actor.continue([item, ..state])
+      actor.continue(state)
+    }
+    GetId(reply_to) -> {
+      process.send(reply_to, state.0)
+      actor.continue(state)
     }
     GetAll(reply_to) -> {
-      process.send(reply_to, state)
+      process.send(reply_to, state.1)
       actor.continue(state)
     }
     Clear(reply_to) -> {
       process.send(reply_to, Nil)
-      actor.continue([])
+      actor.continue(#(0, []))
     }
   }
 }
