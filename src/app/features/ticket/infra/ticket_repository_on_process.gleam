@@ -61,27 +61,21 @@ pub fn new_repository() -> MockRepository {
   let subject = new()
 
   MockRepository(
-    list: fn(_) { subject |> get_all },
+    list: fn(_) { process.call(subject, GetAll, 1000) |> list.reverse },
     create: fn(item: domain.TicketWriteModel) {
       let id = process.call(subject, GetId, 1000) |> int.to_string()
       let model = domain.to(item, domain.ticket_id(id))
-      push(subject, model)
+      let _ = process.call(subject, Push(model, _), 1000)
       model.id
     },
-    find: fn(id: domain.TicketId) { todo },
+    find: fn(id: domain.TicketId) {
+      process.call(subject, GetAll, 1000)
+      |> list.find(fn(item) { item.id == id })
+      |> result.map_error(fn(_) { "not found" })
+    },
     delete: fn(id: domain.TicketId) { todo },
     update: fn(item: domain.Ticket) { todo },
   )
-}
-
-fn push(subject: Subject(Message(a)), item: a) -> Nil {
-  let _ = process.call(subject, Push(item, _), 1000)
-  Nil
-}
-
-fn get_all(subject: Subject(Message(a))) -> List(a) {
-  let items = process.call(subject, GetAll, 1000)
-  list.reverse(items)
 }
 
 fn clear(subject: Subject(Message(a))) -> Nil {
