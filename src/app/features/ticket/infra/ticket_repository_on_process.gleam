@@ -4,6 +4,7 @@ import gleam/int
 import gleam/list
 import gleam/otp/actor
 import gleam/result
+import lib/date_time
 
 const max_history = 10
 
@@ -28,37 +29,32 @@ pub type Message(a) {
   Clear(Subject(Nil))
 }
 
-pub fn new() -> Subject(Message(domain.Ticket)) {
+pub fn new() -> MockRepository {
   let items =
     [
       domain.new_ticket(
         id: "1",
         title: "hoge",
         description: "",
-        created_at: "2024-05-01",
+        created_at: date_time.now() |> date_time.to_string(),
       ),
       domain.new_ticket(
         id: "2",
         title: "fuga",
         description: "",
-        created_at: "2024-05-01",
+        created_at: date_time.now() |> date_time.to_string(),
       ),
       domain.new_ticket(
         id: "3",
         title: "piyo",
         description: "",
-        created_at: "2024-05-01",
+        created_at: date_time.now() |> date_time.to_string(),
       ),
     ]
     |> result.values
 
   let id = items |> list.length |> int.add(1)
   let assert Ok(subject) = actor.start(#(id, items), handle_message)
-  subject
-}
-
-pub fn new_repository() -> MockRepository {
-  let subject = new()
 
   MockRepository(
     list: fn(_) { process.call(subject, GetAll, 1000) |> list.reverse },
@@ -94,7 +90,7 @@ fn handle_message(
         True -> {
           #(id, [item, ..list.take(state.1, max_history)])
         }
-        False -> #(id, [item, ..list.take(state.1, max_history)])
+        False -> #(id, [item, ..state.1])
       }
       process.send(reply_to, Nil)
       actor.continue(state)
