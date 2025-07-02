@@ -11,11 +11,23 @@ pub type Conn(k, v) {
 
 pub type MatchSpec
 
-// TODO: ffi
-
+// === ETS FFI ===
 @external(erlang, "ets", "new")
 fn new(name: atom.Atom, props: List(atom.Atom)) -> Nil
 
+@external(erlang, "ets", "tab2list")
+fn all_private(name: atom.Atom) -> List(#(k, v))
+
+@external(erlang, "ets", "insert")
+fn insert(name: atom.Atom, tuple: #(k, v)) -> Nil
+
+@external(erlang, "ets", "lookup")
+fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
+
+@external(erlang, "ets", "delete")
+fn delete_table(table: atom.Atom, key: k) -> Nil
+
+//
 pub fn init(name: String) -> String {
   atom.create_from_string(name)
   |> new([
@@ -26,16 +38,10 @@ pub fn init(name: String) -> String {
   name
 }
 
-@external(erlang, "ets", "tab2list")
-fn all_private(name: atom.Atom) -> List(#(k, v))
-
 pub fn all(name: String) -> List(#(k, v)) {
   atom.create_from_string(name)
   |> all_private()
 }
-
-@external(erlang, "ets", "insert")
-fn insert(name: atom.Atom, tuple: #(k, v)) -> Nil
 
 pub fn put(name: String, tuple: #(k, v)) -> String {
   name
@@ -43,9 +49,6 @@ pub fn put(name: String, tuple: #(k, v)) -> String {
   |> insert(tuple)
   name
 }
-
-@external(erlang, "ets", "lookup")
-fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
 
 pub fn get(table: String, key: k) -> Result(#(k, v), String) {
   let result =
@@ -58,9 +61,6 @@ pub fn get(table: String, key: k) -> Result(#(k, v), String) {
     _ -> Error("not found")
   }
 }
-
-@external(erlang, "ets", "delete")
-fn delete_table(table: atom.Atom, key: k) -> Nil
 
 pub fn delete(table: String, key: k) -> Nil {
   table

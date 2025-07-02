@@ -26,6 +26,8 @@ pub type Message(a) {
   Push(a, Subject(Nil))
   GetId(Subject(Int))
   GetAll(Subject(List(a)))
+  Delete(List(a), Subject(Nil))
+  Update(List(a), Subject(Nil))
   Clear(Subject(Nil))
 }
 
@@ -69,14 +71,25 @@ pub fn new() -> MockRepository {
       |> list.find(fn(item) { item.id == id })
       |> result.map_error(fn(_) { "not found" })
     },
-    delete: fn(id: domain.TicketId) { todo },
-    update: fn(item: domain.Ticket) { todo },
+    delete: fn(id: domain.TicketId) {
+      let items = process.call(subject, GetAll, 1000)
+      let items = list.filter(items, fn(item) { item.id != id })
+      process.call(subject, Delete(items, _), 1000)
+      Ok(Nil)
+    },
+    update: fn(item: domain.Ticket) {
+      let items = process.call(subject, GetAll, 1000)
+      let items =
+        list.map(items, fn(x) {
+          case x.id == item.id {
+            True -> item
+            False -> x
+          }
+        })
+      process.call(subject, Update(items, _), 1000)
+      item.id
+    },
   )
-}
-
-fn clear(subject: Subject(Message(a))) -> Nil {
-  let _ = process.call(subject, Clear, 1000)
-  Nil
 }
 
 fn handle_message(
@@ -102,6 +115,14 @@ fn handle_message(
     GetAll(reply_to) -> {
       process.send(reply_to, state.1)
       actor.continue(state)
+    }
+    Delete(items, reply_to) -> {
+      process.send(reply_to, Nil)
+      actor.continue(#(state.0, items))
+    }
+    Update(items, reply_to) -> {
+      process.send(reply_to, Nil)
+      actor.continue(#(state.0, items))
     }
     Clear(reply_to) -> {
       process.send(reply_to, Nil)
