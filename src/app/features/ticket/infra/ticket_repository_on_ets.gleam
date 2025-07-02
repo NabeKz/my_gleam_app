@@ -1,12 +1,8 @@
-import app/features/ticket/domain/ticket_id
 import gleam/int
-import gleam/list
 import gleam/result
 import lib/storage
 
 import app/features/ticket/domain.{new_ticket}
-
-const table_index = "tickets_index"
 
 pub type MockRepository {
   MockRepository(
