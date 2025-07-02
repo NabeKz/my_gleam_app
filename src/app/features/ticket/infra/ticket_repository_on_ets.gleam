@@ -1,11 +1,10 @@
+import app/features/ticket/domain/ticket_id
 import gleam/int
 import gleam/list
 import gleam/result
 import lib/storage
 
 import app/features/ticket/domain.{new_ticket}
-
-const table = "tickets"
 
 const table_index = "tickets_index"
 
@@ -45,44 +44,28 @@ fn mock_items() -> List(domain.Ticket) {
 }
 
 pub fn new() -> MockRepository {
-  storage.init(table)
-  storage.init(table_index)
-  {
-    use it <- list.each(mock_items())
-    storage.put(table, #(it.id, it))
+  let conn = {
+    use it <- storage.conn("tickes", mock_items())
+    it.id
   }
-  storage.put(table_index, #("index", mock_items() |> list.length()))
 
   MockRepository(
-    list: fn(_) {
-      use it <- list.map(storage.all(table))
-      it.1
-    },
+    list: fn(_) { conn.all() },
     create: fn(item: domain.TicketWriteModel) {
-      let index =
-        storage.all(table_index)
-        |> list.first()
-        |> result.unwrap(#("index", 0))
-      let item =
-        index.1
-        |> int.add(1)
-        |> int.to_string()
-        |> domain.ticket_id()
-        |> domain.to(item, _)
-
-      storage.put(table, #(item.id, item))
-      item.id
+      let id = conn.get_next_id() |> int.to_string |> domain.ticket_id
+      let item = id |> domain.to(item, _)
+      conn.create(#(id, item))
     },
     find: fn(id: domain.TicketId) -> Result(domain.Ticket, String) {
-      use #(_, value) <- result.try(storage.get(table, id))
+      use #(_, value) <- result.try(conn.get(id))
       value |> Ok()
     },
     delete: fn(id: domain.TicketId) {
-      storage.delete(table, id)
+      conn.delete(id)
       |> Ok()
     },
     update: fn(item: domain.Ticket) {
-      storage.put(table, #(item.id, item))
+      conn.put(#(item.id, item))
       item.id
     },
   )

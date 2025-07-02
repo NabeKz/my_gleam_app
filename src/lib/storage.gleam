@@ -1,79 +1,101 @@
 import gleam/erlang/atom
+import gleam/int
+import gleam/list
 
 pub type Conn(k, v) {
   Conn(
-    all: fn() -> List(#(k, v)),
+    get_next_id: fn() -> Int,
+    all: fn() -> List(v),
     get: fn(k) -> Result(#(k, v), String),
-    put: fn(#(k, v)) -> String,
+    create: fn(#(k, v)) -> k,
+    put: fn(#(k, v)) -> Nil,
     delete: fn(k) -> Nil,
   )
 }
 
 pub type MatchSpec
 
+pub type Table {
+  Table(value: atom.Atom)
+}
+
+pub fn conn(name: String, items: List(a), key: fn(a) -> b) -> Conn(b, a) {
+  let table = init(name)
+  let table_index = init(name <> "_index")
+
+  {
+    use it <- list.each(items)
+    put(table, #(key(it), it))
+  }
+
+  let id = items |> list.length
+  table_index |> put(#("index", id))
+
+  Conn(
+    get_next_id: fn() { get_next_id(table_index) },
+    all: fn() { table |> all },
+    get: get(table, _),
+    create: create(table, table_index, _),
+    put: put(table, _),
+    delete: delete(table, _),
+  )
+}
+
 // === ETS FFI ===
 @external(erlang, "ets", "new")
 fn new(name: atom.Atom, props: List(atom.Atom)) -> Nil
 
-@external(erlang, "ets", "tab2list")
-fn all_private(name: atom.Atom) -> List(#(k, v))
-
-@external(erlang, "ets", "insert")
-fn insert(name: atom.Atom, tuple: #(k, v)) -> Nil
-
-@external(erlang, "ets", "lookup")
-fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
-
-@external(erlang, "ets", "delete")
-fn delete_table(table: atom.Atom, key: k) -> Nil
-
-//
-pub fn init(name: String) -> String {
-  atom.create_from_string(name)
+pub fn init(name: String) -> Table {
+  let name = atom.create_from_string(name)
+  name
   |> new([
     atom.create_from_string("ordered_set"),
     atom.create_from_string("named_table"),
     atom.create_from_string("public"),
   ])
-  name
+  Table(name)
 }
 
-pub fn all(name: String) -> List(#(k, v)) {
-  atom.create_from_string(name)
-  |> all_private()
+@external(erlang, "ets", "tab2list")
+fn tab2list(name: atom.Atom) -> List(#(k, v))
+
+pub fn all(table: Table) -> List(v) {
+  let table = table.value |> tab2list
+  use it <- list.map(table)
+  it.1
 }
 
-pub fn put(name: String, tuple: #(k, v)) -> String {
-  name
-  |> atom.create_from_string()
-  |> insert(tuple)
-  name
-}
+@external(erlang, "ets", "lookup")
+fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
 
-pub fn get(table: String, key: k) -> Result(#(k, v), String) {
-  let result =
-    table
-    |> atom.create_from_string()
-    |> lookup(key)
-
-  case result {
+pub fn get(table: Table, key: k) -> Result(#(k, v), String) {
+  case table.value |> lookup(key) {
     [value] -> Ok(value)
     _ -> Error("not found")
   }
 }
 
-pub fn delete(table: String, key: k) -> Nil {
-  table
-  |> atom.create_from_string()
-  |> delete_table(key)
+@external(erlang, "ets", "insert")
+fn insert(name: atom.Atom, tuple: #(k, v)) -> Nil
+
+pub fn get_next_id(table: Table) -> Int {
+  let assert Ok(id) = table.value |> lookup("index") |> list.first
+  id.1 |> int.add(1, _)
 }
 
-pub fn conn(name: String) -> Conn(k, v) {
-  init(name)
-  Conn(
-    all: fn() { name |> all() },
-    get: get(name, _),
-    put: put(name, _),
-    delete: delete(name, _),
-  )
+pub fn create(table: Table, table2: Table, item: #(k, v)) -> k {
+  table.value |> insert(item)
+  table2.value |> insert(#("index", item.0))
+  item.0
+}
+
+pub fn put(table: Table, tuple: #(k, v)) -> Nil {
+  table.value |> insert(tuple)
+}
+
+@external(erlang, "ets", "delete")
+fn delete_table(table: atom.Atom, key: k) -> Nil
+
+pub fn delete(table: Table, key: k) -> Nil {
+  table.value |> delete_table(key)
 }
