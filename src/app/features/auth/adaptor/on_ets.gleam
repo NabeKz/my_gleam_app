@@ -1,10 +1,10 @@
 import app/features/auth/domain
 import lib/storage
 
-const table = "auth"
-
 fn authenticated(form form: domain.Form) -> Bool {
-  case storage.get(table, form.email) {
+  let empty: List(domain.Form) = []
+  let conn = storage.conn("auth", empty, fn(it) { it.email })
+  case conn.get(form.email) {
     Ok(_) -> True
     _ -> False
   }

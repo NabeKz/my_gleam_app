@@ -68,7 +68,7 @@ pub fn all(table: Table) -> List(v) {
 @external(erlang, "ets", "lookup")
 fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
 
-pub fn get(table: Table, key: k) -> Result(#(k, v), String) {
+fn get(table: Table, key: k) -> Result(#(k, v), String) {
   case table.value |> lookup(key) {
     [value] -> Ok(value)
     _ -> Error("not found")
@@ -78,24 +78,24 @@ pub fn get(table: Table, key: k) -> Result(#(k, v), String) {
 @external(erlang, "ets", "insert")
 fn insert(name: atom.Atom, tuple: #(k, v)) -> Nil
 
-pub fn get_next_id(table: Table) -> Int {
+fn get_next_id(table: Table) -> Int {
   let assert Ok(id) = table.value |> lookup("index") |> list.first
   id.1 |> int.add(1, _)
 }
 
-pub fn create(table: Table, table2: Table, item: #(k, v)) -> k {
+fn create(table: Table, table2: Table, item: #(k, v)) -> k {
   table.value |> insert(item)
   table2.value |> insert(#("index", item.0))
   item.0
 }
 
-pub fn put(table: Table, tuple: #(k, v)) -> Nil {
+fn put(table: Table, tuple: #(k, v)) -> Nil {
   table.value |> insert(tuple)
 }
 
 @external(erlang, "ets", "delete")
 fn delete_table(table: atom.Atom, key: k) -> Nil
 
-pub fn delete(table: Table, key: k) -> Nil {
+fn delete(table: Table, key: k) -> Nil {
   table.value |> delete_table(key)
 }
