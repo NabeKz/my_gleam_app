@@ -18,7 +18,7 @@ pub fn new() -> user.UserRepository {
   )
 }
 
-fn save(items: List(UserReadModel), item: User) -> Result(String, _) {
+fn save(items: List(UserReadModel), _item: User) -> Result(String, _) {
   let id = list.length(of: items) |> int.to_string()
 
   Ok(id)
