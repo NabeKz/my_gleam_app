@@ -9,7 +9,6 @@ pub fn main() {
 pub fn validation_success_test() {
   let ticket =
     domain.new_ticket(
-      id: "1",
       title: "hoge",
       description: "fugafuga",
       created_at: "piyopiyo",
@@ -19,23 +18,10 @@ pub fn validation_success_test() {
   |> should.be_ok()
 }
 
-pub fn validation_id_is_empty_test() {
-  let ticket =
-    domain.new_ticket(
-      id: "",
-      title: "a",
-      description: "fugafuga",
-      created_at: "piyopiyo",
-    )
-
-  ticket
-  |> should.equal(Error(["id required"]))
-}
 
 pub fn validation_title_is_empty_test() {
   let ticket =
     domain.new_ticket(
-      id: "1",
       title: "",
       description: "fugafuga",
       created_at: "piyopiyo",
@@ -47,12 +33,7 @@ pub fn validation_title_is_empty_test() {
 
 pub fn validation_created_at_is_empty_test() {
   let ticket =
-    domain.new_ticket(
-      id: "1",
-      title: "a",
-      description: "fugafuga",
-      created_at: "",
-    )
+    domain.new_ticket(title: "a", description: "fugafuga", created_at: "")
 
   ticket
   |> should.equal(Error(["created_at required"]))
@@ -61,12 +42,11 @@ pub fn validation_created_at_is_empty_test() {
 pub fn validation_failure_multi_field_test() {
   let ticket =
     domain.new_ticket(
-      id: "",
       title: "",
       description: "fugafuga",
       created_at: "piyopiyo",
     )
 
   ticket
-  |> should.equal(Error(["id required", "title required"]))
+  |> should.equal(Error(["title required"]))
 }
