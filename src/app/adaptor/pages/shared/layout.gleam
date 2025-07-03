@@ -16,5 +16,5 @@ pub fn public(
   req: http_core.Request,
   f: fn(http_core.Request) -> String,
 ) -> String {
-  "<main>" <> "</main>"
+  "<main>" <> f(req) <> "</main>"
 }

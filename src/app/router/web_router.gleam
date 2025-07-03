@@ -24,6 +24,7 @@ pub fn handle_request(ctx: context.Context, req: Request) -> Response {
   // use <- auth_middleware(req)
   use req <- middleware(req)
   use req <- layout.style_sheet(req)
+  use req <- layout.public(req)
 
   case http_core.path_segments(req), req.method {
     [], Get -> home_page(req)

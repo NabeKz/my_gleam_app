@@ -21,10 +21,6 @@ pub fn new() -> user.UserRepository {
 fn save(items: List(UserReadModel), item: User) -> Result(String, _) {
   let id = list.length(of: items) |> int.to_string()
 
-  user.user_read_model_from_user(id, item)
-  |> list.wrap()
-  |> list.append(items, _)
-
   Ok(id)
 }
 
