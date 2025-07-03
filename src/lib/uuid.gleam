@@ -1,5 +1,5 @@
 import gluid
 
-pub fn uuid_v4() -> String {
+pub fn v4() -> String {
   gluid.guidv4()
 }

@@ -1,3 +1,4 @@
+import app/features/ticket/domain/ticket_id
 import gleam/dynamic/decode
 import gleam/int
 import gleam/option
@@ -79,7 +80,12 @@ pub fn find(
   "
 
   let result =
-    db.query(sql, conn, [id |> domain.decode |> db.placeholder], decoder())
+    db.query(
+      sql,
+      conn,
+      [id |> ticket_id.to_string |> db.placeholder],
+      decoder(),
+    )
 
   result |> db.handle_find_result
 }

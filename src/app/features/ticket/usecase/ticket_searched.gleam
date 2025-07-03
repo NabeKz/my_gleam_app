@@ -1,6 +1,7 @@
 import gleam/json
 
 import app/features/ticket/domain
+import app/features/ticket/domain/ticket_id
 import app/features/ticket/domain/ticket_status
 
 pub type Dto {
@@ -41,7 +42,7 @@ pub fn invoke(
 
 fn decode(item: domain.Ticket) -> Dto {
   Dto(
-    id: item.id |> domain.decode,
+    id: item.id |> ticket_id.to_string,
     title: item.title,
     description: item.description,
     status: item.status |> ticket_status.to_string,

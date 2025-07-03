@@ -16,24 +16,9 @@ pub type MockRepository {
 
 fn mock_items() -> List(domain.Ticket) {
   [
-    new_ticket(
-      id: "1",
-      title: "hoge",
-      description: "",
-      created_at: "2024-05-01",
-    ),
-    new_ticket(
-      id: "2",
-      title: "fuga",
-      description: "",
-      created_at: "2024-05-01",
-    ),
-    new_ticket(
-      id: "3",
-      title: "piyo",
-      description: "",
-      created_at: "2024-05-01",
-    ),
+    new_ticket(title: "hoge", description: "aaaaaa", created_at: "2024-05-01"),
+    new_ticket(title: "fuga", description: "bbbbbb", created_at: "2024-05-01"),
+    new_ticket(title: "piyo", description: "cccccc", created_at: "2024-05-01"),
   ]
   |> result.all()
   |> result.unwrap([])

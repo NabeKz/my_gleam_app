@@ -1,9 +1,10 @@
-import app/features/ticket/domain
-import app/features/ticket/usecase/ticket_created
 import gleam/dict
 import gleam/dynamic
 import gleam/string
 import lib/http_core
+
+import app/features/ticket/domain/ticket_id
+import app/features/ticket/usecase/ticket_created
 
 const header = "<h1> tickets </h1>"
 
@@ -32,7 +33,7 @@ pub fn post(req: http_core.Request, usecase: ticket_created.Workflow) -> String 
   let result = form.values |> dict.from_list |> dynamic.from |> usecase()
 
   case result {
-    Ok(id) -> domain.decode(id) |> create_success()
+    Ok(id) -> id |> ticket_id.to_string |> create_success()
     Error(_) -> "failure"
   }
 }

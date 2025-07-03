@@ -1,9 +1,9 @@
-import app/adaptor/pages/shared/html
-import app/features/ticket/domain
 import gleam/dict
 import gleam/dynamic
 import gleam/string
 
+import app/adaptor/pages/shared/html
+import app/features/ticket/domain/ticket_id
 import app/features/ticket/usecase/ticket_searched
 import app/features/ticket/usecase/ticket_updated
 import lib/http_core
@@ -45,7 +45,7 @@ pub fn post(
   let form = form.values |> dict.from_list |> dynamic.from
 
   case usecase(id)(form) {
-    Ok(id) -> domain.decode(id) |> update_success()
+    Ok(id) -> id |> ticket_id.to_string |> update_success()
     Error(_) -> "failure"
   }
 }

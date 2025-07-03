@@ -4,6 +4,7 @@ import gleam/option.{type Option}
 import gleam/result
 
 import app/features/ticket/domain
+import app/features/ticket/domain/ticket_id
 import app/features/ticket/domain/ticket_status
 import lib/date_time
 import lib/parser
@@ -82,7 +83,7 @@ fn validate(
 fn decode(items: List(domain.Ticket)) -> List(Dto) {
   list.map(items, fn(item) {
     Dto(
-      id: item.id |> domain.decode,
+      id: item.id |> ticket_id.to_string,
       title: item.title,
       status: item.status |> ticket_status.to_string(),
       created_at: item.created_at,

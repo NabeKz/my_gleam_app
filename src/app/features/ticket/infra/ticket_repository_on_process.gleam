@@ -35,19 +35,16 @@ pub fn new() -> MockRepository {
   let items =
     [
       domain.new_ticket(
-        id: "1",
         title: "hoge",
         description: "",
         created_at: date_time.now() |> date_time.to_string(),
       ),
       domain.new_ticket(
-        id: "2",
         title: "fuga",
         description: "",
         created_at: date_time.now() |> date_time.to_string(),
       ),
       domain.new_ticket(
-        id: "3",
         title: "piyo",
         description: "",
         created_at: date_time.now() |> date_time.to_string(),

@@ -1,16 +1,15 @@
 import gleam/option.{type Option}
-
 import lib/date_time
 import lib/validator
 
+import app/features/ticket/domain/ticket_id
 import app/features/ticket/domain/ticket_status.{type TicketStatus, Open}
+
+pub type TicketId =
+  ticket_id.TicketId
 
 pub type Reply {
   Reply(author: String, content: String, created_at: String)
-}
-
-pub opaque type TicketId {
-  TicketId(value: String)
 }
 
 pub type Ticket {
@@ -56,16 +55,7 @@ pub type TicketUpdated =
 pub type TicketDeleted =
   fn(TicketId) -> Result(Nil, String)
 
-pub fn ticket_id(s: String) -> TicketId {
-  TicketId(s)
-}
-
-pub fn decode(s: TicketId) -> String {
-  s.value
-}
-
 pub fn new_ticket(
-  id id: String,
   title title: String,
   description description: String,
   created_at created_at: String,
@@ -101,11 +91,6 @@ pub fn new_ticket(
     //     )
     //   },
     // )
-    use id <- validator.field(
-      validator.wrap("id", id)
-      |> validator.required()
-      |> validator.less_than(200),
-    )
     use title <- validator.field(
       validator.wrap("title", title)
       |> validator.required()
@@ -117,7 +102,7 @@ pub fn new_ticket(
     )
 
     Ticket(
-      id: ticket_id(id),
+      id: ticket_id.new(),
       title: title,
       description:,
       status: Open,
@@ -154,3 +139,5 @@ pub fn update(
     Error(_) -> Error("invalid")
   }
 }
+
+pub const ticket_id = ticket_id.from_string
