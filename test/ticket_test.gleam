@@ -28,7 +28,6 @@ fn mock_context() -> context.Context {
   )
 }
 
-
 pub fn post_tickets_success_test() {
   let object =
     json.object([

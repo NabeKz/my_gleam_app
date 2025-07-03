@@ -18,7 +18,6 @@ pub fn validation_success_test() {
   |> should.be_ok()
 }
 
-
 pub fn validation_title_is_empty_test() {
   let ticket =
     domain.new_ticket(
