@@ -5,14 +5,17 @@ pub type Form {
   Form(email: String, password: String)
 }
 
-pub fn signin() {
-  todo
+pub fn signin() -> Result(String, String) {
+  // TODO: Integrate with external auth service (e.g., Cognito)
+  Error("Not implemented")
 }
 
-pub fn signout() {
-  todo
+pub fn signout() -> Result(Nil, String) {
+  // TODO: Integrate with external auth service (e.g., Cognito)
+  Error("Not implemented")
 }
 
-pub fn signup() {
-  todo
+pub fn signup() -> Result(String, String) {
+  // TODO: Integrate with external auth service (e.g., Cognito)
+  Error("Not implemented")
 }
