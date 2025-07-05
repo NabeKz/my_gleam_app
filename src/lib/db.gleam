@@ -33,6 +33,25 @@ pub fn exec(
   }
 }
 
+pub fn insert_with_values(
+  table_name: String,
+  values: List(#(String, sqlight.Value)),
+) -> #(String, List(sqlight.Value)) {
+  let #(columns, values) = list.unzip(values)
+  let columns = columns |> string.join(",")
+  let placeholders = list.repeat("?", list.length(values)) |> string.join(",")
+  let sql =
+    "insert into "
+    <> table_name
+    <> " ("
+    <> columns
+    <> ") values ("
+    <> placeholders
+    <> ")"
+
+  #(sql, values)
+}
+
 pub fn query(
   sql: String,
   conn: Conn,
@@ -82,18 +101,3 @@ pub fn handle_find_result(
 }
 
 pub const string = sqlight.text
-
-pub fn insert(table_name: String, queries: List(String)) -> String {
-  let columns = list.map(queries, fn(it) { it }) |> string.join(",")
-  let values = list.map(queries, fn(_) { "?" }) |> string.join(",")
-
-  "insert into "
-  <> table_name
-  <> "("
-  <> columns
-  <> ")"
-  <> " values"
-  <> "("
-  <> values
-  <> ")"
-}

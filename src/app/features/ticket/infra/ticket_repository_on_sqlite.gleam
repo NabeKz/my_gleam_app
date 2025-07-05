@@ -49,15 +49,15 @@ pub fn create(
   conn: db.Conn,
   item: domain.TicketWriteModel,
 ) -> Result(Nil, db.Error) {
-  let sql =
-    db.insert(table_name, ["title", "description", "status", "created_at"])
+  let #(sql, values) =
+    db.insert_with_values(table_name, [
+      #("title", item.title |> db.string()),
+      #("description", item.description |> db.string()),
+      #("status", item.status |> ticket_status.to_string |> db.string()),
+      #("created_at", item.created_at |> db.string()),
+    ])
 
-  db.exec(sql, conn, [
-    item.title |> db.string(),
-    item.description |> db.string(),
-    item.status |> ticket_status.to_string |> db.string(),
-    item.created_at |> db.string(),
-  ])
+  db.exec(sql, conn, values)
 }
 
 pub fn find(
