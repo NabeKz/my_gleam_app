@@ -65,29 +65,19 @@ pub fn update(
   id: domain.TicketId,
   item: domain.TicketWriteModel,
 ) -> Result(domain.Ticket, db.ErrorMessage) {
-  let sql = "update " <> table_name <> " set "
-  let sql = sql <> "
-    title = ?,
-    description = ?,
-    status = ?,
-    created_at = ?
-    where id = ?
-  "
-
-  let result =
-    db.query(
-      sql,
-      conn,
+  let #(sql, values) =
+    db.update_with_values(
+      table_name,
       [
-        item.title |> db.string,
-        item.description |> db.string,
-        item.status |> ticket_status.to_string |> db.string,
-        item.created_at |> db.string,
-        id |> ticket_id.to_string |> db.string,
+        #("title", item.title |> db.string()),
+        #("description", item.description |> db.string()),
+        #("status", item.status |> ticket_status.to_string |> db.string()),
+        #("created_at", item.created_at |> db.string()),
       ],
-      decoder(),
+      #("id", id |> ticket_id.to_string |> db.string()),
     )
 
+  let result = db.query(sql, conn, values, decoder())
   result |> db.handle_find_result
 }
 

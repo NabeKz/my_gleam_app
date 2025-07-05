@@ -152,3 +152,27 @@ pub fn maybe_condition(
     option.None -> []
   }
 }
+
+pub fn update_with_values(
+  table_name: String,
+  update_values: List(#(String, sqlight.Value)),
+  where_condition: #(String, sqlight.Value),
+) -> #(String, List(sqlight.Value)) {
+  let #(columns, values) = list.unzip(update_values)
+  let set_clause = {
+    use it <- list.map(columns)
+    it <> " = ?"
+  }
+
+  let sql =
+    "update "
+    <> table_name
+    <> " set "
+    <> set_clause |> string.join(", ")
+    <> " where "
+    <> where_condition.0
+    <> " = ?"
+  let all_values = list.append(values, [where_condition.1])
+
+  #(sql, all_values)
+}
