@@ -1,12 +1,11 @@
 import app/features/ticket/domain/ticket_id
 import gleam/dynamic/decode
 import gleam/int
-import gleam/option
-import gleam/string
+import gleam/list
 
 import app/features/ticket/domain
 import app/features/ticket/domain/ticket_status
-import lib/db
+import lib/db.{Eq}
 
 const table_name = "tickets"
 
@@ -14,29 +13,18 @@ pub fn list(
   conn: db.Conn,
   params: domain.ValidateSearchParams,
 ) -> List(domain.Ticket) {
-  let sql = "select * from " <> table_name
-  let where = []
-  let where = case params.title {
-    option.Some("") -> where
-    option.Some(_) -> ["title = ?", ..where]
-    option.None -> where
-  }
-  let where = case params.status {
-    option.Some(_) -> ["status = ?", ..where]
-    option.None -> where
-  }
-  let sql = case where {
-    [] -> sql
-    _ -> sql <> " where " <> string.join(where, " and ")
-  }
-  let sql = sql <> ";"
-  let values = case params.title {
-    option.Some("") -> []
-    option.Some(value) -> [value |> db.string()]
-    option.None -> []
-  }
-  let result = db.query(sql, conn, values, decoder())
-  case result {
+  let conditions =
+    []
+    |> list.append(db.maybe_condition(Eq("title", _), params.title, db.string))
+    |> list.append(
+      db.maybe_condition(Eq("status", _), params.status, fn(it) {
+        it |> ticket_status.to_string |> db.string
+      }),
+    )
+
+  let #(sql, values) = db.select_with_where(table_name, conditions)
+
+  case db.query(sql, conn, values, decoder()) {
     Ok(value) -> value
     Error(error) -> {
       echo error

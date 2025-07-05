@@ -1,11 +1,21 @@
 import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/list
+import gleam/option
 import gleam/string
 import sqlight
 
 pub opaque type Conn {
   Conn(value: sqlight.Connection)
+}
+
+pub type WhereCondition {
+  Eq(String, sqlight.Value)
+  Like(String, sqlight.Value)
+  Gt(String, sqlight.Value)
+  Lt(String, sqlight.Value)
+  Gte(String, sqlight.Value)
+  Lte(String, sqlight.Value)
 }
 
 pub type Error =
@@ -31,25 +41,6 @@ pub fn exec(
     Ok(_) -> Ok(Nil)
     Error(error) -> Error(error)
   }
-}
-
-pub fn insert_with_values(
-  table_name: String,
-  values: List(#(String, sqlight.Value)),
-) -> #(String, List(sqlight.Value)) {
-  let #(columns, values) = list.unzip(values)
-  let columns = columns |> string.join(",")
-  let placeholders = list.repeat("?", list.length(values)) |> string.join(",")
-  let sql =
-    "insert into "
-    <> table_name
-    <> " ("
-    <> columns
-    <> ") values ("
-    <> placeholders
-    <> ")"
-
-  #(sql, values)
 }
 
 pub fn query(
@@ -101,3 +92,69 @@ pub fn handle_find_result(
 }
 
 pub const string = sqlight.text
+
+pub fn insert_with_values(
+  table_name: String,
+  values: List(#(String, sqlight.Value)),
+) -> #(String, List(sqlight.Value)) {
+  let #(columns, values) = list.unzip(values)
+  let columns = columns |> string.join(",")
+  let placeholders = list.repeat("?", list.length(values)) |> string.join(",")
+  let sql =
+    "insert into "
+    <> table_name
+    <> " ("
+    <> columns
+    <> ") values ("
+    <> placeholders
+    <> ")"
+
+  #(sql, values)
+}
+
+pub fn select_with_where(
+  table_name: String,
+  wheres: List(WhereCondition),
+) -> #(String, List(sqlight.Value)) {
+  let base_sql = "select * from " <> table_name
+
+  case wheres {
+    [] -> #(base_sql <> ";", [])
+    _ -> {
+      let #(where_clause, values) = build_where_clause(wheres)
+      let sql = base_sql <> " where " <> where_clause <> ";"
+      #(sql, values)
+    }
+  }
+}
+
+fn build_where_clause(
+  wheres: List(WhereCondition),
+) -> #(String, List(sqlight.Value)) {
+  let conditions_and_values = {
+    use it <- list.map(wheres)
+    case it {
+      Eq(col, val) -> #(col <> " = ?", val)
+      Like(col, val) -> #(col <> " LIKE ?", val)
+      Gt(col, val) -> #(col <> " > ?", val)
+      Lt(col, val) -> #(col <> " < ?", val)
+      Gte(col, val) -> #(col <> " >= ?", val)
+      Lte(col, val) -> #(col <> " <= ?", val)
+    }
+  }
+
+  let #(conditions, values) = list.unzip(conditions_and_values)
+  let where_clause = string.join(conditions, " and ")
+  #(where_clause, values)
+}
+
+pub fn maybe_condition(
+  make_condition: fn(sqlight.Value) -> WhereCondition,
+  value: option.Option(a),
+  to_value: fn(a) -> sqlight.Value,
+) -> List(WhereCondition) {
+  case value {
+    option.Some(val) -> [val |> to_value |> make_condition]
+    option.None -> []
+  }
+}
