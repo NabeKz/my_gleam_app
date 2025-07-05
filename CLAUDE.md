@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - The app runs on port 8000
 
 ### Database operations
-- `mise run migrate` - Reset and recreate the SQLite database with migrations
+- `mise run migrate` - Reset and recreate the SQLite database with Atlas migrations
 
 ### Testing
 - `gleam test` - Run all tests

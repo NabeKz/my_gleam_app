@@ -1,4 +1,3 @@
-import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/list
 import gleam/option
