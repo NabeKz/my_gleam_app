@@ -27,6 +27,8 @@ pub type ErrorMessage {
   SqlError(message: String)
 }
 
+pub const string = sqlight.text
+
 pub fn create(sql: String, conn: Conn) -> Result(Nil, Error) {
   sqlight.exec(sql, conn.value)
 }
@@ -69,12 +71,6 @@ pub fn transaction(conn: Conn) {
   let _ = sqlight.exec("commit transaction", conn.value)
 }
 
-pub fn placeholder(value: a) -> sqlight.Value {
-  let assert Ok(value) = dynamic.from(value) |> decode.run(decode.string)
-  // let value = result.map(value |>)
-  sqlight.text(value)
-}
-
 pub fn escape(values: List(String)) -> String {
   list.map(values, fn(it) { "'" <> it <> "'" })
   |> string.join(",")
@@ -90,8 +86,6 @@ pub fn handle_find_result(
     Error(err) -> Error(SqlError(err.message))
   }
 }
-
-pub const string = sqlight.text
 
 pub fn insert_with_values(
   table_name: String,

@@ -52,19 +52,10 @@ pub fn find(
   conn: db.Conn,
   id: domain.TicketId,
 ) -> Result(domain.Ticket, db.ErrorMessage) {
-  let sql = "select * from " <> table_name <> " "
-  let sql = sql <> "
-    where id = ?
-    limit 1;
-  "
+  let sql = "select * from " <> table_name <> " where id = ? limit 1;"
 
   let result =
-    db.query(
-      sql,
-      conn,
-      [id |> ticket_id.to_string |> db.placeholder],
-      decoder(),
-    )
+    db.query(sql, conn, [id |> ticket_id.to_string |> db.string], decoder())
 
   result |> db.handle_find_result
 }
@@ -88,11 +79,11 @@ pub fn update(
       sql,
       conn,
       [
-        item.title |> db.string(),
-        item.description |> db.string(),
-        item.status |> ticket_status.to_string |> db.string(),
-        item.created_at |> db.string(),
-        id |> db.placeholder,
+        item.title |> db.string,
+        item.description |> db.string,
+        item.status |> ticket_status.to_string |> db.string,
+        item.created_at |> db.string,
+        id |> ticket_id.to_string |> db.string,
       ],
       decoder(),
     )
@@ -101,8 +92,14 @@ pub fn update(
 }
 
 pub fn delete(conn: db.Conn, id: domain.TicketId) -> Result(Nil, String) {
-  let sql = "delete from " <> table_name <> "where id = ?"
-  let result = db.query(sql, conn, [id |> db.placeholder], decode.success(Nil))
+  let sql = "delete from " <> table_name <> " where id = ?"
+  let result =
+    db.query(
+      sql,
+      conn,
+      [id |> ticket_id.to_string |> db.string],
+      decode.success(Nil),
+    )
 
   case result {
     Ok(_) -> Ok(Nil)
