@@ -88,7 +88,7 @@ pub fn insert(table_name: String, queries: List(String)) -> String {
   <> "("
   <> columns
   <> ")"
-  <> "values"
+  <> " values"
   <> "("
   <> values
   <> ")"
