@@ -17,8 +17,16 @@ pub type ErrorMessage {
   SqlError(message: String)
 }
 
-pub fn exec(sql: String, conn: Conn) -> Result(Nil, Error) {
-  sqlight.exec(sql, conn.value)
+pub fn exec(
+  sql: String,
+  conn: Conn,
+  values: List(sqlight.Value),
+) -> Result(Nil, Error) {
+  let result = sqlight.query(sql, conn.value, values, decode.success(Nil))
+  case result {
+    Ok(_) -> Ok(Nil)
+    Error(error) -> Error(error)
+  }
 }
 
 pub fn query(
@@ -70,3 +78,18 @@ pub fn handle_find_result(
 }
 
 pub const string = sqlight.text
+
+pub fn insert(table_name: String, queries: List(String)) -> String {
+  let columns = list.map(queries, fn(it) { it }) |> string.join(",")
+  let values = list.map(queries, fn(_) { "?" }) |> string.join(",")
+
+  "insert into "
+  <> table_name
+  <> "("
+  <> columns
+  <> ")"
+  <> "values"
+  <> "("
+  <> values
+  <> ")"
+}

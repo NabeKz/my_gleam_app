@@ -45,28 +45,19 @@ pub fn list(
   }
 }
 
-pub fn create(conn: db.Conn, item: domain.TicketWriteModel) {
-  let sql = "insert into " <> table_name
-  let sql = sql <> "
-    (
-      title,
-      description,
-      status,
-      created_at 
-    ) values ("
-
+pub fn create(
+  conn: db.Conn,
+  item: domain.TicketWriteModel,
+) -> Result(Nil, db.Error) {
   let sql =
-    sql
-    <> [
-      item.title,
-      item.description,
-      item.status |> ticket_status.to_string,
-      item.created_at,
-    ]
-    |> db.escape()
-    <> ");"
+    db.insert(table_name, ["title", "description", "status", "created_at"])
 
-  db.exec(sql, conn)
+  db.exec(sql, conn, [
+    item.title |> db.string(),
+    item.description |> db.string(),
+    item.status |> ticket_status.to_string |> db.string(),
+    item.created_at |> db.string(),
+  ])
 }
 
 pub fn find(
