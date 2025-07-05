@@ -17,6 +17,10 @@ pub type ErrorMessage {
   SqlError(message: String)
 }
 
+pub fn create(sql: String, conn: Conn) -> Result(Nil, Error) {
+  sqlight.exec(sql, conn.value)
+}
+
 pub fn exec(
   sql: String,
   conn: Conn,

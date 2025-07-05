@@ -14,7 +14,7 @@ pub fn up(conn: db.Conn) {
     created_at TEXT
   );
   "
-  let assert Ok(Nil) = db.exec(sql, conn)
+  let assert Ok(Nil) = db.create(sql, conn)
 
   conn
 }
