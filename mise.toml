@@ -17,3 +17,9 @@ run = """
   atlas migrate apply --env dev
 """
 description = "Apply database migrations using Atlas"
+
+[tasks.schema]
+run = """
+  atlas schema inspect -u "sqlite://database.sqlite3" --format '{{ json . }}'
+"""
+description = "Apply database migrations using Atlas"
