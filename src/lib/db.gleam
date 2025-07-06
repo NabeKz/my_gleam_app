@@ -70,11 +70,6 @@ pub fn transaction(conn: Conn) {
   let _ = sqlight.exec("commit transaction", conn.value)
 }
 
-pub fn escape(values: List(String)) -> String {
-  list.map(values, fn(it) { "'" <> it <> "'" })
-  |> string.join(",")
-}
-
 pub fn handle_find_result(
   result: Result(List(a), Error),
 ) -> Result(a, ErrorMessage) {
