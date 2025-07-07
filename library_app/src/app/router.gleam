@@ -5,11 +5,11 @@ import wisp
 import app/handler/book_handler
 import shared/context
 
-pub fn handle_request(_ctx: context.Context, req: wisp.Request) -> wisp.Response {
+pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response {
   use path <- api_group(req)
 
   case path, req.method {
-    ["books"], _ -> book_handler.get(req)
+    ["books"], Get -> book_handler.get(req, ctx.search_books)
     ["health_check"], Get -> health_check()
     _, _ -> wisp.not_found()
   }
