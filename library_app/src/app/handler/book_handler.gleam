@@ -4,13 +4,16 @@ import wisp
 
 import features/book/usecase
 
+fn thunk(f: a) -> fn() -> a {
+  fn() { f }
+}
+
 pub fn get(req: wisp.Request, search_books: usecase.SearchBooks) {
   let result =
-    fn() {
-      req
-      |> wisp.get_query()
-      |> converter.to_search_params()
-    }
+    req
+    |> wisp.get_query()
+    |> converter.to_search_params()
+    |> thunk()
     |> search_books()
 
   case result {
