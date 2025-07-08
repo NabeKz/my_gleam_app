@@ -1,19 +1,21 @@
+import gleam/dynamic/decode
+import gleam/result
+
+import features/book/converter
 import features/book/model
-import gleam/option
+import features/book/types
 
 pub type GetBooks =
-  fn() -> List(model.Book)
+  fn(types.SearchParams) -> List(model.Book)
 
 pub type SearchBooks =
-  fn(SearchParams) -> List(model.Book)
+  fn(List(#(String, String))) ->
+    Result(List(model.Book), List(decode.DecodeError))
 
-pub type SearchParams {
-  SearchParams(title: option.Option(String), author: option.Option(String))
-}
-
-pub fn search_books(
-  _params: SearchParams,
+pub fn search_books_workflow(
+  params: List(#(String, String)),
   get_books: GetBooks,
-) -> List(model.Book) {
-  get_books()
+) -> Result(List(model.Book), List(decode.DecodeError)) {
+  use params <- result.try(converter.to_search_params(params))
+  get_books(params) |> Ok
 }

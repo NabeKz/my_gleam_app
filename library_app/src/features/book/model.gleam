@@ -1,9 +1,8 @@
-import features/book/vo/book_id
 import shared/lib/uuid
 import shared/validator
 
 pub type Book {
-  Book(id: book_id.BookId, title: BookTitle, author: BookAuthor)
+  Book(id: BookId, title: BookTitle, author: BookAuthor)
 }
 
 pub opaque type BookId {
@@ -34,7 +33,7 @@ pub fn new(
     use title <- validator.field(validate_title(title))
     use author <- validator.field(validate_author(author))
 
-    Book(id: book_id.new(), title:, author:)
+    Book(id: new_id(), title:, author:)
     |> validator.success()
   }
   validator.run(validated)

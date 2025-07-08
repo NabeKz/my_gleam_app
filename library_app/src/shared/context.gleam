@@ -5,5 +5,5 @@ pub type Context {
 }
 
 pub fn new() -> Context {
-  Context(search_books: usecase.search_books(_, fn() { [] }))
+  Context(search_books: usecase.search_books_workflow(_, fn(_) { [] }))
 }
