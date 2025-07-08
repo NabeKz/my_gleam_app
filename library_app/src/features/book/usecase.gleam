@@ -4,14 +4,17 @@ import gleam/result
 import features/book/model
 import features/book/types
 
-pub type CreateParams =
-  fn() -> Result(types.SearchParams, List(decode.DecodeError))
-
 pub type GetBooks =
   fn(types.SearchParams) -> List(model.Book)
 
+pub type CreateBook =
+  fn() -> Result(Nil, String)
+
 pub type SearchBooks =
   fn(CreateParams) -> Result(List(model.Book), List(decode.DecodeError))
+
+pub type CreateParams =
+  fn() -> Result(types.SearchParams, List(decode.DecodeError))
 
 pub fn compose_search_books(
   create_params: CreateParams,
