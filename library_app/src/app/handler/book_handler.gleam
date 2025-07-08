@@ -6,9 +6,11 @@ import features/book/usecase
 
 pub fn get(req: wisp.Request, search_books: usecase.SearchBooks) {
   let result =
-    req
-    |> wisp.get_query()
-    |> converter.to_search_params()
+    fn() {
+      req
+      |> wisp.get_query()
+      |> converter.to_search_params()
+    }
     |> search_books()
 
   case result {
