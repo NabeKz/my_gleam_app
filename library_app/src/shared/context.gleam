@@ -1,9 +1,20 @@
-import features/book/usecase
+import features/book/usecase as book_usecase
+import features/loan/usecase as loan_usecase
 
 pub type Context {
-  Context(search_books: usecase.SearchBooks)
+  Context(
+    search_books: book_usecase.SearchBooks,
+    loan_book: loan_usecase.LoanBook,
+    return_book: loan_usecase.ReturnBook,
+    get_loan: loan_usecase.GetLoan,
+  )
 }
 
 pub fn new() -> Context {
-  Context(search_books: usecase.compose_search_books(_, fn(_) { [] }))
+  Context(
+    search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
+    loan_book: todo,
+    return_book: todo,
+    get_loan: todo,
+  )
 }
