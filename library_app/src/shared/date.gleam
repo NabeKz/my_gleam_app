@@ -15,11 +15,26 @@ pub type Time {
 @external(erlang, "calendar", "local_time")
 fn local_time() -> #(#(Int, Int, Int), #(Int, Int, Int))
 
+// 日付に日数を加算
+@external(erlang, "calendar", "date_to_gregorian_days")
+fn date_to_gregorian_days(date: #(Int, Int, Int)) -> Int
+
+@external(erlang, "calendar", "gregorian_days_to_date")
+fn gregorian_days_to_date(days: Int) -> #(Int, Int, Int)
+
 pub fn now() -> Date {
   let #(date, _) = local_time()
   let #(year, month, day) = date
 
   Date(year:, month:, day:)
+}
+
+pub fn add_days(date: Date, days: Int) -> Date {
+  let erlang_date = #(date.year, date.month, date.day)
+  let gregorian_days = date_to_gregorian_days(erlang_date)
+  let new_gregorian_days = gregorian_days + days
+  let #(year, month, day) = gregorian_days_to_date(new_gregorian_days)
+  Date(year: year, month: month, day: day)
 }
 
 pub fn from_string(value: String) -> Result(Date, String) {
@@ -37,5 +52,6 @@ pub fn from_string(value: String) -> Result(Date, String) {
 
 pub fn to_string(date: Date) -> String {
   [int.to_string(date.year), int.to_string(date.month), int.to_string(date.day)]
+  |> list.map(fn(it) { it |> string.pad_start(2, "0") })
   |> string.join("-")
 }

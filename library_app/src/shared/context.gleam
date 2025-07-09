@@ -13,8 +13,8 @@ pub type Context {
 pub fn new() -> Context {
   Context(
     search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
-    loan_book: todo,
-    return_book: todo,
-    get_loan: todo,
+    loan_book: fn(_, _) { todo },
+    return_book: fn(_) { todo },
+    get_loan: fn(_) { todo },
   )
 }
