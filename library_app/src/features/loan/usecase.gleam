@@ -1,4 +1,4 @@
-import shared/domain/book_id
+import features/book/port/book_id
 import features/loan/domain
 import shared/date
 

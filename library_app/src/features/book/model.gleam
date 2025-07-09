@@ -1,10 +1,9 @@
+import features/book/port/book_id
 import shared/validator
-import shared/domain/book_id
 
 pub type Book {
   Book(id: book_id.BookId, title: BookTitle, author: BookAuthor)
 }
-
 
 pub opaque type BookTitle {
   BookTitle(value: String)
@@ -12,11 +11,6 @@ pub opaque type BookTitle {
 
 pub opaque type BookAuthor {
   BookAuthor(value: String)
-}
-
-
-pub fn title_to_string(vo: BookTitle) -> String {
-  vo.value
 }
 
 pub fn new(
@@ -32,7 +26,6 @@ pub fn new(
   }
   validator.run(validated)
 }
-
 
 fn validate_title(title: String) -> validator.Validator(BookTitle) {
   validator.wrap("title", title)
