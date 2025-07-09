@@ -10,7 +10,8 @@ pub fn main() {
 
 pub fn date_test() {
   let book_id = book_id.new()
-  let actual = domain.loan(book_id).due_date |> date.to_string
+  let loan = domain.loan(book_id, date.from(#(2025, 7, 10)))
+  let actual = loan.due_date |> date.to_string
 
   actual
   |> should.equal("2025-07-24")

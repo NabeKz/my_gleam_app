@@ -36,7 +36,7 @@ pub fn compose_get_loan(
   get_loan(book_id)
 }
 
-pub fn loan(book_id: book_id.BookId) -> Loan {
-  let due_date = date.now() |> date.add_days(14)
+pub fn loan(book_id: book_id.BookId, from: date.Date) -> Loan {
+  let due_date = from |> date.add_days(14)
   Loan(book_id:, due_date:)
 }

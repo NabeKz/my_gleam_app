@@ -29,7 +29,7 @@ pub fn now() -> Date {
   Date(year:, month:, day:)
 }
 
-fn from(date: #(Int, Int, Int)) -> Date {
+pub fn from(date: #(Int, Int, Int)) -> Date {
   Date(date.0, date.1, date.2)
 }
 
