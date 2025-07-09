@@ -29,12 +29,16 @@ pub fn now() -> Date {
   Date(year:, month:, day:)
 }
 
+fn from(date: #(Int, Int, Int)) -> Date {
+  Date(date.0, date.1, date.2)
+}
+
 pub fn add_days(date: Date, days: Int) -> Date {
-  let erlang_date = #(date.year, date.month, date.day)
-  let gregorian_days = date_to_gregorian_days(erlang_date)
-  let new_gregorian_days = gregorian_days + days
-  let #(year, month, day) = gregorian_days_to_date(new_gregorian_days)
-  Date(year: year, month: month, day: day)
+  #(date.year, date.month, date.day)
+  |> date_to_gregorian_days()
+  |> int.add(days)
+  |> gregorian_days_to_date()
+  |> from()
 }
 
 pub fn from_string(value: String) -> Result(Date, String) {
