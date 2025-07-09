@@ -1,8 +1,43 @@
+import gleam/dynamic/decode
+import gleam/option
+import gleam/result
+
 import features/book/port/book_id
 import shared/validator
 
+/// events
+pub type GetBooks =
+  fn(SearchParams) -> List(Book)
+
+pub type SearchParams {
+  SearchParams(title: option.Option(String), author: option.Option(String))
+}
+
+pub type CreateBook =
+  fn() -> Result(Nil, String)
+
+pub type SearchBooks =
+  fn(CreateParams) -> Result(List(Book), List(decode.DecodeError))
+
+pub type CreateParams =
+  fn() -> Result(SearchParams, List(decode.DecodeError))
+
+pub fn compose_search_books(
+  create_params: CreateParams,
+  get_books: GetBooks,
+) -> Result(List(Book), List(decode.DecodeError)) {
+  use params <- result.try(create_params())
+
+  get_books(params) |> Ok
+}
+
+/// model
 pub type Book {
   Book(id: book_id.BookId, title: BookTitle, author: BookAuthor)
+}
+
+pub type UnValidatedBook {
+  UnValidatedBook(title: option.Option(String), author: option.Option(String))
 }
 
 pub opaque type BookTitle {

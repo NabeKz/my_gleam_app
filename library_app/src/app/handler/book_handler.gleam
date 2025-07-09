@@ -2,13 +2,13 @@ import gleam/json
 import wisp
 
 import features/book/converter
-import features/book/usecase
+import features/book/domain
 
 fn thunk(f: a) -> fn() -> a {
   fn() { f }
 }
 
-pub fn get(req: wisp.Request, search_books: usecase.SearchBooks) {
+pub fn get(req: wisp.Request, search_books: domain.SearchBooks) {
   let result =
     req
     |> wisp.get_query()

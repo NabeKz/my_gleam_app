@@ -1,5 +1,5 @@
-import features/book/usecase as book_usecase
-import features/loan/usecase as loan_usecase
+import features/book/domain as book_usecase
+import features/loan/domain as loan_usecase
 
 pub type Context {
   Context(
