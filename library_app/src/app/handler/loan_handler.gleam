@@ -1,13 +1,22 @@
 import gleam/json
+import gleam/result
+import shared/date
 import wisp
 
 import features/loan/domain
 
-pub fn loan(req: wisp.Request) {
+pub fn loan(
+  req: wisp.Request,
+  create_book: domain.CreateLoan,
+  current_date: date.Date,
+) {
   use json <- wisp.require_json(req)
 
-  let book_id = domain.parse_json(json)
-  case book_id {
+  let result = {
+    use book_id <- result.map(domain.parse_json(json))
+    book_id |> create_book(current_date)
+  }
+  case result {
     Ok(_) -> {
       "ok"
       |> json.string()
