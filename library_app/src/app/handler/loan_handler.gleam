@@ -1,17 +1,23 @@
 import gleam/json
 import wisp
 
-import features/book/port/book_id
 import features/loan/domain
-import shared/date
 
-pub fn loan(
-  req: wisp.Request,
-  loan_book: domain.LoanBook,
-  book_id: String,
-  due_date: String,
-) {
-  todo
+pub fn loan(req: wisp.Request) {
+  use json <- wisp.require_json(req)
+
+  let book_id = domain.parse_json(json)
+  case book_id {
+    Ok(_) -> {
+      "ok"
+      |> json.string()
+      |> json.to_string_tree()
+      |> wisp.json_response(200)
+    }
+    Error(_) -> {
+      "ng" |> json.string() |> json.to_string_tree() |> wisp.json_response(400)
+    }
+  }
 }
 
 pub fn return_book(
