@@ -1,3 +1,4 @@
+import app/handler/json_response
 import gleam/json
 import gleam/result
 import shared/date
@@ -16,15 +17,15 @@ pub fn loan(
     use book_id <- result.map(domain.parse_json(json))
     book_id |> create_book(current_date)
   }
+
   case result {
     Ok(_) -> {
       "ok"
       |> json.string()
-      |> json.to_string_tree()
-      |> wisp.json_response(200)
+      |> json_response.ok()
     }
     Error(_) -> {
-      "ng" |> json.string() |> json.to_string_tree() |> wisp.json_response(400)
+      "ng" |> json.string() |> json_response.bad_request()
     }
   }
 }
