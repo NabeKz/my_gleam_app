@@ -2,7 +2,7 @@ import features/book/port/book_id
 import shared/date
 
 pub type Loan {
-  Loan(book_id: book_id.BookId, due_date: date.Date)
+  Loan(book_id: book_id.BookId, loan_date: date.Date, due_date: date.Date)
 }
 
 pub type LoanBook =
@@ -36,7 +36,7 @@ pub fn compose_get_loan(
   get_loan(book_id)
 }
 
-pub fn loan(book_id: book_id.BookId, from: date.Date) -> Loan {
-  let due_date = from |> date.add_days(14)
-  Loan(book_id:, due_date:)
+pub fn loan(book_id: book_id.BookId, current_date: date.Date) -> Loan {
+  let due_date = current_date |> date.add_days(14)
+  Loan(book_id:, loan_date: current_date, due_date:)
 }
