@@ -1,4 +1,3 @@
-import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/result
 
@@ -30,15 +29,9 @@ pub type ReturnBook =
 
 ///
 ///
-pub fn parse_json(
-  json: dynamic.Dynamic,
-) -> Result(book_id.BookId, List(decode.DecodeError)) {
-  let decoder = {
-    use book_id <- decode.field("book_id", decode.string)
-    decode.success(book_id |> book_id.from_string)
-  }
-
-  decode.run(json, decoder)
+pub fn parse_json() -> decode.Decoder(book_id.BookId) {
+  use book_id <- decode.field("book_id", decode.string)
+  decode.success(book_id |> book_id.from_string)
 }
 
 pub fn to_loan(

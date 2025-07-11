@@ -17,12 +17,12 @@ pub fn bad_request(body: json.Json) -> wisp.Response {
 
 pub fn require_json(
   req: wisp.Request,
-  decoder: decode.Decoder(t),
+  decoder: fn() -> decode.Decoder(t),
   next: fn(t) -> wisp.Response,
 ) -> wisp.Response {
   use <- wisp.require_content_type(req, "application/json")
   use body <- wisp.require_string_body(req)
-  case json.parse(body, decoder) {
+  case json.parse(body, decoder()) {
     Ok(json) -> next(json)
     Error(_) -> wisp.bad_request()
   }
