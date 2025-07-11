@@ -1,22 +1,23 @@
-import app/handler/json_response
 import gleam/json
-import gleam/result
-import shared/date
 import wisp
 
+import app/handler/json_response
 import features/loan/domain
+import shared/date
 
-pub fn loan(
+// handlerでcaseを使うのは1回まで
+pub fn post(
   req: wisp.Request,
-  create_book: domain.CreateLoan,
-  current_date: date.Date,
+  save_loan: domain.SaveLoan,
+  current_date: fn() -> date.Date,
 ) {
   use json <- wisp.require_json(req)
 
-  let result = {
-    use book_id <- result.map(domain.parse_json(json))
-    book_id |> create_book(current_date)
-  }
+  let result =
+    json
+    |> domain.parse_json()
+    |> domain.to_loan(current_date)
+    |> save_loan()
 
   case result {
     Ok(_) -> {
@@ -28,16 +29,4 @@ pub fn loan(
       "ng" |> json.string() |> json_response.bad_request()
     }
   }
-}
-
-pub fn return_book(
-  req: wisp.Request,
-  return_book: domain.ReturnBook,
-  book_id: String,
-) {
-  todo
-}
-
-pub fn get_loan(req: wisp.Request, get_loan: domain.GetLoan, book_id: String) {
-  todo
 }

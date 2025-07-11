@@ -11,12 +11,7 @@ pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response 
 
   case path, req.method {
     ["books"], Get -> book_handler.get(req, ctx.search_books)
-    ["loans", book_id], Post ->
-      loan_handler.loan(req, ctx.loan_book, book_id, "2024-12-31")
-    // TODO: due_dateをリクエストから取得
-    ["loans", book_id], Delete ->
-      loan_handler.return_book(req, ctx.return_book, book_id)
-    ["loans", book_id], Get -> loan_handler.get_loan(req, ctx.get_loan, book_id)
+    ["loans"], Post -> loan_handler.post(req, ctx.create_loan, ctx.current_date)
     ["health_check"], Get -> health_check()
     _, _ -> wisp.not_found()
   }
