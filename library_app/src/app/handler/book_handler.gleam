@@ -4,16 +4,11 @@ import wisp
 import features/book/converter
 import features/book/domain
 
-fn thunk(f: a) -> fn() -> a {
-  fn() { f }
-}
-
 pub fn get(req: wisp.Request, search_books: domain.SearchBooks) {
   let result =
     req
     |> wisp.get_query()
     |> converter.to_search_params()
-    |> thunk()
     |> search_books()
 
   case result {

@@ -6,18 +6,8 @@ import features/book/port/book_id
 import shared/date
 
 /// model
-pub type Loan {
+pub opaque type Loan {
   Loan(book_id: book_id.BookId, loan_date: date.Date, due_date: date.Date)
-}
-
-pub fn to_loan(
-  get_book_id: Result(book_id.BookId, List(decode.DecodeError)),
-  current_date: fn() -> date.Date,
-) -> Result(Loan, List(decode.DecodeError)) {
-  use book_id <- result.try(get_book_id)
-
-  loan(book_id, current_date())
-  |> Ok
 }
 
 fn loan(book_id: book_id.BookId, current_date: date.Date) -> Loan {
@@ -49,6 +39,16 @@ pub fn parse_json(
   }
 
   decode.run(json, decoder)
+}
+
+pub fn to_loan(
+  get_book_id: Result(book_id.BookId, List(decode.DecodeError)),
+  current_date: fn() -> date.Date,
+) -> Result(Loan, List(decode.DecodeError)) {
+  use book_id <- result.try(get_book_id)
+
+  loan(book_id, current_date())
+  |> Ok
 }
 
 pub fn compose_create_loan(

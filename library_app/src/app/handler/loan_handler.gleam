@@ -1,6 +1,8 @@
 import gleam/json
 import wisp
 
+import app/handler/json_helper
+
 import app/handler/json_response
 import features/loan/domain
 import shared/date
@@ -11,11 +13,10 @@ pub fn post(
   save_loan: domain.SaveLoan,
   current_date: fn() -> date.Date,
 ) {
-  use json <- wisp.require_json(req)
+  use json <- json_helper.require_json(req, domain.parse_json)
 
   let result =
     json
-    |> domain.parse_json()
     |> domain.to_loan(current_date)
     |> save_loan()
 

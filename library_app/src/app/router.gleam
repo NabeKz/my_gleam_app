@@ -1,4 +1,4 @@
-import gleam/http.{Delete, Get, Post}
+import gleam/http.{Get, Post}
 import gleam/json
 import wisp
 

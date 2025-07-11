@@ -20,13 +20,13 @@ pub type SearchBooks =
   fn(CreateParams) -> Result(List(Book), List(decode.DecodeError))
 
 pub type CreateParams =
-  fn() -> Result(SearchParams, List(decode.DecodeError))
+  Result(SearchParams, List(decode.DecodeError))
 
 pub fn compose_search_books(
   create_params: CreateParams,
   get_books: GetBooks,
 ) -> Result(List(Book), List(decode.DecodeError)) {
-  use params <- result.try(create_params())
+  use params <- result.try(create_params)
 
   get_books(params) |> Ok
 }
