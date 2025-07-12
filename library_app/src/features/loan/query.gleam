@@ -46,3 +46,12 @@ pub fn decoder() -> decode.Decoder(Params) {
 pub fn compose_get_loan(query: Params, get_loan: GetLoan) {
   get_loan(query)
 }
+
+pub fn invoke(
+  crate_params: Result(Params, List(decode.DecodeError)),
+  get_loan: GetLoan,
+) {
+  crate_params
+  |> result.replace_error("ng")
+  |> result.try(get_loan)
+}
