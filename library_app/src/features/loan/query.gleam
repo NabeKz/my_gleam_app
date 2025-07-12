@@ -30,28 +30,39 @@ pub fn new(
 }
 
 /// events
-pub type Params {
-  Params(loan_id: LoanId)
+pub type GetLoanParams {
+  GetLoanParams(loan_id: LoanId)
+}
+
+pub type GetLoansParams {
+  GetLoansParams(loan_id: LoanId)
 }
 
 pub type GetLoan =
-  fn(Params) -> Result(Loan, String)
+  fn(GetLoanParams) -> Result(Loan, String)
 
-pub fn decoder() -> decode.Decoder(Params) {
+pub type GetLoans =
+  fn(GetLoansParams) -> List(Loan)
+
+pub fn decoder() -> decode.Decoder(GetLoanParams) {
   use loan_id <- decode.field("loan_id", decode.string)
 
-  decode.success(Params(LoanId(loan_id)))
+  decode.success(GetLoanParams(LoanId(loan_id)))
 }
 
-pub fn compose_get_loan(query: Params, get_loan: GetLoan) {
-  get_loan(query)
+pub fn compose_get_loan(params: GetLoanParams, get_loan: GetLoan) {
+  get_loan(params)
 }
 
 pub fn invoke(
-  crate_params: Result(Params, List(decode.DecodeError)),
+  crate_params: Result(GetLoanParams, List(decode.DecodeError)),
   get_loan: GetLoan,
 ) {
   crate_params
   |> result.replace_error("ng")
-  |> result.try(get_loan)
+  |> result.map(get_loan)
+}
+
+pub fn compose_get_loans(params: GetLoansParams, get_loans: GetLoans) {
+  get_loans(params)
 }
