@@ -11,6 +11,7 @@ pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response 
 
   case path, req.method {
     ["books"], Get -> book_handler.get(req, ctx.search_books)
+    ["loans"], Get -> loan_handler.get(req, ctx.get_loan)
     ["loans"], Post -> loan_handler.post(req, ctx.save_loan, ctx.current_date)
     ["health_check"], Get -> health_check()
     _, _ -> wisp.not_found()
