@@ -21,14 +21,7 @@ pub type SaveLoan =
 pub type CreateLoan =
   Result(Loan, List(decode.DecodeError))
 
-pub type GetLoan =
-  fn(book_id.BookId) -> Result(Loan, String)
-
-pub type ReturnBook =
-  fn(book_id.BookId) -> Result(Nil, String)
-
-///
-///
+// TODO: book_idの責務
 pub fn parse_json() -> decode.Decoder(book_id.BookId) {
   use book_id <- decode.field("book_id", decode.string)
   decode.success(book_id |> book_id.from_string)
@@ -52,18 +45,4 @@ pub fn compose_create_loan(
     Ok(_) -> Ok(Nil)
     Error(_) -> Error("ng")
   }
-}
-
-pub fn compose_return_book(
-  return_book: ReturnBook,
-  book_id: book_id.BookId,
-) -> Result(Nil, String) {
-  return_book(book_id)
-}
-
-pub fn compose_get_loan(
-  get_loan: GetLoan,
-  book_id: book_id.BookId,
-) -> Result(Loan, String) {
-  get_loan(book_id)
 }

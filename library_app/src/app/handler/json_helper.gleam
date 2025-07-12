@@ -1,4 +1,6 @@
+import gleam/dynamic
 import gleam/dynamic/decode
+import gleam/list
 
 import gleam/json
 import wisp
@@ -26,4 +28,14 @@ pub fn require_json(
     Ok(json) -> next(json)
     Error(_) -> wisp.bad_request()
   }
+}
+
+pub fn get_query(req: wisp.Request, decoder: fn() -> decode.Decoder(t)) {
+  let query = wisp.get_query(req)
+  let query = {
+    use it <- list.map(query)
+    #(it.0 |> dynamic.string, it.1 |> dynamic.string)
+  }
+
+  decode.run(query |> dynamic.properties, decoder())
 }
