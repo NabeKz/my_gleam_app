@@ -2,20 +2,20 @@ import gleam/json
 import wisp
 
 import app/handler/json_helper
-import features/loan/domain
+import features/loan/command
 import shared/date
 
 // handlerでcaseを使うのは1回まで
 pub fn post(
   req: wisp.Request,
-  save_loan: domain.SaveLoan,
+  save_loan: command.SaveLoan,
   current_date: fn() -> date.Date,
 ) {
-  use json <- json_helper.require_json(req, domain.parse_json)
+  use json <- json_helper.require_json(req, command.parse_json)
 
   let result =
     Ok(json)
-    |> domain.to_loan(current_date)
+    |> command.to_loan(current_date)
     |> save_loan()
 
   case result {
