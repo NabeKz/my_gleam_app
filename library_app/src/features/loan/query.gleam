@@ -1,6 +1,5 @@
-import gleam/dynamic
 import gleam/dynamic/decode
-import gleam/list
+import gleam/option
 import gleam/result
 
 import features/book/port/book_id
@@ -35,7 +34,7 @@ pub type GetLoanParams {
 }
 
 pub type GetLoansParams {
-  GetLoansParams(loan_id: LoanId)
+  GetLoansParams(loan_date: option.Option(String))
 }
 
 pub type GetLoan =
@@ -50,17 +49,36 @@ pub fn decoder() -> decode.Decoder(GetLoanParams) {
   decode.success(GetLoanParams(LoanId(loan_id)))
 }
 
+pub fn decoder2() -> decode.Decoder(GetLoansParams) {
+  use loan_date <- decode.optional_field(
+    "loan_date",
+    option.None,
+    decode.string |> decode.optional,
+  )
+
+  decode.success(GetLoansParams(loan_date))
+}
+
 pub fn compose_get_loan(params: GetLoanParams, get_loan: GetLoan) {
   get_loan(params)
 }
 
-pub fn invoke(
+pub fn get_loan(
   crate_params: Result(GetLoanParams, List(decode.DecodeError)),
   get_loan: GetLoan,
 ) {
   crate_params
   |> result.replace_error("ng")
   |> result.map(get_loan)
+}
+
+pub fn get_loans(
+  crate_params: Result(GetLoansParams, List(decode.DecodeError)),
+  get_loans: GetLoans,
+) {
+  crate_params
+  |> result.replace_error("ng")
+  |> result.map(get_loans)
 }
 
 pub fn compose_get_loans(params: GetLoansParams, get_loans: GetLoans) {

@@ -7,9 +7,18 @@ import features/loan/command
 import shared/date
 
 pub fn get(req: wisp.Request, get_loan: query.GetLoan) -> wisp.Response {
-  let query = json_helper.get_query(req, query.decoder)
+  let params = json_helper.get_query(req, query.decoder)
 
-  case query.invoke(query, get_loan) {
+  case query.get_loan(params, get_loan) {
+    Ok(_) -> wisp.ok()
+    Error(_) -> wisp.bad_request()
+  }
+}
+
+pub fn gets(req: wisp.Request, get_loans: query.GetLoans) -> wisp.Response {
+  let params = json_helper.get_query(req, query.decoder2)
+
+  case query.get_loans(params, get_loans) {
     Ok(_) -> wisp.ok()
     Error(_) -> wisp.bad_request()
   }
