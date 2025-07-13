@@ -3,6 +3,7 @@ import gleam/option
 import gleam/result
 
 import features/book/port/book_id
+import features/loan/helper/decoder
 import features/loan/loan.{type Loan}
 import shared/date
 
@@ -30,7 +31,7 @@ pub type GetLoans =
 
 // Command functions
 pub fn create_loan_decoder() -> decode.Decoder(book_id.BookId) {
-  use book_id <- decode.field("book_id", decode.string)
+  use book_id <- decoder.required_field("book_id", decode.string)
   decode.success(book_id |> book_id.from_string)
 }
 
@@ -57,25 +58,19 @@ pub fn compose_create_loan(
 // Query functions
 
 pub fn get_loan_params_decoder() -> decode.Decoder(GetLoanParams) {
-  use loan_id <- decode.field("loan_id", decode.string)
+  use loan_id <- decoder.required_field("loan_id", decode.string)
   decode.success(GetLoanParams(loan_id))
 }
 
 pub fn get_loans_params_decoder() -> decode.Decoder(GetLoansParams) {
-  use loan_date <- decode.optional_field(
-    "loan_date",
-    option.None,
-    decode.string |> decode.optional,
-  )
+  use loan_date <- decoder.optional_field("loan_date", decode.string)
   decode.success(GetLoansParams(loan_date))
 }
 
 pub fn get_loan(params: GetLoanParams, get_loan: GetLoan) {
-  params
-  |> get_loan
+  params |> get_loan
 }
 
 pub fn get_loans(params: GetLoansParams, get_loans: GetLoans) {
-  params
-  |> get_loans
+  params |> get_loans
 }
