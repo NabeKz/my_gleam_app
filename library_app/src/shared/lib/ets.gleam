@@ -11,9 +11,12 @@ pub type Conn(k, v) {
   )
 }
 
+pub type All(v) =
+  fn() -> List(v)
+
 pub type MatchSpec
 
-pub type Table {
+type Table {
   Table(value: atom.Atom)
 }
 
@@ -37,7 +40,7 @@ pub fn conn(name: String, items: List(a), key: fn(a) -> b) -> Conn(b, a) {
 @external(erlang, "ets", "new")
 fn new(name: atom.Atom, props: List(atom.Atom)) -> Nil
 
-pub fn init(name: String) -> Table {
+fn init(name: String) -> Table {
   let name = atom.create(name)
   name
   |> new([
@@ -51,7 +54,7 @@ pub fn init(name: String) -> Table {
 @external(erlang, "ets", "tab2list")
 fn tab2list(name: atom.Atom) -> List(#(k, v))
 
-pub fn all(table: Table) -> List(v) {
+fn all(table: Table) -> List(v) {
   let table = table.value |> tab2list
   use it <- list.map(table)
   it.1

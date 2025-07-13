@@ -1,4 +1,5 @@
 import features/book/domain as book_usecase
+import features/loan/loan_repo_on_ets
 import features/loan/service as loan_service
 import shared/date
 
@@ -13,11 +14,17 @@ pub type Context {
 }
 
 pub fn new() -> Context {
+  let loan_repo = loan_repo_on_ets.new()
+
   Context(
     current_date: date.now,
     search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
     save_loan: loan_service.compose_create_loan(_, fn(_) { Ok(Nil) }),
     get_loan: fn(params) { loan_service.get_loan(params, fn(_) { todo }) },
-    get_loans: fn(params) { loan_service.get_loans(params, fn(_) { todo }) },
+    get_loans: fn(params) {
+      loan_service.get_loans(params, fn(_) {
+        loan_repo_on_ets.get_loans(loan_repo)
+      })
+    },
   )
 }
