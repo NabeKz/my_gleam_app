@@ -2,17 +2,8 @@ import gleam/dynamic/decode
 import gleam/result
 
 import features/book/port/book_id
+import features/loan/loan.{type Loan}
 import shared/date
-
-/// model
-pub opaque type Loan {
-  Loan(book_id: book_id.BookId, loan_date: date.Date, due_date: date.Date)
-}
-
-fn loan(book_id: book_id.BookId, current_date: date.Date) -> Loan {
-  let due_date = current_date |> date.add_days(14)
-  Loan(book_id:, loan_date: current_date, due_date:)
-}
 
 /// events
 pub type SaveLoan =
@@ -33,7 +24,7 @@ pub fn to_loan(
 ) -> Result(Loan, List(decode.DecodeError)) {
   use book_id <- result.try(get_book_id)
 
-  loan(book_id, current_date())
+  loan.new(book_id, current_date())
   |> Ok
 }
 

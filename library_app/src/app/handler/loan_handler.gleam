@@ -9,7 +9,9 @@ pub fn get_loans(req: wisp.Request, get_loans: query.GetLoans) -> wisp.Response 
   use params <- json.get_query(req, query.decoder2)
 
   query.get_loans(params, get_loans)
-  wisp.ok()
+  |> query.encode()
+  |> json.array()
+  |> json.ok()
 }
 
 pub fn get_loan(

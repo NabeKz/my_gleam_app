@@ -48,3 +48,16 @@ pub fn get_query(
     Error(_) -> wisp.bad_request()
   }
 }
+
+pub fn array(deserialized: List(List(#(String, String)))) -> json.Json {
+  deserialized
+  |> json.array(object)
+}
+
+pub fn object(deserialized: List(#(String, String))) -> json.Json {
+  {
+    use it <- list.map(deserialized)
+    #(it.0, it.1 |> json.string)
+  }
+  |> json.object()
+}

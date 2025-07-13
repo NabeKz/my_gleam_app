@@ -1,36 +1,12 @@
 import gleam/dynamic/decode
+import gleam/list
 import gleam/option
-import gleam/result
 
-import features/book/port/book_id
-import shared/date
-
-/// model
-pub opaque type Loan {
-  Loan(
-    id: LoanId,
-    book_id: book_id.BookId,
-    loan_date: date.Date,
-    due_date: date.Date,
-  )
-}
-
-pub opaque type LoanId {
-  LoanId(value: String)
-}
-
-pub fn new(
-  id: LoanId,
-  book_id: book_id.BookId,
-  loan_date: date.Date,
-  due_date: date.Date,
-) {
-  Loan(id:, book_id:, loan_date:, due_date:)
-}
+import features/loan/loan.{type Loan}
 
 /// events
 pub type GetLoanParams {
-  GetLoanParams(loan_id: LoanId)
+  GetLoanParams(loan_id: String)
 }
 
 pub type GetLoansParams {
@@ -46,7 +22,7 @@ pub type GetLoans =
 pub fn decoder() -> decode.Decoder(GetLoanParams) {
   use loan_id <- decode.field("loan_id", decode.string)
 
-  decode.success(GetLoanParams(LoanId(loan_id)))
+  decode.success(GetLoanParams(loan_id))
 }
 
 pub fn decoder2() -> decode.Decoder(GetLoansParams) {
@@ -57,6 +33,11 @@ pub fn decoder2() -> decode.Decoder(GetLoansParams) {
   )
 
   decode.success(GetLoansParams(loan_date))
+}
+
+pub fn encode(loan: List(loan.Loan)) -> List(List(#(String, String))) {
+  loan
+  |> list.map(loan.deserialize)
 }
 
 pub fn compose_get_loan(params: GetLoanParams, get_loan: GetLoan) {
