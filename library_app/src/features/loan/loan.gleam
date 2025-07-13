@@ -1,4 +1,5 @@
 import features/book/port/book_id
+
 import shared/date
 import shared/lib/uuid
 
@@ -24,10 +25,19 @@ pub fn new(book_id: book_id.BookId, current_date: date.Date) -> Loan {
   Loan(id: new_id(), book_id:, loan_date: current_date, due_date:)
 }
 
-pub fn deserialize(loan: Loan) -> List(#(String, String)) {
-  [
-    #("id", loan.id.value),
-    #("book_id", loan.book_id |> book_id.to_string),
-    #("due_date", loan.due_date |> date.to_string),
-  ]
+// Getter functions for accessing opaque type fields
+pub fn id_value(loan: Loan) -> String {
+  loan.id.value
+}
+
+pub fn book_id(loan: Loan) -> book_id.BookId {
+  loan.book_id
+}
+
+pub fn loan_date(loan: Loan) -> String {
+  loan.loan_date |> date.to_string
+}
+
+pub fn due_date(loan: Loan) -> String {
+  loan.due_date |> date.to_string
 }
