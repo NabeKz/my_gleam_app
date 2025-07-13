@@ -9,6 +9,7 @@ pub type Context {
     search_books: book_usecase.SearchBooks,
     save_loan: loan_usecase.SaveLoan,
     get_loan: loan_query.GetLoan,
+    get_loans: loan_query.GetLoans,
   )
 }
 
@@ -18,5 +19,6 @@ pub fn new() -> Context {
     search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
     save_loan: loan_usecase.compose_create_loan(_, fn(_) { Ok(Nil) }),
     get_loan: loan_query.compose_get_loan(_, fn(_) { todo }),
+    get_loans: loan_query.compose_get_loans(_, fn(_) { todo }),
   )
 }

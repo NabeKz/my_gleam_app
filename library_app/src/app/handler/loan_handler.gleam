@@ -1,11 +1,22 @@
-import features/loan/query
 import wisp
 
 import app/handler/helper/json
 import features/loan/command
+import features/loan/query
 import shared/date
 
-pub fn get(req: wisp.Request, get_loan: query.GetLoan) -> wisp.Response {
+pub fn get_loans(req: wisp.Request, get_loans: query.GetLoans) -> wisp.Response {
+  use params <- json.get_query(req, query.decoder2)
+
+  query.get_loans(params, get_loans)
+  wisp.ok()
+}
+
+pub fn get_loan(
+  req: wisp.Request,
+  id: String,
+  get_loan: query.GetLoan,
+) -> wisp.Response {
   use params <- json.get_query(req, query.decoder)
 
   case query.get_loan(params, get_loan) {
@@ -14,15 +25,8 @@ pub fn get(req: wisp.Request, get_loan: query.GetLoan) -> wisp.Response {
   }
 }
 
-pub fn gets(req: wisp.Request, get_loans: query.GetLoans) -> wisp.Response {
-  use params <- json.get_query(req, query.decoder2)
-
-  query.get_loans(params, get_loans)
-  wisp.ok()
-}
-
 // handlerでcaseを使うのは1回まで
-pub fn post(
+pub fn create_loan(
   req: wisp.Request,
   save_loan: command.SaveLoan,
   current_date: fn() -> date.Date,
