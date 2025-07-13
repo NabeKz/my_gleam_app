@@ -17,7 +17,8 @@ pub fn bad_request(body: json.Json) -> wisp.Response {
   |> wisp.json_response(400)
 }
 
-pub fn require_json(
+// TODO: error handling
+pub fn get_body(
   req: wisp.Request,
   decoder: fn() -> decode.Decoder(t),
   next: fn(t) -> wisp.Response,
@@ -30,12 +31,20 @@ pub fn require_json(
   }
 }
 
-pub fn get_query(req: wisp.Request, decoder: fn() -> decode.Decoder(t)) {
+// TODO: error handling
+pub fn get_query(
+  req: wisp.Request,
+  decoder: fn() -> decode.Decoder(t),
+  next: fn(t) -> wisp.Response,
+) {
   let query = wisp.get_query(req)
   let query = {
     use it <- list.map(query)
     #(it.0 |> dynamic.string, it.1 |> dynamic.string)
   }
-
-  decode.run(query |> dynamic.properties, decoder())
+  let query = decode.run(query |> dynamic.properties, decoder())
+  case query {
+    Ok(query) -> next(query)
+    Error(_) -> wisp.bad_request()
+  }
 }

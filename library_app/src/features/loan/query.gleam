@@ -63,22 +63,14 @@ pub fn compose_get_loan(params: GetLoanParams, get_loan: GetLoan) {
   get_loan(params)
 }
 
-pub fn get_loan(
-  crate_params: Result(GetLoanParams, List(decode.DecodeError)),
-  get_loan: GetLoan,
-) {
+pub fn get_loan(crate_params: GetLoanParams, get_loan: GetLoan) {
   crate_params
-  |> result.replace_error("ng")
-  |> result.map(get_loan)
+  |> get_loan
 }
 
-pub fn get_loans(
-  crate_params: Result(GetLoansParams, List(decode.DecodeError)),
-  get_loans: GetLoans,
-) {
+pub fn get_loans(crate_params: GetLoansParams, get_loans: GetLoans) {
   crate_params
-  |> result.replace_error("ng")
-  |> result.map(get_loans)
+  |> get_loans
 }
 
 pub fn compose_get_loans(params: GetLoansParams, get_loans: GetLoans) {
