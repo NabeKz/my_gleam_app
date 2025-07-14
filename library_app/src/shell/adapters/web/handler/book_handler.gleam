@@ -1,8 +1,8 @@
 import gleam/json
 import wisp
 
-import features/book/converter
-import features/book/domain
+import core/book/services/converter
+import core/book/types/book as domain
 
 pub fn get(req: wisp.Request, search_books: domain.SearchBooks) {
   let result =

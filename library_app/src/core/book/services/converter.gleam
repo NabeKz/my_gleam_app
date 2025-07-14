@@ -3,7 +3,7 @@ import gleam/dynamic/decode
 import gleam/list
 import gleam/option
 
-import features/book/domain
+import core/book/types/book as domain
 
 pub fn to_search_params(
   query: List(#(String, String)),

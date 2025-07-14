@@ -2,9 +2,9 @@ import gleam/http.{Get, Post}
 import gleam/json
 import wisp
 
-import app/handler/book_handler
-import app/handler/loan_handler
-import shared/context
+import shell/adapters/web/handler/book_handler
+import shell/adapters/web/handler/loan_handler
+import app/context
 
 pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response {
   use path <- api_group("api", req)

@@ -1,8 +1,8 @@
-import features/book/port/book_id
-import features/loan/loan
-import features/loan/service
-import shared/date
-import shared/lib/ets
+import core/book/types/book_id
+import core/loan/types/loan
+import core/loan/services/service
+import core/shared/types/date
+import shell/shared/lib/ets
 
 type LoanRepo =
   ets.Conn(String, loan.Loan)

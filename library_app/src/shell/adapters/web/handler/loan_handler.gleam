@@ -1,7 +1,7 @@
 import wisp
 
-import app/handler/helper/json
-import features/loan/service
+import shell/adapters/web/handler/helper/json
+import core/loan/services/service
 
 pub fn get_loans(
   req: wisp.Request,

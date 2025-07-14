@@ -1,8 +1,8 @@
-import features/book/book_repo_on_ets
-import features/book/domain as book_usecase
-import features/loan/loan_repo_on_ets
-import features/loan/service as loan_service
-import shared/date
+import shell/adapters/persistence/book_repo_on_ets
+import core/book/types/book as book_usecase
+import shell/adapters/persistence/loan_repo_on_ets
+import core/loan/services/service as loan_service
+import core/shared/types/date
 
 pub type Context {
   Context(

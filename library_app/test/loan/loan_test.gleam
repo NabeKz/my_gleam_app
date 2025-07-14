@@ -3,8 +3,8 @@ import gleeunit
 import gleeunit/should
 import wisp/testing
 
-import app/router
-import shared/context
+import shell/adapters/web/router
+import app/context
 
 pub fn main() {
   gleeunit.main()

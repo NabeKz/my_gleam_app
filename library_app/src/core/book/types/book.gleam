@@ -2,8 +2,8 @@ import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
-import features/book/port/book_id
-import shared/validator
+import core/book/types/book_id
+import core/shared/services/validator
 
 /// events
 pub type GetBooks =

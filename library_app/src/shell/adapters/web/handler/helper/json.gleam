@@ -5,8 +5,8 @@ import gleam/list
 import gleam/string
 import wisp
 
-import features/book/port/book_id
-import features/loan/loan
+import core/book/types/book_id
+import core/loan/types/loan
 
 fn parse_decode_error(error: decode.DecodeError) -> json.Json {
   [#("message", error.expected), #("path", error.path |> string.join(","))]

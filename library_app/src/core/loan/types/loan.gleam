@@ -1,7 +1,6 @@
-import features/book/port/book_id
-
-import shared/date
-import shared/lib/uuid
+import core/book/types/book_id
+import core/shared/types/date
+import shell/shared/lib/uuid
 
 pub opaque type Loan {
   Loan(

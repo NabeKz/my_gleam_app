@@ -1,8 +1,8 @@
 import gleam/result
 
-import features/book/domain
-import features/book/port/book_id
-import shared/lib/ets
+import core/book/types/book as domain
+import core/book/types/book_id
+import shell/shared/lib/ets
 
 type BookRepo =
   ets.Conn(String, domain.Book)

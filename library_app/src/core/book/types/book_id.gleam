@@ -1,4 +1,4 @@
-import shared/lib/uuid
+import shell/shared/lib/uuid
 
 pub opaque type BookId {
   BookId(value: String)

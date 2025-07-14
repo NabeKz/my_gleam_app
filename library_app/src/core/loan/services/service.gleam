@@ -2,10 +2,10 @@ import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
-import features/book/domain as book_domain
-import features/loan/helper/decoder
-import features/loan/loan.{type Loan}
-import shared/date
+import core/book/types/book as book_domain
+import core/loan/services/helper/decoder
+import core/loan/types/loan.{type Loan}
+import core/shared/types/date
 
 // Command types
 pub type SaveLoan =
