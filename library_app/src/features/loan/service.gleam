@@ -9,10 +9,7 @@ import shared/date
 
 // Command types
 pub type SaveLoan =
-  fn(CreateLoan) -> Result(Nil, String)
-
-pub type CreateLoan =
-  Result(Loan, List(decode.DecodeError))
+  fn(Loan) -> Result(Nil, String)
 
 // Query types
 pub type GetLoanParams {
@@ -45,16 +42,6 @@ pub fn to_loan(
   |> Ok
 }
 
-pub fn compose_create_loan(
-  create_loan: CreateLoan,
-  save_loan: SaveLoan,
-) -> Result(Nil, String) {
-  case create_loan |> save_loan() {
-    Ok(_) -> Ok(Nil)
-    Error(_) -> Error("ng")
-  }
-}
-
 // Query functions
 pub fn get_loan_params_decoder() -> decode.Decoder(GetLoanParams) {
   use loan_id <- decoder.required_field("loan_id", decode.string)
@@ -64,12 +51,4 @@ pub fn get_loan_params_decoder() -> decode.Decoder(GetLoanParams) {
 pub fn get_loans_params_decoder() -> decode.Decoder(GetLoansParams) {
   use loan_date <- decoder.optional_field("loan_date", decode.string)
   decode.success(GetLoansParams(loan_date))
-}
-
-pub fn get_loan(params: GetLoanParams, get_loan: GetLoan) {
-  params |> get_loan
-}
-
-pub fn get_loans(params: GetLoansParams, get_loans: GetLoans) {
-  params |> get_loans
 }

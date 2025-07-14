@@ -1,3 +1,4 @@
+import gleam/result
 import wisp
 
 import app/handler/helper/json
@@ -10,7 +11,7 @@ pub fn get_loans(
 ) -> wisp.Response {
   use params <- json.get_query(req, service.get_loans_params_decoder)
 
-  service.get_loans(params, get_loans)
+  get_loans(params)
   |> json.loans_to_json_data()
   |> json.array()
   |> json.ok()
@@ -23,7 +24,7 @@ pub fn get_loan(
 ) -> wisp.Response {
   use params <- json.get_query(req, service.get_loan_params_decoder)
 
-  case service.get_loan(params, get_loan) {
+  case get_loan(params) {
     Ok(loan) ->
       loan
       |> json.loan_to_json_data()
@@ -45,7 +46,7 @@ pub fn create_loan(
   let result =
     Ok(json)
     |> service.to_loan(current_date)
-    |> save_loan()
+    |> result.map(save_loan)
 
   case result {
     Ok(_) -> wisp.created()

@@ -1,5 +1,6 @@
 import features/book/port/book_id
 import features/loan/loan
+import features/loan/service
 import shared/date
 import shared/lib/ets
 
@@ -17,10 +18,17 @@ pub fn new() -> LoanRepo {
   )
 }
 
-pub fn get_loans(conn: LoanRepo) {
+pub fn get_loans(_params: service.GetLoansParams, conn: LoanRepo) {
   conn.all()
 }
 
-pub fn save_loan(conn: LoanRepo, loan: loan.Loan) {
+pub fn get_loan(
+  params: service.GetLoanParams,
+  conn: LoanRepo,
+) -> Result(loan.Loan, String) {
+  conn.get(params.loan_id)
+}
+
+pub fn save_loan(loan: loan.Loan, conn: LoanRepo) {
   conn.create(#(loan |> loan.id_value, loan))
 }

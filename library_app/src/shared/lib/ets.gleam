@@ -4,8 +4,8 @@ import gleam/list
 pub type Conn(k, v) {
   Conn(
     all: fn() -> List(v),
-    get: fn(k) -> Result(#(k, v), String),
-    create: fn(#(k, v)) -> k,
+    get: fn(k) -> Result(v, String),
+    create: fn(#(k, v)) -> Result(Nil, String),
     put: fn(#(k, v)) -> Nil,
     delete: fn(k) -> Nil,
   )
@@ -63,20 +63,25 @@ fn all(table: Table) -> List(v) {
 @external(erlang, "ets", "lookup")
 fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
 
-fn get(table: Table, key: k) -> Result(#(k, v), String) {
+fn get(table: Table, key: k) -> Result(v, String) {
   case table.value |> lookup(key) {
-    [value] -> Ok(value)
+    [value] -> Ok(value.1)
     _ -> Error("not found")
+  }
+}
+
+@external(erlang, "ets", "insert_new")
+fn insert_new(name: atom.Atom, tuple: #(k, v)) -> Bool
+
+fn create(table: Table, item: #(k, v)) -> Result(Nil, String) {
+  case table.value |> insert_new(item) {
+    True -> Ok(Nil)
+    False -> Error("already exists")
   }
 }
 
 @external(erlang, "ets", "insert")
 fn insert(name: atom.Atom, tuple: #(k, v)) -> Nil
-
-fn create(table: Table, item: #(k, v)) -> k {
-  table.value |> insert(item)
-  item.0
-}
 
 fn put(table: Table, tuple: #(k, v)) -> Nil {
   table.value |> insert(tuple)
