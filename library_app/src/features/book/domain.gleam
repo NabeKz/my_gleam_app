@@ -20,7 +20,7 @@ pub type SearchBooks =
   fn(CreateParams) -> Result(List(Book), List(decode.DecodeError))
 
 pub type CheckBookExists =
-  fn(book_id.BookId) -> Bool
+  fn(String) -> Result(book_id.BookId, String)
 
 pub type CreateParams =
   Result(SearchParams, List(decode.DecodeError))

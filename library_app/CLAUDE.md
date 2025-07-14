@@ -26,19 +26,65 @@ This is a Gleam web application for library management with book lending functio
 
 ## Architecture
 
-### High-Level Structure
-The application follows a clean architecture with domain-driven design:
+### Functional Core, Imperative Shell
+The application follows the **Functional Core, Imperative Shell** architecture pattern with domain-driven design principles:
 
-- **Domain Layer** (`features/*/domain.gleam`, `features/*/loan.gleam`) - Core business logic with opaque types
-- **Port Layer** (`features/*/port/`) - Interface definitions and domain identifiers
-- **Repository Layer** (`features/*/*_repo_on_ets.gleam`) - Data persistence using ETS
-- **Service Layer** (`features/*/service.gleam`) - Application services and use cases
-- **Handler Layer** (`app/handler/`) - HTTP request handlers
-- **Router Layer** (`app/router.gleam`) - HTTP routing and middleware
-- **Shared Layer** (`shared/`) - Common utilities and cross-cutting concerns
+```
+src/
+├── core/                     # Pure functions only (no side effects)
+│   ├── shared/              # Common domain (lowest layer)
+│   │   ├── types/           # Shared value objects
+│   │   └── services/        # Shared domain services
+│   ├── book/                # Book bounded context
+│   │   ├── types/           # Book entities and value objects
+│   │   ├── services/        # Book domain services
+│   │   └── ports/           # Book repository interfaces
+│   └── loan/                # Loan bounded context
+│       ├── types/           # Loan entities and value objects
+│       ├── services/        # Loan domain services (can depend on book)
+│       └── ports/           # Loan repository interfaces
+├── shell/                   # Side effects handling
+│   ├── shared/              # Common infrastructure
+│   └── adapters/            # External system connections
+│       ├── web/             # HTTP handlers and routing
+│       └── persistence/     # Database repositories
+└── app/                     # Application composition
+    ├── context.gleam        # Dependency injection setup
+    └── main.gleam           # Application entry point
+```
+
+### Dependency Rules
+The architecture enforces strict dependency rules to prevent circular dependencies:
+
+**Layer Dependencies:**
+```
+shared ← types ← services ← ports
+```
+
+**Detailed Rules:**
+1. **shared/** (lowest layer)
+   - Dependencies: None
+   - Can be referenced by: All layers
+
+2. **types/**
+   - Dependencies: `shared/` only
+   - Same layer: Cannot reference other domains' types (must go through `shared/types`)
+
+3. **services/**
+   - Dependencies: `shared/` + own domain/other domains' `types/`
+   - Same layer: Cannot reference other domains' services (must go through `shared/services`)
+
+4. **ports/**
+   - Dependencies: `shared/` + own domain/other domains' `types/` + own domain's `services/`
+   - Same layer: Cannot reference other domains' ports
+
+**Cross-Domain Dependencies:**
+- `loan` domain can depend on `book` domain (loan creation requires book validation)
+- `book` domain cannot depend on `loan` domain
+- All cross-domain logic requiring both domains should go in `shared/services/`
 
 ### Context Pattern
-The application uses a context pattern for dependency injection (`shared/context.gleam`). The Context type contains function references for all external dependencies, making testing easier by allowing function substitution.
+The application uses dependency injection through the context pattern (`app/context.gleam`). The Context type contains function references for all external dependencies, making testing easier by allowing function substitution.
 
 ### Domain Features
 - **Book Management** - Search books with title/author filtering

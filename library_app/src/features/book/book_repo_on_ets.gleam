@@ -20,6 +20,7 @@ pub fn new() -> BookRepo {
   )
 }
 
-pub fn exits(id: String, conn: BookRepo) -> Bool {
-  conn.get(id) |> result.is_ok()
+pub fn exits(id: String, conn: BookRepo) -> Result(book_id.BookId, String) {
+  use book <- result.map(conn.get(id))
+  book.id
 }

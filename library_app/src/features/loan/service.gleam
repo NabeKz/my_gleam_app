@@ -1,8 +1,8 @@
 import gleam/dynamic/decode
 import gleam/option
+import gleam/result
 
 import features/book/domain as book_domain
-import features/book/port/book_id
 import features/loan/helper/decoder
 import features/loan/loan.{type Loan}
 import shared/date
@@ -11,20 +11,13 @@ import shared/date
 pub type SaveLoan =
   fn(Loan) -> Result(Nil, String)
 
-pub type CreateLoanDeps {
-  CreateLoanDeps(
-    check_book_exists: book_domain.CheckBookExists,
-    save_loan: SaveLoan,
-  )
-}
-
 // Query types
 pub type GetLoanParams {
   GetLoanParams(loan_id: String)
 }
 
 pub type CreateLoanParams {
-  CreateLoanParams(book_id: book_id.BookId)
+  CreateLoanParams(book_id: String)
 }
 
 pub type GetLoansParams {
@@ -37,25 +30,24 @@ pub type GetLoan =
 pub type GetLoans =
   fn(GetLoansParams) -> List(Loan)
 
+pub type CreateLoan =
+  fn(CreateLoanParams) -> Result(Nil, String)
+
 // Command functions
 pub fn create_loan_decoder() -> decode.Decoder(CreateLoanParams) {
   use book_id <- decoder.required_field("book_id", decode.string)
-  decode.success(CreateLoanParams(book_id |> book_id.from_string))
+  decode.success(CreateLoanParams(book_id))
 }
 
 pub fn create_loan(
   params: CreateLoanParams,
   current_date: fn() -> date.Date,
-  deps: CreateLoanDeps,
+  check_book_exists: book_domain.CheckBookExists,
+  save_loan: SaveLoan,
 ) -> Result(Nil, String) {
-  case deps.check_book_exists(params.book_id) {
-    False -> Error("Book does not exist")
-    True -> {
-      params.book_id
-      |> loan.new(current_date())
-      |> deps.save_loan()
-    }
-  }
+  use book_id <- result.try(check_book_exists(params.book_id))
+  loan.new(book_id, current_date())
+  |> save_loan()
 }
 
 // Query functions

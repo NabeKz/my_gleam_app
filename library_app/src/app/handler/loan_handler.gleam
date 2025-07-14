@@ -1,4 +1,3 @@
-import shared/date
 import wisp
 
 import app/handler/helper/json
@@ -33,12 +32,11 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
 // 極力、handler内でresultを使わない
 pub fn create_loan(
   req: wisp.Request,
-  current_date: fn() -> date.Date,
-  deps: service.CreateLoanDeps,
+  create_loan_fn: service.CreateLoan,
 ) {
   use json <- json.get_body(req, service.create_loan_decoder)
 
-  case service.create_loan(json, current_date, deps) {
+  case create_loan_fn(json) {
     Ok(_) -> wisp.created()
     Error(_) -> wisp.bad_request()
   }
