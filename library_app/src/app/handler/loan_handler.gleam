@@ -17,12 +17,8 @@ pub fn get_loans(
   |> json.ok()
 }
 
-pub fn get_loan(
-  req: wisp.Request,
-  _id: String,
-  get_loan: service.GetLoan,
-) -> wisp.Response {
-  use params <- json.get_query(req, service.get_loan_params_decoder)
+pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
+  let params = service.generate_get_loan_params(id)
 
   case get_loan(params) {
     Ok(loan) ->
@@ -41,7 +37,6 @@ pub fn create_loan(
   current_date: fn() -> date.Date,
 ) {
   use json <- json.get_body(req, service.create_loan_decoder)
-  echo 1
 
   let result =
     Ok(json)

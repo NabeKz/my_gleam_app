@@ -43,9 +43,8 @@ pub fn to_loan(
 }
 
 // Query functions
-pub fn get_loan_params_decoder() -> decode.Decoder(GetLoanParams) {
-  use loan_id <- decoder.required_field("loan_id", decode.string)
-  decode.success(GetLoanParams(loan_id))
+pub fn generate_get_loan_params(loan_id: String) -> GetLoanParams {
+  GetLoanParams(loan_id:)
 }
 
 pub fn get_loans_params_decoder() -> decode.Decoder(GetLoansParams) {
