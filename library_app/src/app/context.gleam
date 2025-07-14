@@ -19,7 +19,7 @@ pub fn new() -> Context {
     current_date: date.now,
     search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
     create_loan: fn(_) { Ok(Nil) },
-    get_loan: fn(_) { todo },
+    get_loan: fn(_) { Error("error") },
     get_loans: fn(_) { [] },
   )
 }
