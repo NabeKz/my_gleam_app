@@ -40,6 +40,7 @@ pub fn create_loan(
   current_date: fn() -> date.Date,
 ) {
   use json <- json.get_body(req, service.create_loan_decoder)
+  echo 1
 
   let result =
     Ok(json)

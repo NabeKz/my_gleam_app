@@ -2,10 +2,24 @@ import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/json
 import gleam/list
+import gleam/string
 import wisp
 
 import features/book/port/book_id
 import features/loan/loan
+
+fn parse_decode_error(error: decode.DecodeError) -> json.Json {
+  [#("message", error.expected), #("path", error.path |> string.join(","))]
+  |> list.map(fn(it) { #(it.0, it.1 |> json.string) })
+  |> json.object()
+}
+
+fn parse_error(error: json.DecodeError) -> List(decode.DecodeError) {
+  case error {
+    json.UnableToDecode(errors) -> errors
+    _ -> decode.decode_error("error", dynamic.string("ng"))
+  }
+}
 
 pub fn ok(body: json.Json) -> wisp.Response {
   body
@@ -27,9 +41,17 @@ pub fn get_body(
 ) -> wisp.Response {
   use <- wisp.require_content_type(req, "application/json")
   use body <- wisp.require_string_body(req)
-  case json.parse(body, decoder()) {
+  let body = json.parse(body, decoder())
+
+  case body {
     Ok(json) -> next(json)
-    Error(_) -> wisp.bad_request()
+    Error(error) -> {
+      error
+      |> parse_error()
+      |> json.array(parse_decode_error)
+      |> json.to_string_tree()
+      |> wisp.json_response(400)
+    }
   }
 }
 
