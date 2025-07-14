@@ -1,4 +1,3 @@
-import gleam/result
 import wisp
 
 import app/handler/helper/json
@@ -31,6 +30,7 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
 }
 
 // handlerでcaseを使うのは1回まで
+// 極力、handler内でresultを使わない
 pub fn create_loan(
   req: wisp.Request,
   save_loan: service.SaveLoan,
@@ -38,12 +38,7 @@ pub fn create_loan(
 ) {
   use json <- json.get_body(req, service.create_loan_decoder)
 
-  let result =
-    Ok(json)
-    |> service.to_loan(current_date)
-    |> result.map(save_loan)
-
-  case result {
+  case service.create_loan(json, current_date, save_loan) {
     Ok(_) -> wisp.created()
     Error(_) -> wisp.bad_request()
   }

@@ -1,6 +1,5 @@
 import gleam/dynamic/decode
 import gleam/option
-import gleam/result
 
 import features/book/port/book_id
 import features/loan/helper/decoder
@@ -16,6 +15,10 @@ pub type GetLoanParams {
   GetLoanParams(loan_id: String)
 }
 
+pub type CreateLoanParams {
+  CreateLoanParams(book_id: book_id.BookId)
+}
+
 pub type GetLoansParams {
   GetLoansParams(loan_date: option.Option(String))
 }
@@ -27,19 +30,19 @@ pub type GetLoans =
   fn(GetLoansParams) -> List(Loan)
 
 // Command functions
-pub fn create_loan_decoder() -> decode.Decoder(book_id.BookId) {
+pub fn create_loan_decoder() -> decode.Decoder(CreateLoanParams) {
   use book_id <- decoder.required_field("book_id", decode.string)
-  decode.success(book_id |> book_id.from_string)
+  decode.success(CreateLoanParams(book_id |> book_id.from_string))
 }
 
-pub fn to_loan(
-  get_book_id: Result(book_id.BookId, List(decode.DecodeError)),
+pub fn create_loan(
+  params: CreateLoanParams,
   current_date: fn() -> date.Date,
-) -> Result(Loan, List(decode.DecodeError)) {
-  use book_id <- result.try(get_book_id)
-
-  loan.new(book_id, current_date())
-  |> Ok
+  save_loan: SaveLoan,
+) -> Result(Nil, String) {
+  params.book_id
+  |> loan.new(current_date())
+  |> save_loan()
 }
 
 // Query functions
