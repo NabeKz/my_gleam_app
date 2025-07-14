@@ -11,6 +11,13 @@ import shared/date
 pub type SaveLoan =
   fn(Loan) -> Result(Nil, String)
 
+pub type CreateLoanDeps {
+  CreateLoanDeps(
+    check_book_exists: book_domain.CheckBookExists,
+    save_loan: SaveLoan,
+  )
+}
+
 // Query types
 pub type GetLoanParams {
   GetLoanParams(loan_id: String)
@@ -39,15 +46,14 @@ pub fn create_loan_decoder() -> decode.Decoder(CreateLoanParams) {
 pub fn create_loan(
   params: CreateLoanParams,
   current_date: fn() -> date.Date,
-  check_book_exists: book_domain.CheckBookExists,
-  save_loan: SaveLoan,
+  deps: CreateLoanDeps,
 ) -> Result(Nil, String) {
-  case check_book_exists(params.book_id) {
+  case deps.check_book_exists(params.book_id) {
     False -> Error("Book does not exist")
     True -> {
       params.book_id
       |> loan.new(current_date())
-      |> save_loan()
+      |> deps.save_loan()
     }
   }
 }

@@ -1,9 +1,8 @@
+import shared/date
 import wisp
 
 import app/handler/helper/json
-import features/book/domain as book_domain
 import features/loan/service
-import shared/date
 
 pub fn get_loans(
   req: wisp.Request,
@@ -34,13 +33,12 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
 // 極力、handler内でresultを使わない
 pub fn create_loan(
   req: wisp.Request,
-  check_book_exists: book_domain.CheckBookExists,
-  save_loan: service.SaveLoan,
   current_date: fn() -> date.Date,
+  deps: service.CreateLoanDeps,
 ) {
   use json <- json.get_body(req, service.create_loan_decoder)
 
-  case service.create_loan(json, current_date, check_book_exists, save_loan) {
+  case service.create_loan(json, current_date, deps) {
     Ok(_) -> wisp.created()
     Error(_) -> wisp.bad_request()
   }

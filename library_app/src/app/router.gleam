@@ -14,7 +14,7 @@ pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response 
     ["loans"], Get -> loan_handler.get_loans(req, ctx.get_loans)
     ["loans", id], Get -> loan_handler.get_loan(id, ctx.get_loan)
     ["loans"], Post ->
-      loan_handler.create_loan(req, ctx.check_book_exists, ctx.save_loan, ctx.current_date)
+      loan_handler.create_loan(req, ctx.current_date, ctx.create_loan_deps)
     ["health_check"], Get -> health_check()
     _, _ -> wisp.not_found()
   }
