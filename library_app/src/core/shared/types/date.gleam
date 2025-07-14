@@ -10,6 +10,9 @@ pub type Time {
   Time(hour: Int, minute: Int, second: Int)
 }
 
+pub type GetDate =
+  fn() -> Date
+
 /// @see
 /// https://www.erlang.org/doc/apps/stdlib/calendar.html
 @external(erlang, "calendar", "local_time")

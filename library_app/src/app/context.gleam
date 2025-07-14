@@ -6,6 +6,7 @@ import shell/adapters/persistence/loan_repo_on_ets
 
 pub type Context {
   Context(
+    current_date: date.GetDate,
     search_books: book_usecase.SearchBooks,
     create_loan: loan_service.CreateLoan,
     get_loan: loan_service.GetLoan,
@@ -15,6 +16,7 @@ pub type Context {
 
 pub fn new() -> Context {
   Context(
+    current_date: date.now,
     search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
     create_loan: fn(_) { Ok(Nil) },
     get_loan: fn(_) { todo },
@@ -26,6 +28,7 @@ pub fn on_ets() -> Context {
   let book_repo = book_repo_on_ets.new()
   let loan_repo = loan_repo_on_ets.new()
   Context(
+    current_date: date.now,
     search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
     create_loan: loan_service.create_loan(
       _,

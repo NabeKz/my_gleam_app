@@ -3,8 +3,8 @@ import gleam/option
 import gleam/result
 
 import core/book/types/book as book_domain
-import core/loan/services/helper/decoder
 import core/loan/types/loan.{type Loan}
+import core/shared/helper/decoder
 import core/shared/types/date
 
 // Command types
@@ -33,6 +33,10 @@ pub type GetLoans =
 pub type CreateLoan =
   fn(CreateLoanParams) -> Result(Nil, String)
 
+pub type CreateLoanDeps {
+  CreateLoanDeps(params: CreateLoanParams, current_date: fn() -> date.Date)
+}
+
 // Command functions
 pub fn create_loan_decoder() -> decode.Decoder(CreateLoanParams) {
   use book_id <- decoder.required_field("book_id", decode.string)
@@ -46,7 +50,8 @@ pub fn create_loan(
   save_loan: SaveLoan,
 ) -> Result(Nil, String) {
   use book_id <- result.try(check_book_exists(params.book_id))
-  loan.new(book_id, current_date())
+  book_id
+  |> loan.new(current_date())
   |> save_loan()
 }
 

@@ -1,7 +1,7 @@
 import wisp
 
-import shell/adapters/web/handler/helper/json
 import core/loan/services/service
+import shell/adapters/web/handler/helper/json
 
 pub fn get_loans(
   req: wisp.Request,
@@ -30,10 +30,7 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
 
 // handlerでcaseを使うのは1回まで
 // 極力、handler内でresultを使わない
-pub fn create_loan(
-  req: wisp.Request,
-  create_loan_fn: service.CreateLoan,
-) {
+pub fn create_loan(req: wisp.Request, create_loan_fn: service.CreateLoan) {
   use json <- json.get_body(req, service.create_loan_decoder)
 
   case create_loan_fn(json) {
