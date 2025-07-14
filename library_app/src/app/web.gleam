@@ -1,12 +1,12 @@
-import gleam/erlang/process
 import mist
-import app/context
 import wisp
 import wisp/wisp_mist
 
+import app/context
+import gleam/erlang/process
 import shell/adapters/web/router
 
-pub fn main() {
+pub fn run() {
   wisp.configure_logger()
   // Here we generate a secret key, but in a real application you would want to
   // load this from somewhere so that it is not regenerated on every restart.

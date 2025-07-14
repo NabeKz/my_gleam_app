@@ -1,8 +1,8 @@
-import shell/adapters/persistence/book_repo_on_ets
 import core/book/types/book as book_usecase
-import shell/adapters/persistence/loan_repo_on_ets
 import core/loan/services/service as loan_service
 import core/shared/types/date
+import shell/adapters/persistence/book_repo_on_ets
+import shell/adapters/persistence/loan_repo_on_ets
 
 pub type Context {
   Context(

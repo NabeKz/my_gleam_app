@@ -50,7 +50,7 @@ src/
 │       └── persistence/     # Database repositories
 └── app/                     # Application composition
     ├── context.gleam        # Dependency injection setup
-    └── main.gleam           # Application entry point
+    └── web.gleam           # Application entry point
 ```
 
 ### Dependency Rules

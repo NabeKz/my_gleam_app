@@ -1,6 +1,6 @@
 // Re-export the main entry point
-import app/main
+import app/web
 
 pub fn main() {
-  main.main()
+  web.run()
 }
