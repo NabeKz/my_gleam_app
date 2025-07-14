@@ -1,6 +1,7 @@
 import gleam/dynamic/decode
 import gleam/option
 
+import features/book/domain as book_domain
 import features/book/port/book_id
 import features/loan/helper/decoder
 import features/loan/loan.{type Loan}
@@ -38,11 +39,17 @@ pub fn create_loan_decoder() -> decode.Decoder(CreateLoanParams) {
 pub fn create_loan(
   params: CreateLoanParams,
   current_date: fn() -> date.Date,
+  check_book_exists: book_domain.CheckBookExists,
   save_loan: SaveLoan,
 ) -> Result(Nil, String) {
-  params.book_id
-  |> loan.new(current_date())
-  |> save_loan()
+  case check_book_exists(params.book_id) {
+    False -> Error("Book does not exist")
+    True -> {
+      params.book_id
+      |> loan.new(current_date())
+      |> save_loan()
+    }
+  }
 }
 
 // Query functions
