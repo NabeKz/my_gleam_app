@@ -1,38 +1,8 @@
 import gleam/option
-import gleam/result
 
 import core/book/types/book_id
 import core/shared/services/validator
-
-/// events
-pub type GetBooks =
-  fn(SearchParams) -> List(Book)
-
-pub type SearchParams {
-  SearchParams(title: option.Option(String), author: option.Option(String))
-}
-
-pub type CreateBook =
-  fn() -> Result(Nil, String)
-
-pub type SearchBooks =
-  fn(SearchParams) -> Result(List(Book), List(String))
-
-pub type CheckBookExists =
-  fn(String) -> Result(book_id.BookId, String)
-
-pub fn compose_search_books(
-  params: SearchParams,
-  get_books: GetBooks,
-) -> Result(List(Book), List(String)) {
-  params
-  |> validate()
-  |> result.map(get_books)
-}
-
-fn validate(params: SearchParams) -> Result(SearchParams, List(String)) {
-  params |> Ok()
-}
+import shell/shared/lib/uuid
 
 /// model
 pub type Book {
@@ -41,6 +11,10 @@ pub type Book {
 
 pub type UnValidatedBook {
   UnValidatedBook(title: option.Option(String), author: option.Option(String))
+}
+
+pub opaque type BookId {
+  BookId(value: String)
 }
 
 pub opaque type BookTitle {
@@ -63,6 +37,18 @@ pub fn new(
     |> validator.success()
   }
   validator.run(validated)
+}
+
+pub fn to_string(vo: BookId) -> String {
+  vo.value
+}
+
+pub fn from_string(value: String) -> BookId {
+  BookId(value)
+}
+
+pub fn new_id() -> BookId {
+  BookId(uuid.v4())
 }
 
 fn validate_title(title: String) -> validator.Validator(BookTitle) {

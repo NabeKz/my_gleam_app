@@ -21,10 +21,7 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
   let params = service.generate_get_loan_params(id)
 
   case get_loan(params) {
-    Ok(loan) ->
-      loan
-      |> serialize()
-      |> json.ok()
+    Ok(loan) -> loan |> serialize() |> json.ok()
     Error(_) -> wisp.bad_request()
   }
 }

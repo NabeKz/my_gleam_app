@@ -5,8 +5,8 @@ import core/book/types/book
 import core/book/types/book_id
 import shell/adapters/web/handler/helper/json
 
-pub fn get(req: wisp.Request, search_books: book.SearchBooks) {
-  use query <- json.get_query(req, book_query.to_search_params)
+pub fn get(req: wisp.Request, search_books: book_query.SearchBooks) {
+  use query <- json.get_query(req, book_query.generate_search_params)
 
   case search_books(query) {
     Ok(books) -> {

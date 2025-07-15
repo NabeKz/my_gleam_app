@@ -1,3 +1,4 @@
+import core/book/services/book_query
 import gleam/result
 
 import core/book/types/book
@@ -22,7 +23,7 @@ pub fn new() -> BookRepo {
 }
 
 pub fn search_books(
-  _create_params: book.SearchParams,
+  _create_params: book_query.SearchParams,
   conn: BookRepo,
 ) -> List(book.Book) {
   conn.all()

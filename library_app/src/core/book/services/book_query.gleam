@@ -6,18 +6,18 @@ import gleam/result
 import core/book/types/book_id
 import core/shared/helper/decoder
 
-pub type GetBooks =
-  fn(SearchParams) -> List(book.Book)
-
 pub type SearchParams {
   SearchParams(title: option.Option(String), author: option.Option(String))
 }
 
-pub type CreateBook =
-  fn() -> Result(Nil, String)
+pub type GetBooks =
+  fn(SearchParams) -> List(book.Book)
 
 pub type SearchBooks =
   fn(SearchParams) -> Result(List(book.Book), List(String))
+
+pub type CreateBook =
+  fn() -> Result(Nil, String)
 
 pub type CheckBookExists =
   fn(String) -> Result(book_id.BookId, String)
@@ -35,9 +35,9 @@ fn validate(params: SearchParams) -> Result(SearchParams, List(String)) {
   params |> Ok()
 }
 
-pub fn to_search_params() -> decode.Decoder(book.SearchParams) {
+pub fn generate_search_params() -> decode.Decoder(SearchParams) {
   use title <- decoder.optional_field("title", decode.string)
   use author <- decoder.optional_field("author", decode.string)
 
-  decode.success(book.SearchParams(title:, author:))
+  decode.success(SearchParams(title:, author:))
 }
