@@ -13,8 +13,7 @@ pub fn get_loans(
   use params <- json.get_query(req, service.get_loans_params_decoder)
 
   get_loans(params)
-  |> list.map(decode)
-  |> json.array()
+  |> json.array(serialize)
   |> json.ok()
 }
 
@@ -24,7 +23,7 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
   case get_loan(params) {
     Ok(loan) ->
       loan
-      |> json.object()
+      |> serialize()
       |> json.ok()
     Error(_) -> wisp.bad_request()
   }
@@ -45,11 +44,12 @@ pub fn create_loan(req: wisp.Request, create_loan: service.CreateLoan) {
   }
 }
 
-fn decode(loan_item: loan.Loan) -> List(#(String, String)) {
+fn serialize(loan_item: loan.Loan) -> json.Json {
   [
-    #("id", loan.id_value(loan_item)),
-    #("book_id", loan.book_id(loan_item) |> book_id.to_string),
-    #("loan_date", loan.loan_date(loan_item)),
-    #("due_date", loan.due_date(loan_item)),
+    #("id", loan.id_value(loan_item) |> json.string()),
+    #("book_id", loan.book_id(loan_item) |> book_id.to_string |> json.string()),
+    #("loan_date", loan.loan_date(loan_item) |> json.string()),
+    #("due_date", loan.due_date(loan_item) |> json.string()),
   ]
+  |> json.object()
 }
