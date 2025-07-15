@@ -4,9 +4,23 @@ import core/book/types/book_id
 import core/shared/services/validator
 import shell/shared/lib/uuid
 
+/// repository
+pub type CheckBookExists =
+  fn(String) -> Result(book_id.BookId, String)
+
+pub type GetBooks =
+  fn(SearchParams) -> List(Book)
+
+pub type CreateBook =
+  fn() -> Result(Nil, String)
+
 /// model
 pub type Book {
   Book(id: book_id.BookId, title: BookTitle, author: BookAuthor)
+}
+
+pub type SearchParams {
+  SearchParams(title: option.Option(String), author: option.Option(String))
 }
 
 pub type UnValidatedBook {
