@@ -9,7 +9,7 @@ import gleeunit/should
 import wisp/testing
 
 import app/context
-import core/loan/services/service
+import core/loan/services/loan_command
 import shell/adapters/web/router
 
 pub fn main() {
@@ -49,7 +49,7 @@ pub fn create_loan_success_test() {
   let ctx =
     context.Context(
       ..context.new(),
-      create_loan: service.create_loan(
+      create_loan: loan_command.create_loan_workflow(
         _,
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Ok(book.id) },
@@ -72,7 +72,7 @@ pub fn create_loan_failure_test() {
   let ctx =
     context.Context(
       ..context.new(),
-      create_loan: service.create_loan(
+      create_loan: loan_command.create_loan_workflow(
         _,
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Error("not found") },

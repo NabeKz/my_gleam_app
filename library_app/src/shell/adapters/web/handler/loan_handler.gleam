@@ -1,14 +1,15 @@
-import core/shared/types/date
 import wisp
 
 import core/book/book
 import core/loan/services/service
 import core/loan/types/loan
+import core/loan/types/loan_repository
+import core/shared/types/date
 import shell/adapters/web/handler/helper/json
 
 pub fn get_loans(
   req: wisp.Request,
-  get_loans: service.GetLoans,
+  get_loans: loan_repository.GetLoans,
 ) -> wisp.Response {
   use params <- json.get_query(req, service.get_loans_params_decoder)
 
@@ -17,7 +18,7 @@ pub fn get_loans(
   |> json.ok()
 }
 
-pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
+pub fn get_loan(id: String, get_loan: loan_repository.GetLoan) -> wisp.Response {
   let params = service.generate_get_loan_params(id)
 
   case get_loan(params) {
@@ -28,7 +29,7 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
 
 // handlerでcaseを使うのは1回まで
 // 極力、handler内でresultを使わない
-pub fn create_loan(req: wisp.Request, create_loan: service.CreateLoan) {
+pub fn create_loan(req: wisp.Request, create_loan: loan_repository.CreateLoan) {
   use json <- json.get_body(req, service.create_loan_decoder)
 
   case create_loan(json) {

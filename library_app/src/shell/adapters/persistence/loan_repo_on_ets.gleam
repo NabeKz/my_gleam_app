@@ -1,6 +1,6 @@
 import core/book/book
-import core/loan/services/service
 import core/loan/types/loan
+import core/loan/types/loan_repository
 import core/shared/types/date
 import shell/shared/lib/ets
 
@@ -19,12 +19,12 @@ pub fn new() -> LoanRepo {
   )
 }
 
-pub fn get_loans(_params: service.GetLoansParams, conn: LoanRepo) {
+pub fn get_loans(_params: loan_repository.GetLoansParams, conn: LoanRepo) {
   conn.all()
 }
 
 pub fn get_loan(
-  params: service.GetLoanParams,
+  params: loan_repository.GetLoanParams,
   conn: LoanRepo,
 ) -> Result(loan.Loan, String) {
   conn.get(params.loan_id)
