@@ -1,8 +1,8 @@
-import core/book/types/book_id
 import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
+import core/book/types/book
 import core/loan/types/loan.{type Loan}
 import core/shared/helper/decoder
 import core/shared/types/date
@@ -10,9 +10,6 @@ import core/shared/types/date
 // Command types
 pub type SaveLoan =
   fn(Loan) -> Result(Nil, String)
-
-pub type CheckBookExists =
-  fn(String) -> Result(book_id.BookId, String)
 
 // Query types
 pub type GetLoanParams {
@@ -49,7 +46,7 @@ pub fn create_loan_decoder() -> decode.Decoder(CreateLoanParams) {
 pub fn create_loan(
   params: CreateLoanParams,
   current_date: fn() -> date.Date,
-  check_book_exists: CheckBookExists,
+  check_book_exists: book.CheckBookExists,
   save_loan: SaveLoan,
 ) -> Result(Nil, String) {
   use book_id <- result.try(check_book_exists(params.book_id))

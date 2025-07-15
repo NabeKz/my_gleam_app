@@ -14,17 +14,17 @@ pub type GetBooks =
 pub type CreateBook =
   fn() -> Result(Nil, String)
 
-/// model
-pub type Book {
-  Book(id: book_id.BookId, title: BookTitle, author: BookAuthor)
-}
-
 pub type SearchParams {
   SearchParams(title: option.Option(String), author: option.Option(String))
 }
 
 pub type UnValidatedBook {
   UnValidatedBook(title: option.Option(String), author: option.Option(String))
+}
+
+/// model
+pub type Book {
+  Book(id: book_id.BookId, title: BookTitle, author: BookAuthor)
 }
 
 pub opaque type BookId {
