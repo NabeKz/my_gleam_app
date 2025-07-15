@@ -87,20 +87,3 @@ pub fn object(deserialized: List(#(String, String))) -> json.Json {
   }
   |> json.object()
 }
-
-// Loan serialization functions
-pub fn loan_to_json_data(loan_item: loan.Loan) -> List(#(String, String)) {
-  [
-    #("id", loan.id_value(loan_item)),
-    #("book_id", loan.book_id(loan_item) |> book_id.to_string),
-    #("loan_date", loan.loan_date(loan_item)),
-    #("due_date", loan.due_date(loan_item)),
-  ]
-}
-
-pub fn loans_to_json_data(
-  loans: List(loan.Loan),
-) -> List(List(#(String, String))) {
-  loans
-  |> list.map(loan_to_json_data)
-}

@@ -1,6 +1,9 @@
+import gleam/list
 import wisp
 
+import core/book/types/book_id
 import core/loan/services/service
+import core/loan/types/loan
 import shell/adapters/web/handler/helper/json
 
 pub fn get_loans(
@@ -10,7 +13,7 @@ pub fn get_loans(
   use params <- json.get_query(req, service.get_loans_params_decoder)
 
   get_loans(params)
-  |> json.loans_to_json_data()
+  |> list.map(loan_to_json_data)
   |> json.array()
   |> json.ok()
 }
@@ -21,11 +24,20 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
   case get_loan(params) {
     Ok(loan) ->
       loan
-      |> json.loan_to_json_data()
+      |> loan_to_json_data()
       |> json.object()
       |> json.ok()
     Error(_) -> wisp.bad_request()
   }
+}
+
+fn loan_to_json_data(loan_item: loan.Loan) -> List(#(String, String)) {
+  [
+    #("id", loan.id_value(loan_item)),
+    #("book_id", loan.book_id(loan_item) |> book_id.to_string),
+    #("loan_date", loan.loan_date(loan_item)),
+    #("due_date", loan.due_date(loan_item)),
+  ]
 }
 
 // handlerでcaseを使うのは1回まで
