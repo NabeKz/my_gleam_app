@@ -17,7 +17,7 @@ pub type CreateBook =
   fn() -> Result(Nil, String)
 
 pub type SearchBooks =
-  fn(CreateParams) -> Result(List(Book), List(decode.DecodeError))
+  fn(CreateParams) -> Result(List(Book), List(String))
 
 pub type CheckBookExists =
   fn(String) -> Result(book_id.BookId, String)
@@ -28,8 +28,8 @@ pub type CreateParams =
 pub fn compose_search_books(
   create_params: CreateParams,
   get_books: GetBooks,
-) -> Result(List(Book), List(decode.DecodeError)) {
-  use params <- result.try(create_params)
+) -> Result(List(Book), List(String)) {
+  use params <- result.try(create_params |> result.replace_error(["ng"]))
 
   get_books(params) |> Ok
 }
@@ -77,4 +77,12 @@ fn validate_author(value: String) -> validator.Validator(BookAuthor) {
   |> validator.required_string()
   |> validator.less_than(200)
   |> validator.map(BookAuthor)
+}
+
+pub fn title_value(book: Book) -> String {
+  book.title.value
+}
+
+pub fn author_value(book: Book) -> String {
+  book.author.value
 }

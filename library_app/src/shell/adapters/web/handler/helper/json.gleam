@@ -33,6 +33,8 @@ pub fn bad_request(body: json.Json) -> wisp.Response {
   |> wisp.json_response(400)
 }
 
+pub const string = json.string
+
 // TODO: error handling
 pub fn get_body(
   req: wisp.Request,

@@ -30,11 +30,15 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
 
 // handlerでcaseを使うのは1回まで
 // 極力、handler内でresultを使わない
-pub fn create_loan(req: wisp.Request, create_loan_fn: service.CreateLoan) {
+pub fn create_loan(req: wisp.Request, create_loan: service.CreateLoan) {
   use json <- json.get_body(req, service.create_loan_decoder)
 
-  case create_loan_fn(json) {
+  case create_loan(json) {
     Ok(_) -> wisp.created()
-    Error(_) -> wisp.bad_request()
+    Error(error) -> {
+      error
+      |> json.string()
+      |> json.bad_request()
+    }
   }
 }

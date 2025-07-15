@@ -1,6 +1,6 @@
 import core/book/types/book_id
-import core/loan/types/loan
 import core/loan/services/service
+import core/loan/types/loan
 import core/shared/types/date
 import shell/shared/lib/ets
 
@@ -9,7 +9,6 @@ type LoanRepo =
 
 pub fn new() -> LoanRepo {
   ets.conn(
-    "loans",
     [
       loan.new(book_id.new(), date.from(#(2025, 7, 31))),
       loan.new(book_id.new(), date.from(#(2025, 8, 1))),

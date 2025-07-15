@@ -29,7 +29,10 @@ pub fn on_ets() -> Context {
   let loan_repo = loan_repo_on_ets.new()
   Context(
     current_date: date.now,
-    search_books: book_usecase.compose_search_books(_, fn(_) { [] }),
+    search_books: book_usecase.compose_search_books(
+      _,
+      book_repo_on_ets.search_books(_, book_repo),
+    ),
     create_loan: loan_service.create_loan(
       _,
       date.now,

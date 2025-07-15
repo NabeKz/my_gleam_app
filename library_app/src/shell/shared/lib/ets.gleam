@@ -14,14 +14,14 @@ pub type Conn(k, v) {
 pub type All(v) =
   fn() -> List(v)
 
-pub type MatchSpec
+pub type Tid
 
 type Table {
-  Table(value: atom.Atom)
+  Table(value: Tid)
 }
 
-pub fn conn(name: String, items: List(a), key: fn(a) -> b) -> Conn(b, a) {
-  let table = init(name)
+pub fn conn(items: List(a), key: fn(a) -> b) -> Conn(b, a) {
+  let table = init("ets")
   {
     use it <- list.each(items)
     put(table, #(key(it), it))
@@ -38,21 +38,16 @@ pub fn conn(name: String, items: List(a), key: fn(a) -> b) -> Conn(b, a) {
 
 // === ETS FFI ===
 @external(erlang, "ets", "new")
-fn new(name: atom.Atom, props: List(atom.Atom)) -> Nil
+fn new(name: atom.Atom, props: List(atom.Atom)) -> Tid
 
 fn init(name: String) -> Table {
-  let name = atom.create(name)
-  name
-  |> new([
-    atom.create("ordered_set"),
-    atom.create("named_table"),
-    atom.create("public"),
-  ])
-  Table(name)
+  atom.create(name)
+  |> new([atom.create("ordered_set"), atom.create("public")])
+  |> Table()
 }
 
 @external(erlang, "ets", "tab2list")
-fn tab2list(name: atom.Atom) -> List(#(k, v))
+fn tab2list(name: Tid) -> List(#(k, v))
 
 fn all(table: Table) -> List(v) {
   let table = table.value |> tab2list
@@ -61,7 +56,7 @@ fn all(table: Table) -> List(v) {
 }
 
 @external(erlang, "ets", "lookup")
-fn lookup(table: atom.Atom, key: k) -> List(#(k, v))
+fn lookup(table: Tid, key: k) -> List(#(k, v))
 
 fn get(table: Table, key: k) -> Result(v, String) {
   case table.value |> lookup(key) {
@@ -71,7 +66,7 @@ fn get(table: Table, key: k) -> Result(v, String) {
 }
 
 @external(erlang, "ets", "insert_new")
-fn insert_new(name: atom.Atom, tuple: #(k, v)) -> Bool
+fn insert_new(name: Tid, tuple: #(k, v)) -> Bool
 
 fn create(table: Table, item: #(k, v)) -> Result(Nil, String) {
   case table.value |> insert_new(item) {
@@ -81,14 +76,14 @@ fn create(table: Table, item: #(k, v)) -> Result(Nil, String) {
 }
 
 @external(erlang, "ets", "insert")
-fn insert(name: atom.Atom, tuple: #(k, v)) -> Nil
+fn insert(name: Tid, tuple: #(k, v)) -> Nil
 
 fn put(table: Table, tuple: #(k, v)) -> Nil {
   table.value |> insert(tuple)
 }
 
 @external(erlang, "ets", "delete")
-fn delete_table(table: atom.Atom, key: k) -> Nil
+fn delete_table(table: Tid, key: k) -> Nil
 
 fn delete(table: Table, key: k) -> Nil {
   table.value |> delete_table(key)
