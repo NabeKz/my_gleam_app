@@ -1,4 +1,3 @@
-import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
@@ -17,21 +16,22 @@ pub type CreateBook =
   fn() -> Result(Nil, String)
 
 pub type SearchBooks =
-  fn(CreateParams) -> Result(List(Book), List(String))
+  fn(SearchParams) -> Result(List(Book), List(String))
 
 pub type CheckBookExists =
   fn(String) -> Result(book_id.BookId, String)
 
-pub type CreateParams =
-  Result(SearchParams, List(decode.DecodeError))
-
 pub fn compose_search_books(
-  create_params: CreateParams,
+  params: SearchParams,
   get_books: GetBooks,
 ) -> Result(List(Book), List(String)) {
-  use params <- result.try(create_params |> result.replace_error(["ng"]))
+  params
+  |> validate()
+  |> result.map(get_books)
+}
 
-  get_books(params) |> Ok
+fn validate(params: SearchParams) -> Result(SearchParams, List(String)) {
+  params |> Ok()
 }
 
 /// model

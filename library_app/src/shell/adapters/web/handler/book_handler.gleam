@@ -1,29 +1,23 @@
-import core/book/types/book_id
-import gleam/json
 import wisp
 
-import core/book/services/converter
+import core/book/services/book_query
 import core/book/types/book
+import core/book/types/book_id
+import shell/adapters/web/handler/helper/json
 
 pub fn get(req: wisp.Request, search_books: book.SearchBooks) {
-  let result =
-    req
-    |> wisp.get_query()
-    |> converter.to_search_params()
-    |> search_books()
+  use query <- json.get_query(req, book_query.to_search_params)
 
-  case result {
+  case search_books(query) {
     Ok(books) -> {
       books
       |> json.array(decode)
-      |> json.to_string_tree()
-      |> wisp.json_response(200)
+      |> json.ok()
     }
     Error(_) -> {
-      "error"
-      |> json.string()
-      |> json.to_string_tree()
-      |> wisp.json_response(400)
+      [#("message", "error" |> json.string)]
+      |> json.object()
+      |> json.bad_request()
     }
   }
 }

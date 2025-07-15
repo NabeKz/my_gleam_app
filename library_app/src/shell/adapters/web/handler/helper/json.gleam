@@ -5,8 +5,8 @@ import gleam/list
 import gleam/string
 import wisp
 
-import core/book/types/book_id
-import core/loan/types/loan
+pub type Json =
+  json.Json
 
 fn parse_decode_error(error: decode.DecodeError) -> json.Json {
   [#("message", error.expected), #("path", error.path |> string.join(","))]
@@ -34,6 +34,12 @@ pub fn bad_request(body: json.Json) -> wisp.Response {
 }
 
 pub const string = json.string
+
+pub const int = json.int
+
+pub const object = json.object
+
+pub const array = json.array
 
 // TODO: error handling
 pub fn get_body(
@@ -73,17 +79,4 @@ pub fn get_query(
     Ok(query) -> next(query)
     Error(_) -> wisp.bad_request()
   }
-}
-
-pub fn array(deserialized: List(List(#(String, String)))) -> json.Json {
-  deserialized
-  |> json.array(object)
-}
-
-pub fn object(deserialized: List(#(String, String))) -> json.Json {
-  {
-    use it <- list.map(deserialized)
-    #(it.0, it.1 |> json.string)
-  }
-  |> json.object()
 }

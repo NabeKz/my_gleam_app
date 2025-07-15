@@ -13,7 +13,7 @@ pub fn get_loans(
   use params <- json.get_query(req, service.get_loans_params_decoder)
 
   get_loans(params)
-  |> list.map(loan_to_json_data)
+  |> list.map(decode)
   |> json.array()
   |> json.ok()
 }
@@ -24,20 +24,10 @@ pub fn get_loan(id: String, get_loan: service.GetLoan) -> wisp.Response {
   case get_loan(params) {
     Ok(loan) ->
       loan
-      |> loan_to_json_data()
       |> json.object()
       |> json.ok()
     Error(_) -> wisp.bad_request()
   }
-}
-
-fn loan_to_json_data(loan_item: loan.Loan) -> List(#(String, String)) {
-  [
-    #("id", loan.id_value(loan_item)),
-    #("book_id", loan.book_id(loan_item) |> book_id.to_string),
-    #("loan_date", loan.loan_date(loan_item)),
-    #("due_date", loan.due_date(loan_item)),
-  ]
 }
 
 // handlerでcaseを使うのは1回まで
@@ -53,4 +43,13 @@ pub fn create_loan(req: wisp.Request, create_loan: service.CreateLoan) {
       |> json.bad_request()
     }
   }
+}
+
+fn decode(loan_item: loan.Loan) -> List(#(String, String)) {
+  [
+    #("id", loan.id_value(loan_item)),
+    #("book_id", loan.book_id(loan_item) |> book_id.to_string),
+    #("loan_date", loan.loan_date(loan_item)),
+    #("due_date", loan.due_date(loan_item)),
+  ]
 }
