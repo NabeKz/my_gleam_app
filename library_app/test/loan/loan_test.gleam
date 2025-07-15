@@ -1,6 +1,3 @@
-import core/book/book
-import core/loan/types/loan
-import core/shared/types/date
 import gleam/dynamic/decode
 import gleam/json
 import gleam/list
@@ -9,7 +6,10 @@ import gleeunit/should
 import wisp/testing
 
 import app/context
-import core/loan/services/loan_command
+import core/book/book
+import core/loan/loan
+import core/loan/loan_command
+import core/shared/types/date
 import shell/adapters/web/router
 
 pub fn main() {

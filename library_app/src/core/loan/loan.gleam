@@ -1,7 +1,31 @@
 import core/book/book
 import core/shared/types/date
+import gleam/option
 import shell/shared/lib/uuid
 
+// repository
+pub type GetLoan =
+  fn(GetLoanParams) -> Result(Loan, String)
+
+pub type GetLoans =
+  fn(GetLoansParams) -> List(Loan)
+
+pub type SaveLoan =
+  fn(Loan) -> Result(Nil, String)
+
+pub type GetLoanParams {
+  GetLoanParams(loan_id: String)
+}
+
+pub type GetLoansParams {
+  GetLoansParams(loan_date: option.Option(String))
+}
+
+pub type CreateLoanParams {
+  CreateLoanParams(book_id: String)
+}
+
+// domain model
 pub type Loan {
   Loan(
     id: LoanId,

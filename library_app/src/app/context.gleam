@@ -1,7 +1,7 @@
 import core/book/book_ports
 import core/book/book_query
-import core/loan/services/loan_command
-import core/loan/types/loan_repository
+import core/loan/loan
+import core/loan/loan_command
 import core/shared/types/date
 import shell/adapters/persistence/book_repo_on_ets
 import shell/adapters/persistence/loan_repo_on_ets
@@ -10,9 +10,9 @@ pub type Context {
   Context(
     current_date: date.GetDate,
     search_books: book_ports.GetBooksWorkflow,
-    create_loan: loan_repository.CreateLoan,
-    get_loan: loan_repository.GetLoan,
-    get_loans: loan_repository.GetLoans,
+    create_loan: loan_command.CreateLoan,
+    get_loan: loan.GetLoan,
+    get_loans: loan.GetLoans,
   )
 }
 

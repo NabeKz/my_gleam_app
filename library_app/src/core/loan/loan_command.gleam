@@ -2,17 +2,19 @@ import gleam/dynamic/decode
 import gleam/result
 
 import core/book/book
-import core/loan/types/loan
-import core/loan/types/loan_repository
+import core/loan/loan
 import core/shared/helper/decoder
 import core/shared/types/date
 
+pub type CreateLoan =
+  fn(loan.CreateLoanParams) -> Result(Nil, String)
+
 // Command functions
 pub fn create_loan_workflow(
-  params: loan_repository.CreateLoanParams,
+  params: loan.CreateLoanParams,
   current_date: fn() -> date.Date,
   check_book_exists: book.CheckBookExists,
-  save_loan: loan_repository.SaveLoan,
+  save_loan: loan.SaveLoan,
 ) -> Result(Nil, String) {
   use book_id <- result.try(check_book_exists(params.book_id))
   book_id
@@ -20,21 +22,17 @@ pub fn create_loan_workflow(
   |> save_loan()
 }
 
-pub fn create_loan_decoder() -> decode.Decoder(loan_repository.CreateLoanParams) {
+pub fn create_loan_decoder() -> decode.Decoder(loan.CreateLoanParams) {
   use book_id <- decoder.required_field("book_id", decode.string)
-  decode.success(loan_repository.CreateLoanParams(book_id))
+  decode.success(loan.CreateLoanParams(book_id))
 }
 
 // Query functions
-pub fn generate_get_loan_params(
-  loan_id: String,
-) -> loan_repository.GetLoanParams {
-  loan_repository.GetLoanParams(loan_id:)
+pub fn generate_get_loan_params(loan_id: String) -> loan.GetLoanParams {
+  loan.GetLoanParams(loan_id:)
 }
 
-pub fn get_loans_params_decoder() -> decode.Decoder(
-  loan_repository.GetLoansParams,
-) {
+pub fn get_loans_params_decoder() -> decode.Decoder(loan.GetLoansParams) {
   use loan_date <- decoder.optional_field("loan_date", decode.string)
-  decode.success(loan_repository.GetLoansParams(loan_date))
+  decode.success(loan.GetLoansParams(loan_date))
 }

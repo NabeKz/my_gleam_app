@@ -1,25 +1,21 @@
 import wisp
 
 import core/book/book
-import core/loan/services/service
-import core/loan/types/loan
-import core/loan/types/loan_repository
+import core/loan/loan
+import core/loan/loan_command
 import core/shared/types/date
 import shell/adapters/web/handler/helper/json
 
-pub fn get_loans(
-  req: wisp.Request,
-  get_loans: loan_repository.GetLoans,
-) -> wisp.Response {
-  use params <- json.get_query(req, service.get_loans_params_decoder)
+pub fn get_loans(req: wisp.Request, get_loans: loan.GetLoans) -> wisp.Response {
+  use params <- json.get_query(req, loan_command.get_loans_params_decoder)
 
   get_loans(params)
   |> json.array(serialize)
   |> json.ok()
 }
 
-pub fn get_loan(id: String, get_loan: loan_repository.GetLoan) -> wisp.Response {
-  let params = service.generate_get_loan_params(id)
+pub fn get_loan(id: String, get_loan: loan.GetLoan) -> wisp.Response {
+  let params = loan_command.generate_get_loan_params(id)
 
   case get_loan(params) {
     Ok(loan) -> loan |> serialize() |> json.ok()
@@ -29,8 +25,8 @@ pub fn get_loan(id: String, get_loan: loan_repository.GetLoan) -> wisp.Response 
 
 // handlerでcaseを使うのは1回まで
 // 極力、handler内でresultを使わない
-pub fn create_loan(req: wisp.Request, create_loan: loan_repository.CreateLoan) {
-  use json <- json.get_body(req, service.create_loan_decoder)
+pub fn create_loan(req: wisp.Request, create_loan: loan_command.CreateLoan) {
+  use json <- json.get_body(req, loan_command.create_loan_decoder)
 
   case create_loan(json) {
     Ok(_) -> wisp.created()
