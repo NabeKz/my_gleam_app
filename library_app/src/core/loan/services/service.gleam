@@ -2,7 +2,7 @@ import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
-import core/book/types/book
+import core/book/book
 import core/loan/types/loan.{type Loan}
 import core/shared/helper/decoder
 import core/shared/types/date

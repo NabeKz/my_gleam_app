@@ -1,11 +1,11 @@
 import wisp
 
-import core/book/services/book_query
-import core/book/types/book
-import core/book/types/book_id
+import core/book/book
+import core/book/book_ports
+import core/book/book_query
 import shell/adapters/web/handler/helper/json
 
-pub fn get(req: wisp.Request, search_books: book_query.SearchBooks) {
+pub fn get(req: wisp.Request, search_books: book_ports.GetBooksWorkflow) {
   use query <- json.get_query(req, book_query.generate_search_params)
 
   case search_books(query) {
@@ -24,7 +24,7 @@ pub fn get(req: wisp.Request, search_books: book_query.SearchBooks) {
 
 fn decode(book: book.Book) -> json.Json {
   [
-    #("id", book.id |> book_id.to_string() |> json.string()),
+    #("id", book.id |> book.id_to_string() |> json.string()),
     #("title", book |> book.title_value |> json.string()),
     #("author", book |> book.author_value |> json.string()),
   ]

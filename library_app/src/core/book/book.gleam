@@ -1,12 +1,11 @@
 import gleam/option
 
-import core/book/types/book_id
 import core/shared/services/validator
 import shell/shared/lib/uuid
 
 /// repository
 pub type CheckBookExists =
-  fn(String) -> Result(book_id.BookId, String)
+  fn(String) -> Result(BookId, String)
 
 pub type GetBooks =
   fn(SearchParams) -> List(Book)
@@ -24,7 +23,7 @@ pub type UnValidatedBook {
 
 /// model
 pub type Book {
-  Book(id: book_id.BookId, title: BookTitle, author: BookAuthor)
+  Book(id: BookId, title: BookTitle, author: BookAuthor)
 }
 
 pub opaque type BookId {
@@ -47,22 +46,22 @@ pub fn new(
     use title <- validator.field(validate_title(title))
     use author <- validator.field(validate_author(author))
 
-    Book(id: book_id.new(), title:, author:)
+    Book(id: new_id(), title:, author:)
     |> validator.success()
   }
   validator.run(validated)
 }
 
-pub fn to_string(vo: BookId) -> String {
+fn new_id() -> BookId {
+  BookId(uuid.v4())
+}
+
+pub fn id_to_string(vo: BookId) -> String {
   vo.value
 }
 
-pub fn from_string(value: String) -> BookId {
+pub fn id_from_string(value: String) -> BookId {
   BookId(value)
-}
-
-pub fn new_id() -> BookId {
-  BookId(uuid.v4())
 }
 
 fn validate_title(title: String) -> validator.Validator(BookTitle) {

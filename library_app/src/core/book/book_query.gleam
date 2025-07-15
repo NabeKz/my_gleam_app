@@ -1,11 +1,8 @@
 import gleam/dynamic/decode
 import gleam/result
 
-import core/book/types/book
+import core/book/book
 import core/shared/helper/decoder
-
-pub type SearchBooks =
-  fn(book.SearchParams) -> Result(List(book.Book), List(String))
 
 pub fn compose_search_books(
   params: book.SearchParams,

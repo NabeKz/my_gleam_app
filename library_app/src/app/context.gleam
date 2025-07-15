@@ -1,4 +1,5 @@
-import core/book/services/book_query
+import core/book/book_ports
+import core/book/book_query
 import core/loan/services/service as loan_service
 import core/shared/types/date
 import shell/adapters/persistence/book_repo_on_ets
@@ -7,7 +8,7 @@ import shell/adapters/persistence/loan_repo_on_ets
 pub type Context {
   Context(
     current_date: date.GetDate,
-    search_books: book_query.SearchBooks,
+    search_books: book_ports.GetBooksWorkflow,
     create_loan: loan_service.CreateLoan,
     get_loan: loan_service.GetLoan,
     get_loans: loan_service.GetLoans,

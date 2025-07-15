@@ -1,7 +1,7 @@
-import gleam/list
+import core/shared/types/date
 import wisp
 
-import core/book/types/book_id
+import core/book/book
 import core/loan/services/service
 import core/loan/types/loan
 import shell/adapters/web/handler/helper/json
@@ -41,12 +41,12 @@ pub fn create_loan(req: wisp.Request, create_loan: service.CreateLoan) {
   }
 }
 
-fn serialize(loan_item: loan.Loan) -> json.Json {
+fn serialize(loan: loan.Loan) -> json.Json {
   [
-    #("id", loan.id_value(loan_item) |> json.string()),
-    #("book_id", loan.book_id(loan_item) |> book_id.to_string |> json.string()),
-    #("loan_date", loan.loan_date(loan_item) |> json.string()),
-    #("due_date", loan.due_date(loan_item) |> json.string()),
+    #("id", loan.id_value(loan) |> json.string()),
+    #("book_id", loan.book_id |> book.id_to_string |> json.string()),
+    #("loan_date", loan.loan_date |> date.to_string() |> json.string()),
+    #("due_date", loan.due_date |> date.to_string() |> json.string()),
   ]
   |> json.object()
 }

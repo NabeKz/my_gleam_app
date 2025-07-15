@@ -1,7 +1,6 @@
 import gleam/result
 
-import core/book/types/book
-import core/book/types/book_id
+import core/book/book
 import shell/shared/lib/ets
 
 type BookRepo =
@@ -17,7 +16,7 @@ pub fn new() -> BookRepo {
       book.new("bar", "ddd"),
     ]
       |> result.values(),
-    fn(it) { it.id |> book_id.to_string() },
+    fn(it) { it.id |> book.id_to_string() },
   )
 }
 
@@ -28,7 +27,7 @@ pub fn search_books(
   conn.all()
 }
 
-pub fn exits(id: String, conn: BookRepo) -> Result(book_id.BookId, String) {
+pub fn exits(id: String, conn: BookRepo) -> Result(book.BookId, String) {
   use book <- result.map(conn.get(id))
   book.id
 }

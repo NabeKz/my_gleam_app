@@ -1,4 +1,4 @@
-import core/book/types/book_id
+import core/book/book
 import core/loan/types/loan
 import core/shared/types/date
 import gleam/dynamic/decode
@@ -18,12 +18,13 @@ pub fn main() {
 
 pub fn get_loans_success_test() {
   let req = testing.get("/api/loans?hoge=1", [])
+  let assert Ok(book) = book.new("a", "b")
   let ctx =
     context.Context(..context.new(), get_loans: fn(_) {
       [
-        loan.new(book_id.new(), date.from(#(2025, 7, 31))),
-        loan.new(book_id.new(), date.from(#(2025, 8, 1))),
-        loan.new(book_id.new(), date.from(#(2025, 8, 30))),
+        loan.new(book.id, date.from(#(2025, 7, 31))),
+        loan.new(book.id, date.from(#(2025, 8, 1))),
+        loan.new(book.id, date.from(#(2025, 8, 30))),
       ]
     })
   let response = router.handle_request(req, ctx)
@@ -44,13 +45,14 @@ pub fn get_loans_success_test() {
 pub fn create_loan_success_test() {
   let body = json.object([#("book_id", "a" |> json.string)])
   let req = testing.post_json("/api/loans", [], body)
+  let assert Ok(book) = book.new("a", "b")
   let ctx =
     context.Context(
       ..context.new(),
       create_loan: service.create_loan(
         _,
         fn() { date.from(#(2025, 7, 31)) },
-        fn(_) { Ok(book_id.new()) },
+        fn(_) { Ok(book.id) },
         fn(_) { Ok(Nil) },
       ),
     )
