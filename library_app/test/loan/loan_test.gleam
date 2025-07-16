@@ -86,5 +86,5 @@ pub fn create_loan_failure_test() {
 
   response
   |> testing.string_body()
-  |> should.equal("not found")
+  |> should.equal("\"not found\"")
 }

@@ -10,6 +10,7 @@ pub type CreateLoan =
   fn(loan.CreateLoanParams) -> Result(Nil, String)
 
 // Command functions
+// TODO: 延滞や貸出上限の制限を追加する
 pub fn create_loan_workflow(
   params: loan.CreateLoanParams,
   current_date: fn() -> date.Date,
