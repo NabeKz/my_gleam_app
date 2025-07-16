@@ -3,11 +3,12 @@ import wisp
 import core/book/book
 import core/loan/loan
 import core/loan/loan_command
+import core/loan/loan_query
 import core/shared/types/date
 import shell/adapters/web/handler/helper/json
 
 pub fn get_loans(req: wisp.Request, get_loans: loan.GetLoans) -> wisp.Response {
-  use params <- json.get_query(req, loan_command.get_loans_params_decoder)
+  use params <- json.get_query(req, loan_query.get_loans_params_decoder)
 
   get_loans(params)
   |> json.array(serialize)
@@ -15,7 +16,7 @@ pub fn get_loans(req: wisp.Request, get_loans: loan.GetLoans) -> wisp.Response {
 }
 
 pub fn get_loan(id: String, get_loan: loan.GetLoan) -> wisp.Response {
-  let params = loan_command.generate_get_loan_params(id)
+  let params = loan_query.generate_get_loan_params(id)
 
   case get_loan(params) {
     Ok(loan) -> loan |> serialize() |> json.ok()

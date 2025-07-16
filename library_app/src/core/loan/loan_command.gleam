@@ -26,13 +26,3 @@ pub fn create_loan_decoder() -> decode.Decoder(loan.CreateLoanParams) {
   use book_id <- decoder.required_field("book_id", decode.string)
   decode.success(loan.CreateLoanParams(book_id))
 }
-
-// Query functions
-pub fn generate_get_loan_params(loan_id: String) -> loan.GetLoanParams {
-  loan.GetLoanParams(loan_id:)
-}
-
-pub fn get_loans_params_decoder() -> decode.Decoder(loan.GetLoansParams) {
-  use loan_date <- decoder.optional_field("loan_date", decode.string)
-  decode.success(loan.GetLoansParams(loan_date))
-}
