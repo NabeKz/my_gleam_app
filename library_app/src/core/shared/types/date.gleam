@@ -2,8 +2,9 @@ import gleam/int
 import gleam/list
 import gleam/string
 
-pub type Timestamp =
-  #(Int, Int, Int)
+pub type Timestamp {
+  Timestamp(value: Int)
+}
 
 pub type Date {
   Date(year: Int, month: Int, day: Int)
@@ -31,9 +32,10 @@ fn gregorian_days_to_date(days: Int) -> #(Int, Int, Int)
 @external(erlang, "os", "timestamp")
 pub fn timestamp_ffi() -> #(Int, Int, Int)
 
-pub fn timestamp() -> Int {
+pub fn timestamp() -> Timestamp {
   let #(mega_secs, secs, micro_secs) = timestamp_ffi()
-  mega_secs * 1_000_000_000_000 + secs * 1_000_000 + micro_secs
+  let value = mega_secs * 1_000_000_000_000 + secs * 1_000_000 + micro_secs
+  Timestamp(value:)
 }
 
 pub fn now() -> Date {
