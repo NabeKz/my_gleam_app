@@ -1,7 +1,7 @@
 import core/book/book_ports
 import core/book/book_query
-import core/loan/loan
 import core/loan/loan_command
+import core/loan/loan_query
 import core/shared/types/date
 import shell/adapters/persistence/book_repo_on_ets
 import shell/adapters/persistence/loan_repo_on_ets
@@ -11,8 +11,8 @@ pub type Context {
     current_date: date.GetDate,
     search_books: book_ports.GetBooksWorkflow,
     create_loan: loan_command.CreateLoan,
-    get_loan: loan.GetLoan,
-    get_loans: loan.GetLoans,
+    get_loan: loan_query.GetLoan,
+    get_loans: loan_query.GetLoans,
   )
 }
 
