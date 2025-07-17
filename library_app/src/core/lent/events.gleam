@@ -29,6 +29,17 @@ pub type BookReturned {
   )
 }
 
+pub fn is_same_book_id(event: LentEvent, book_id: String) -> Bool {
+  get_book_id(event) == book_id
+}
+
+fn get_book_id(event: LentEvent) -> String {
+  case event {
+    BookLendEvent(e) -> e.book_id
+    BookReturnedEvent(e) -> e.book_id
+  }
+}
+
 pub fn new_event_id() -> String {
   uuid.v4()
 }
