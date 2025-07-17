@@ -33,6 +33,13 @@ pub fn is_same_book_id(event: LentEvent, book_id: String) -> Bool {
   get_book_id(event) == book_id
 }
 
+pub fn event_timestamp(event: LentEvent) -> date.Timestamp {
+  case event {
+    BookLendEvent(e) -> e.timestamp
+    BookReturnedEvent(e) -> e.timestamp
+  }
+}
+
 fn get_book_id(event: LentEvent) -> String {
   case event {
     BookLendEvent(e) -> e.book_id

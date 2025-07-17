@@ -38,6 +38,10 @@ pub fn timestamp() -> Timestamp {
   Timestamp(value:)
 }
 
+pub fn inner(timestamp: Timestamp) -> Int {
+  timestamp.value
+}
+
 pub fn now() -> Date {
   let #(date, _) = local_time()
   let #(year, month, day) = date
