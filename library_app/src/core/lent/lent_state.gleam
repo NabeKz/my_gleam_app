@@ -20,6 +20,15 @@ pub fn calculate_lent_state_at_time(
   |> list.fold(initial_state, apply_event)
 }
 
+pub fn calculate_lent_state(
+  book_id: String,
+  events: List(events.LentEvent),
+) -> LentState {
+  events
+  |> list.filter(fn(event) { events.is_same_book_id(event, book_id)})
+  |> list.fold(Available, apply_event)
+}
+
 fn apply_event(_state: LentState, event: events.LentEvent) -> LentState {
   case event {
     events.BookLendEvent(e) ->Lend(renter_id: e.renter_id)

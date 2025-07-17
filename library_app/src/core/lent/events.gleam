@@ -3,12 +3,12 @@ import shell/shared/lib/uuid
 
 // MEMO: 入れ子構造なのは各イベント型が独立してバリデーション可能にするため
 pub type LentEvent {
-  BookLendEvent(BookLend)
-  BookReturnedEvent(BookReturned)
+  BookLend(BookLendEvent)
+  BookReturned(BookReturnedEvent)
 }
 
-pub type BookLend {
-  BookLend(
+pub type BookLendEvent {
+  BookLendEvent(
     event_id: String,
     book_id: String,
     renter_id: String,
@@ -19,8 +19,8 @@ pub type BookLend {
   )
 }
 
-pub type BookReturned {
-  BookReturned(
+pub type BookReturnedEvent {
+  BookReturnedEvent(
     event_id: String,
     book_id: String,
     renter_id: String,
@@ -35,15 +35,15 @@ pub fn is_same_book_id(event: LentEvent, book_id: String) -> Bool {
 
 pub fn event_timestamp(event: LentEvent) -> date.Timestamp {
   case event {
-    BookLendEvent(e) -> e.timestamp
-    BookReturnedEvent(e) -> e.timestamp
+    BookLend(e) -> e.timestamp
+    BookReturned(e) -> e.timestamp
   }
 }
 
 fn get_book_id(event: LentEvent) -> String {
   case event {
-    BookLendEvent(e) -> e.book_id
-    BookReturnedEvent(e) -> e.book_id
+    BookLend(e) -> e.book_id
+    BookReturned(e) -> e.book_id
   }
 }
 
