@@ -1,6 +1,5 @@
 import gleam/list
 
-import core/shared/types/date
 import core/lent/events
 
 pub type LentState {
@@ -10,17 +9,6 @@ pub type LentState {
 
 // Event Sourcingの特徴として「任意の時点の状態を判定できる」必要があるため
 // 状態を計算するロジックが必要
-pub fn calculate_lent_state_at_time(
-  initial_state: LentState,   
-  events: List(events.LentEvent),
-  _target_time: date.Date,
-) -> LentState {
-  events
-  // TODO: timestamp型を修正したらコメントアウト解除
-  // |> list.filter(fn(event) { events.event_timestamp(event).value <= target_time.value })
-  |> list.fold(initial_state, apply_event)
-}
-
 pub fn calculate_lent_state(
   book_id: String,
   events: List(events.LentEvent),

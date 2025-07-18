@@ -24,7 +24,7 @@ pub fn handle_lent_book_command(
   append_event: AppendEvent,
   check_book_exists: book.CheckBookExists,
   current_date: date.GetDate,
-) {
+) -> Result(events.BookLendEvent, String) {
   use _ <- result.try(check_book_exists(command.book_id))
   let current_state =
     command.book_id
