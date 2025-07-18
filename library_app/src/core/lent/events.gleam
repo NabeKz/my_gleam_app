@@ -15,7 +15,7 @@ pub type BookLendEvent {
     rented_at: date.Date,
     due_date: date.Date,
     // イベント発生時刻（監査・ログ用）
-    timestamp: date.Timestamp,
+    timestamp: date.Date,
   )
 }
 
@@ -25,7 +25,7 @@ pub type BookReturnedEvent {
     book_id: String,
     renter_id: String,
     returned_at: date.Date,
-    timestamp: date.Timestamp,
+    timestamp: date.Date,
   )
 }
 
@@ -33,7 +33,7 @@ pub fn is_same_book_id(event: LentEvent, book_id: String) -> Bool {
   get_book_id(event) == book_id
 }
 
-pub fn event_timestamp(event: LentEvent) -> date.Timestamp {
+pub fn event_timestamp(event: LentEvent) -> date.Date {
   case event {
     BookLend(e) -> e.timestamp
     BookReturned(e) -> e.timestamp

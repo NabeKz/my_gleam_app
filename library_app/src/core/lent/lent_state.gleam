@@ -13,10 +13,11 @@ pub type LentState {
 pub fn calculate_lent_state_at_time(
   initial_state: LentState,   
   events: List(events.LentEvent),
-  target_time: date.Timestamp,
+  _target_time: date.Date,
 ) -> LentState {
   events
-  |> list.filter(fn(event) { events.event_timestamp(event).value <= target_time.value })
+  // TODO: timestamp型を修正したらコメントアウト解除
+  // |> list.filter(fn(event) { events.event_timestamp(event).value <= target_time.value })
   |> list.fold(initial_state, apply_event)
 }
 
@@ -31,8 +32,8 @@ pub fn calculate_lent_state(
 
 fn apply_event(_state: LentState, event: events.LentEvent) -> LentState {
   case event {
-    events.BookLendEvent(e) ->Lend(renter_id: e.renter_id)
-    events.BookReturnedEvent(_) -> Available
+    events.BookLend(e) ->Lend(renter_id: e.renter_id)
+    events.BookReturned(_) -> Available
   }
 }
 
