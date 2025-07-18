@@ -47,3 +47,12 @@ pub fn handle_lent_book_command(
     }
   }
 }
+
+pub fn handle_return_book_command(
+  command: ReturnBookCommand,
+  get_events: GetEventsByBook,
+  append_event: AppendEvent,
+  current_date: date.GetDate,
+) -> Result(events.BookReturnedEvent, String) {
+  todo
+}
