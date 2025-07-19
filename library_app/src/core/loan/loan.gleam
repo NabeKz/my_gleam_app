@@ -1,6 +1,8 @@
+import gleam/option
+
 import core/book/book
 import core/shared/types/date
-import gleam/option
+import core/shared/types/user
 import shell/shared/lib/uuid
 
 // repository
@@ -22,7 +24,7 @@ pub type GetLoansParams {
 }
 
 pub type CreateLoanParams {
-  CreateLoanParams(book_id: String)
+  CreateLoanParams(book_id: String, user_id: user.UserId)
 }
 
 // domain model
@@ -30,6 +32,7 @@ pub type Loan {
   Loan(
     id: LoanId,
     book_id: book.BookId,
+    user_id: user.UserId,
     loan_date: date.Date,
     due_date: date.Date,
     return_date: option.Option(date.Date),
@@ -44,10 +47,15 @@ fn new_id() -> LoanId {
   LoanId(uuid.v4())
 }
 
-pub fn new(book_id: book.BookId, current_date: date.Date) -> Loan {
+pub fn new(
+  book_id: book.BookId,
+  user_id: user.UserId,
+  current_date: date.Date,
+) -> Loan {
   Loan(
     id: new_id(),
     book_id:,
+    user_id:,
     loan_date: current_date,
     due_date: current_date |> date.add_days(14),
     return_date: option.None,

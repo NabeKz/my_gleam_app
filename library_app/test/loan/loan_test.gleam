@@ -1,3 +1,4 @@
+import core/shared/types/user
 import gleam/dynamic/decode
 import gleam/json
 import gleam/list
@@ -22,9 +23,9 @@ pub fn get_loans_success_test() {
   let ctx =
     context.Context(..context.new(), get_loans: fn(_) {
       [
-        loan.new(book.id, date.from(#(2025, 7, 31))),
-        loan.new(book.id, date.from(#(2025, 8, 1))),
-        loan.new(book.id, date.from(#(2025, 8, 30))),
+        loan.new(book.id, user.id_from_string("1"), date.from(#(2025, 7, 31))),
+        loan.new(book.id, user.id_from_string("2"), date.from(#(2025, 8, 1))),
+        loan.new(book.id, user.id_from_string("3"), date.from(#(2025, 8, 30))),
       ]
     })
   let response = router.handle_request(req, ctx)

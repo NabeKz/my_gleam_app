@@ -5,6 +5,7 @@ import core/book/book
 import core/loan/loan
 import core/shared/helper/decoder
 import core/shared/types/date
+import core/shared/types/user
 
 pub type CreateLoan =
   fn(loan.CreateLoanParams) -> Result(Nil, String)
@@ -18,12 +19,14 @@ pub fn create_loan_workflow(
   save_loan: loan.SaveLoan,
 ) -> Result(Nil, String) {
   use book_id <- result.try(check_book_exists(params.book_id))
+
   book_id
-  |> loan.new(current_date())
+  |> loan.new(params.user_id, current_date())
   |> save_loan()
 }
 
 pub fn create_loan_decoder() -> decode.Decoder(loan.CreateLoanParams) {
   use book_id <- decoder.required_field("book_id", decode.string)
-  decode.success(loan.CreateLoanParams(book_id))
+  use user_id <- decoder.required_field("user_id", decode.string)
+  decode.success(loan.CreateLoanParams(book_id, user.id_from_string(user_id)))
 }

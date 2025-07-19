@@ -1,6 +1,7 @@
 import core/book/book
 import core/loan/loan
 import core/shared/types/date
+import core/shared/types/user
 import shell/shared/lib/ets
 
 type LoanRepo =
@@ -11,8 +12,8 @@ pub fn new() -> LoanRepo {
   let assert Ok(book2) = book.new("fuga", "b")
   ets.conn(
     [
-      loan.new(book1.id, date.from(#(2025, 7, 31))),
-      loan.new(book2.id, date.from(#(2025, 8, 1))),
+      loan.new(book1.id, user.id_from_string("1"), date.from(#(2025, 7, 31))),
+      loan.new(book2.id, user.id_from_string("2"), date.from(#(2025, 8, 1))),
     ],
     fn(it) { it |> loan.id_value },
   )
