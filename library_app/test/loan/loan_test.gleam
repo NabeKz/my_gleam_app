@@ -44,7 +44,11 @@ pub fn get_loans_success_test() {
 }
 
 pub fn create_loan_success_test() {
-  let body = json.object([#("book_id", "a" |> json.string)])
+  let body =
+    json.object([
+      #("book_id", "a" |> json.string),
+      #("user_id", "b" |> json.string()),
+    ])
   let req = testing.post_json("/api/loans", [], body)
   let assert Ok(book) = book.new("a", "b")
   let ctx =
@@ -68,7 +72,11 @@ pub fn create_loan_success_test() {
 }
 
 pub fn create_loan_failure_test() {
-  let body = json.object([#("book_id", "a" |> json.string)])
+  let body =
+    json.object([
+      #("book_id", "a" |> json.string()),
+      #("user_id", "b" |> json.string()),
+    ])
   let req = testing.post_json("/api/loans", [], body)
   let ctx =
     context.Context(
@@ -88,4 +96,24 @@ pub fn create_loan_failure_test() {
   response
   |> testing.string_body()
   |> should.equal("\"not found\"")
+}
+
+pub fn is_overdue_false_test() {
+  let loan_date = date.from(#(2025, 7, 1))
+  let current_date = date.from(#(2025, 7, 15))
+  let loan =
+    loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date)
+
+  loan.is_overdue(loan, current_date)
+  |> should.be_false()
+}
+
+pub fn is_overdue_true_test() {
+  let loan_date = date.from(#(2025, 7, 1))
+  let current_date = date.from(#(2025, 7, 16))
+  let loan =
+    loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date)
+
+  loan.is_overdue(loan, current_date)
+  |> should.be_true()
 }

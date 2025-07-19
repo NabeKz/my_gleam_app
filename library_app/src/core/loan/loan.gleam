@@ -68,6 +68,6 @@ pub fn id_value(loan: Loan) -> String {
 }
 
 pub fn is_overdue(loan: Loan, current_date: date.Date) -> Bool {
-  date.compare(loan.due_date, date.Gt, current_date)
+  date.compare(current_date, date.Gt, loan.due_date)
   && option.is_none(loan.return_date)
 }
