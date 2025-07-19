@@ -1,3 +1,5 @@
+import gleam/int
+import gleam/list
 import gleam/option
 import gleam/order
 
@@ -71,4 +73,8 @@ pub fn id_value(loan: Loan) -> String {
 pub fn is_overdue(loan: Loan, current_date: date.Date) -> Bool {
   date.compare(current_date, order.Gt, loan.due_date)
   && option.is_none(loan.return_date)
+}
+
+pub fn is_loan_limit(loans: List(Loan)) -> Bool {
+  list.length(loans) <= 10
 }
