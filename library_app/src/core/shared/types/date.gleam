@@ -1,10 +1,14 @@
 import gleam/int
 import gleam/list
+import gleam/order
 import gleam/string
 
 pub type Timestamp {
   Timestamp(value: Int)
 }
+
+pub type LocalTime =
+  #(#(Int, Int, Int), #(Int, Int, Int))
 
 pub type DateTime {
   DateTime(date: Date, time: Time)
@@ -24,7 +28,7 @@ pub type GetDate =
 /// @see
 /// https://www.erlang.org/doc/apps/stdlib/calendar.html
 @external(erlang, "calendar", "local_time")
-fn local_time() -> #(#(Int, Int, Int), #(Int, Int, Int))
+fn local_time() -> LocalTime
 
 // 日付に日数を加算
 @external(erlang, "calendar", "date_to_gregorian_days")
@@ -32,6 +36,9 @@ fn date_to_gregorian_days(date: #(Int, Int, Int)) -> Int
 
 @external(erlang, "calendar", "gregorian_days_to_date")
 fn gregorian_days_to_date(days: Int) -> #(Int, Int, Int)
+
+@external(erlang, "calendar", "datetime_to_gregorian_seconds")
+fn datetime_to_gregorian_seconds(local_time: LocalTime) -> Int
 
 @external(erlang, "os", "timestamp")
 pub fn timestamp_ffi() -> #(Int, Int, Int)
@@ -81,4 +88,22 @@ pub fn to_string(date: Date) -> String {
   [int.to_string(date.year), int.to_string(date.month), int.to_string(date.day)]
   |> list.map(fn(it) { it |> string.pad_start(2, "0") })
   |> string.join("-")
+}
+
+pub type Order {
+  Eq
+  Gt
+  Lt
+}
+
+pub fn compare(a: Date, order: Order, b: Date) -> Bool {
+  let a =
+    datetime_to_gregorian_seconds(#(#(a.year, a.month, a.day), #(0, 0, 0)))
+  let b =
+    datetime_to_gregorian_seconds(#(#(b.year, b.month, b.day), #(0, 0, 0)))
+  case order {
+    Eq -> a == b
+    Gt -> a > b
+    Lt -> a < b
+  }
 }
