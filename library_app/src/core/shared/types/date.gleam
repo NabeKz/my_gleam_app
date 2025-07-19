@@ -6,6 +6,10 @@ pub type Timestamp {
   Timestamp(value: Int)
 }
 
+pub type DateTime {
+  DateTime(date: Date, time: Time)
+}
+
 pub type Date {
   Date(year: Int, month: Int, day: Int)
 }
@@ -42,11 +46,10 @@ pub fn inner(timestamp: Timestamp) -> Int {
   timestamp.value
 }
 
-pub fn now() -> Date {
-  let #(date, _) = local_time()
-  let #(year, month, day) = date
+pub fn now() -> DateTime {
+  let #(date, time) = local_time()
 
-  Date(year:, month:, day:)
+  DateTime(Date(date.0, date.1, date.2), Time(time.0, time.1, time.2))
 }
 
 pub fn from(date: #(Int, Int, Int)) -> Date {

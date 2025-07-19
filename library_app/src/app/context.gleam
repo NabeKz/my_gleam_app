@@ -16,9 +16,13 @@ pub type Context {
   )
 }
 
+fn now() {
+  date.now().date
+}
+
 pub fn new() -> Context {
   Context(
-    current_date: date.now,
+    current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
     create_loan: fn(_) { Ok(Nil) },
     get_loan: fn(_) { Error("error") },
@@ -30,14 +34,14 @@ pub fn on_ets() -> Context {
   let book_repo = book_repo_on_ets.new()
   let loan_repo = loan_repo_on_ets.new()
   Context(
-    current_date: date.now,
+    current_date: now,
     search_books: book_query.compose_search_books(
       _,
       book_repo_on_ets.search_books(_, book_repo),
     ),
     create_loan: loan_command.create_loan_workflow(
       _,
-      date.now,
+      now,
       book_repo_on_ets.exits(_, book_repo),
       loan_repo_on_ets.save_loan(_, loan_repo),
     ),
