@@ -90,20 +90,14 @@ pub fn to_string(date: Date) -> String {
   |> string.join("-")
 }
 
-pub type Order {
-  Eq
-  Gt
-  Lt
-}
-
-pub fn compare(a: Date, order: Order, b: Date) -> Bool {
+pub fn compare(a: Date, order: order.Order, b: Date) -> Bool {
   let a =
     datetime_to_gregorian_seconds(#(#(a.year, a.month, a.day), #(0, 0, 0)))
   let b =
     datetime_to_gregorian_seconds(#(#(b.year, b.month, b.day), #(0, 0, 0)))
   case order {
-    Eq -> a == b
-    Gt -> a > b
-    Lt -> a < b
+    order.Eq -> a == b
+    order.Gt -> a > b
+    order.Lt -> a < b
   }
 }

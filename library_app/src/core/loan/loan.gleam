@@ -1,4 +1,5 @@
 import gleam/option
+import gleam/order
 
 import core/book/book
 import core/shared/types/date
@@ -68,6 +69,6 @@ pub fn id_value(loan: Loan) -> String {
 }
 
 pub fn is_overdue(loan: Loan, current_date: date.Date) -> Bool {
-  date.compare(current_date, date.Gt, loan.due_date)
+  date.compare(current_date, order.Gt, loan.due_date)
   && option.is_none(loan.return_date)
 }
