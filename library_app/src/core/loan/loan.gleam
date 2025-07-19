@@ -32,6 +32,7 @@ pub type Loan {
     book_id: book.BookId,
     loan_date: date.Date,
     due_date: date.Date,
+    return_date: option.Option(date.Date),
   )
 }
 
@@ -44,8 +45,13 @@ fn new_id() -> LoanId {
 }
 
 pub fn new(book_id: book.BookId, current_date: date.Date) -> Loan {
-  let due_date = current_date |> date.add_days(14)
-  Loan(id: new_id(), book_id:, loan_date: current_date, due_date:)
+  Loan(
+    id: new_id(),
+    book_id:,
+    loan_date: current_date,
+    due_date: current_date |> date.add_days(14),
+    return_date: option.None,
+  )
 }
 
 // Getter functions for accessing opaque type fields

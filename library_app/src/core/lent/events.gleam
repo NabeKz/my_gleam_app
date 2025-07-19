@@ -40,7 +40,7 @@ pub fn event_timestamp(event: LentEvent) -> date.Date {
   }
 }
 
-fn get_book_id(event: LentEvent) -> String {
+pub fn get_book_id(event: LentEvent) -> String {
   case event {
     BookLend(e) -> e.book_id
     BookReturned(e) -> e.book_id
