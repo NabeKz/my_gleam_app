@@ -7,6 +7,7 @@ GET http://localhost:8000/api/loans
 ###
 POST http://localhost:8000/api/loans
 Content-Type: application/json
+Authorization: Bearer hogehoge
 
 {
   "book_id": "6D46233F-02A7-4851-ADBF-527ECD6E3F53",

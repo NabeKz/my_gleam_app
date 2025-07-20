@@ -14,9 +14,15 @@ pub fn authenticated(
   get_users: fn(String) -> Result(user.User, String),
 ) -> Result(user.User, String) {
   req.headers
-  |> get_token()
+  |> parse_auth_token()
   |> result.map(get_users)
   |> result.flatten()
+}
+
+fn parse_auth_token(headers: List(#(String, String))) -> Result(String, String) {
+  use header <- result.try(headers |> get_token())
+  use header <- result.try(header |> get_authorization_token())
+  Ok(header)
 }
 
 fn get_token(headers: List(#(String, String))) -> Result(String, String) {
@@ -31,4 +37,11 @@ fn get_token(headers: List(#(String, String))) -> Result(String, String) {
 fn get_authorization_header(header: #(String, String)) {
   let #(key, _) = header
   string.lowercase(key) == "authorization"
+}
+
+fn get_authorization_token(raw_token: String) -> Result(String, String) {
+  case string.split(raw_token, "Bearer ") {
+    [token] -> Ok(token)
+    _ -> Error("不正なフォーマットです")
+  }
 }
