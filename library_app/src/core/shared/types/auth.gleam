@@ -6,6 +6,9 @@ import gleam/result
 
 import core/shared/types/user
 
+pub type AuthContext =
+  fn(wisp.Request) -> Result(user.User, String)
+
 pub fn authenticated(
   req: wisp.Request,
   get_users: fn(String) -> Result(user.User, String),

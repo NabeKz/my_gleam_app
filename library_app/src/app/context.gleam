@@ -1,13 +1,16 @@
+import core/auth/auth_on_mock
 import core/book/book_ports
 import core/book/book_query
 import core/loan/loan_command
 import core/loan/loan_query
+import core/shared/types/auth
 import core/shared/types/date
 import shell/adapters/persistence/book_repo_on_ets
 import shell/adapters/persistence/loan_repo_on_ets
 
 pub type Context {
   Context(
+    auth: auth.AuthContext,
     current_date: date.GetDate,
     search_books: book_ports.GetBooksWorkflow,
     create_loan: loan_command.CreateLoan,
@@ -22,6 +25,7 @@ fn now() {
 
 pub fn new() -> Context {
   Context(
+    auth: auth_on_mock.invoke(),
     current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
     create_loan: fn(_) { Ok(Nil) },
@@ -34,6 +38,7 @@ pub fn on_ets() -> Context {
   let book_repo = book_repo_on_ets.new()
   let loan_repo = loan_repo_on_ets.new()
   Context(
+    auth: auth_on_mock.invoke(),
     current_date: now,
     search_books: book_query.compose_search_books(
       _,
