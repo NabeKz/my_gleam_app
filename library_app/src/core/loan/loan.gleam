@@ -26,7 +26,7 @@ pub type GetLoansParams {
 }
 
 pub type CreateLoanParams {
-  CreateLoanParams(book_id: String, user_id: user.UserId)
+  CreateLoanParams(book_id: String)
 }
 
 // domain model

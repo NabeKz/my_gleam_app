@@ -1,3 +1,4 @@
+import core/shared/types/user
 import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/json
@@ -18,6 +19,20 @@ fn parse_error(error: json.DecodeError) -> List(decode.DecodeError) {
   case error {
     json.UnableToDecode(errors) -> errors
     _ -> decode.decode_error("error", dynamic.string("ng"))
+  }
+}
+
+pub fn authenticated(
+  auth: Result(user.User, String),
+  next: fn(user.User) -> wisp.Response,
+) -> wisp.Response {
+  case auth {
+    Ok(user) -> next(user)
+    Error(_) -> {
+      json.string("unauthorized")
+      |> json.to_string_tree()
+      |> wisp.json_response(401)
+    }
   }
 }
 

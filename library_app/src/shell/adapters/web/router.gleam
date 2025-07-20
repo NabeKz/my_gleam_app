@@ -2,9 +2,9 @@ import gleam/http.{Get, Post}
 import gleam/json
 import wisp
 
+import app/context
 import shell/adapters/web/handler/book_handler
 import shell/adapters/web/handler/loan_handler
-import app/context
 
 pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response {
   use path <- api_group("api", req)
@@ -13,8 +13,7 @@ pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response 
     ["books"], Get -> book_handler.get(req, ctx.search_books)
     ["loans"], Get -> loan_handler.get_loans(req, ctx.get_loans)
     ["loans", id], Get -> loan_handler.get_loan(id, ctx.get_loan)
-    ["loans"], Post ->
-      loan_handler.create_loan(req, ctx.create_loan)
+    ["loans"], Post -> loan_handler.create_loan(req, ctx)
     ["health_check"], Get -> health_check()
     _, _ -> wisp.not_found()
   }

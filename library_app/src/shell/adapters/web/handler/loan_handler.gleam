@@ -1,5 +1,6 @@
 import wisp
 
+import app/context
 import core/book/book
 import core/loan/loan
 import core/loan/loan_command
@@ -26,10 +27,11 @@ pub fn get_loan(id: String, get_loan: loan.GetLoan) -> wisp.Response {
 
 // handlerでcaseを使うのは1回まで
 // 極力、handler内でresultを使わない
-pub fn create_loan(req: wisp.Request, create_loan: loan_command.CreateLoan) {
+pub fn create_loan(req: wisp.Request, ctx: context.Context) {
+  use user <- json.authenticated(ctx.authenticated(req))
   use json <- json.get_body(req, loan_command.create_loan_decoder)
 
-  case create_loan(json) {
+  case ctx.create_loan(user, json) {
     Ok(_) -> wisp.created()
     Error(error) -> {
       error

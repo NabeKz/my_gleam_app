@@ -1,7 +1,7 @@
 import shell/shared/lib/uuid
 
 pub type User {
-  User(user_id: UserId)
+  User(id: UserId)
 }
 
 pub opaque type UserId {

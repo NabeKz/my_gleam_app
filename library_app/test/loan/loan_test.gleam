@@ -55,7 +55,6 @@ pub fn create_loan_success_test() {
     context.Context(
       ..context.new(),
       create_loan: loan_command.create_loan_workflow(
-        _,
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Ok(book.id) },
         fn(_) { [] },
@@ -83,7 +82,6 @@ pub fn create_loan_failure_test() {
     context.Context(
       ..context.new(),
       create_loan: loan_command.create_loan_workflow(
-        _,
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Error("not found") },
         fn(_) { [] },

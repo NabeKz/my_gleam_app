@@ -10,7 +10,7 @@ import shell/adapters/persistence/loan_repo_on_ets
 
 pub type Context {
   Context(
-    auth: auth.AuthContext,
+    authenticated: auth.AuthContext,
     current_date: date.GetDate,
     search_books: book_ports.GetBooksWorkflow,
     create_loan: loan_command.CreateLoan,
@@ -25,10 +25,10 @@ fn now() {
 
 pub fn new() -> Context {
   Context(
-    auth: auth_on_mock.invoke(),
+    authenticated: auth_on_mock.invoke(),
     current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
-    create_loan: fn(_) { Ok(Nil) },
+    create_loan: fn(_, _) { Ok(Nil) },
     get_loan: fn(_) { Error("error") },
     get_loans: fn(_) { [] },
   )
@@ -38,14 +38,13 @@ pub fn on_ets() -> Context {
   let book_repo = book_repo_on_ets.new()
   let loan_repo = loan_repo_on_ets.new()
   Context(
-    auth: auth_on_mock.invoke(),
+    authenticated: auth_on_mock.invoke(),
     current_date: now,
     search_books: book_query.compose_search_books(
       _,
       book_repo_on_ets.search_books(_, book_repo),
     ),
     create_loan: loan_command.create_loan_workflow(
-      _,
       now,
       book_repo_on_ets.exits(_, book_repo),
       loan_repo_on_ets.get_loans(_, loan_repo),
