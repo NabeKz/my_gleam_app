@@ -43,6 +43,7 @@ pub fn on_ets() -> Context {
       _,
       now,
       book_repo_on_ets.exits(_, book_repo),
+      loan_repo_on_ets.get_loans(_, loan_repo),
       loan_repo_on_ets.save_loan(_, loan_repo),
     ),
     get_loans: loan_repo_on_ets.get_loans(_, loan_repo),

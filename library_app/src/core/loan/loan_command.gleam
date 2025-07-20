@@ -16,9 +16,9 @@ pub type CreateLoan =
 // TODO: 延滞や貸出上限の制限を追加する
 pub fn create_loan_workflow(
   params: loan.CreateLoanParams,
-  get_loans: loan.GetLoans,
   current_date: fn() -> date.Date,
   check_book_exists: book.CheckBookExists,
+  get_loans: loan.GetLoans,
   save_loan: loan.SaveLoan,
 ) -> Result(Nil, String) {
   use book_id <- result.try(check_book_exists(params.book_id))
