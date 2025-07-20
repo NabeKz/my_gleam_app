@@ -1,4 +1,4 @@
-import core/auth/auth_on_mock
+import core/auth/auth_provider
 import core/book/book_ports
 import core/book/book_query
 import core/loan/loan_command
@@ -25,7 +25,7 @@ fn now() {
 
 pub fn new() -> Context {
   Context(
-    authenticated: auth_on_mock.invoke(),
+    authenticated: auth_provider.on_mock(),
     current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
     create_loan: fn(_, _) { Ok(Nil) },
@@ -38,7 +38,7 @@ pub fn on_ets() -> Context {
   let book_repo = book_repo_on_ets.new()
   let loan_repo = loan_repo_on_ets.new()
   Context(
-    authenticated: auth_on_mock.invoke(),
+    authenticated: auth_provider.on_mock(),
     current_date: now,
     search_books: book_query.compose_search_books(
       _,

@@ -23,15 +23,15 @@ fn parse_error(error: json.DecodeError) -> List(decode.DecodeError) {
 }
 
 pub fn authenticated(
-  auth: Result(user.User, String),
+  req: wisp.Request,
+  auth: fn(List(#(String, String))) -> Result(user.User, String),
   next: fn(user.User) -> wisp.Response,
 ) -> wisp.Response {
-  case auth {
+  case auth(req.headers) {
     Ok(user) -> next(user)
-    Error(_) -> {
-      json.string("unauthorized")
-      |> json.to_string_tree()
-      |> wisp.json_response(401)
+    Error(err) -> {
+      wisp.response(401)
+      |> wisp.string_body(err)
     }
   }
 }

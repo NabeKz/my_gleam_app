@@ -28,7 +28,7 @@ pub fn get_loan(id: String, get_loan: loan.GetLoan) -> wisp.Response {
 // handlerでcaseを使うのは1回まで
 // 極力、handler内でresultを使わない
 pub fn create_loan(req: wisp.Request, ctx: context.Context) {
-  use user <- json.authenticated(ctx.authenticated(req))
+  use user <- json.authenticated(req, ctx.authenticated)
   use json <- json.get_body(req, loan_command.create_loan_decoder)
 
   case ctx.create_loan(user, json) {
