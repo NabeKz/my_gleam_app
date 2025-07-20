@@ -1,0 +1,31 @@
+import gleam/list
+import gleam/string
+import wisp
+
+import gleam/result
+
+import core/shared/types/user
+
+pub fn authenticated(
+  req: wisp.Request,
+  get_users: fn(String) -> Result(user.User, String),
+) -> Result(user.User, String) {
+  req.headers
+  |> get_token()
+  |> result.map(get_users)
+  |> result.flatten()
+}
+
+fn get_token(headers: List(#(String, String))) -> Result(String, String) {
+  let header =
+    list.find(headers, get_authorization_header)
+    |> result.replace_error("トークンが見つかりません")
+
+  use #(_, token) <- result.map(header)
+  token
+}
+
+fn get_authorization_header(header: #(String, String)) {
+  let #(key, _) = header
+  string.lowercase(key) == "authorization"
+}
