@@ -119,3 +119,35 @@ pub fn has_overdue_true_test() {
   loan.has_overdue([loan], current_date)
   |> should.be_true()
 }
+
+pub fn is_loan_limit_true_test() {
+  let expect =
+    list.repeat(
+      loan.new(
+        book.id_from_string("1"),
+        user.id_from_string("a"),
+        date.from(#(2025, 7, 16)),
+      ),
+      10,
+    )
+
+  expect
+  |> loan.is_loan_limit()
+  |> should.be_true()
+}
+
+pub fn is_loan_limit_false_test() {
+  let expect =
+    list.repeat(
+      loan.new(
+        book.id_from_string("1"),
+        user.id_from_string("a"),
+        date.from(#(2025, 7, 16)),
+      ),
+      9,
+    )
+
+  expect
+  |> loan.is_loan_limit()
+  |> should.be_false()
+}

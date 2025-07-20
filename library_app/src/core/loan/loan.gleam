@@ -80,5 +80,5 @@ pub fn has_overdue(loans: List(Loan), current_date: date.Date) -> Bool {
 }
 
 pub fn is_loan_limit(loans: List(Loan)) -> Bool {
-  list.length(loans) <= 10
+  list.length(loans) >= 10
 }
