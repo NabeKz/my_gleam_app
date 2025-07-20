@@ -58,6 +58,7 @@ pub fn create_loan_success_test() {
         _,
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Ok(book.id) },
+        fn(_) { [] },
         fn(_) { Ok(Nil) },
       ),
     )
@@ -85,6 +86,7 @@ pub fn create_loan_failure_test() {
         _,
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Error("not found") },
+        fn(_) { [] },
         fn(_) { Ok(Nil) },
       ),
     )
@@ -98,22 +100,22 @@ pub fn create_loan_failure_test() {
   |> should.equal("\"not found\"")
 }
 
-pub fn is_overdue_false_test() {
+pub fn has_overdue_false_test() {
   let loan_date = date.from(#(2025, 7, 1))
   let current_date = date.from(#(2025, 7, 15))
   let loan =
     loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date)
 
-  loan.is_overdue(loan, current_date)
+  loan.has_overdue([loan], current_date)
   |> should.be_false()
 }
 
-pub fn is_overdue_true_test() {
+pub fn has_overdue_true_test() {
   let loan_date = date.from(#(2025, 7, 1))
   let current_date = date.from(#(2025, 7, 16))
   let loan =
     loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date)
 
-  loan.is_overdue(loan, current_date)
+  loan.has_overdue([loan], current_date)
   |> should.be_true()
 }
