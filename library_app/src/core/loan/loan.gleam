@@ -82,3 +82,13 @@ pub fn has_overdue(loans: List(Loan), current_date: date.Date) -> Bool {
 pub fn is_loan_limit(loans: List(Loan)) -> Bool {
   list.length(loans) >= 10
 }
+
+pub fn return_book(loan: Loan, return_date: date.Date) -> Result(Loan, String) {
+  case loan.return_date {
+    option.Some(_) -> Error("すでに返却済です")
+    option.None -> {
+      let loan = Loan(..loan, return_date: option.Some(return_date))
+      Ok(loan)
+    }
+  }
+}
