@@ -12,6 +12,9 @@ import core/shared/types/user
 pub type CreateLoan =
   fn(user.User, loan.CreateLoanParams) -> Result(Nil, String)
 
+pub type ReturnLoan =
+  fn(loan.Loan) -> Result(loan.Loan, String)
+
 // Command functions
 pub fn create_loan_workflow(
   current_date: fn() -> date.Date,
@@ -42,4 +45,15 @@ pub fn create_loan_workflow(
 pub fn create_loan_decoder() -> decode.Decoder(loan.CreateLoanParams) {
   use book_id <- decoder.required_field("book_id", decode.string)
   decode.success(loan.CreateLoanParams(book_id))
+}
+
+pub fn return_book_workflow(
+  current_date: date.GetDate,
+  update_loan: loan.UpdateLoan,
+) -> ReturnLoan {
+  fn(loan: loan.Loan) -> Result(loan.Loan, String) {
+    loan.return_book(loan, current_date())
+    |> result.map(update_loan)
+    |> result.flatten()
+  }
 }

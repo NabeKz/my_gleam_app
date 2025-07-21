@@ -17,6 +17,9 @@ pub type GetLoans =
 pub type SaveLoan =
   fn(Loan) -> Result(Nil, String)
 
+pub type UpdateLoan =
+  fn(Loan) -> Result(Loan, String)
+
 pub type GetLoanParams {
   GetLoanParams(loan_id: String)
 }
