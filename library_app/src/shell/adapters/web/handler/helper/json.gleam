@@ -3,6 +3,7 @@ import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/json
 import gleam/list
+import gleam/option
 import gleam/string
 import wisp
 
@@ -55,6 +56,18 @@ pub const int = json.int
 pub const object = json.object
 
 pub const array = json.array
+
+pub fn map_or(
+  value: option.Option(a),
+  then: fn(a) -> b,
+  second: b,
+  serialize: fn(b) -> json.Json,
+) -> json.Json {
+  value
+  |> option.map(then)
+  |> option.or(second |> option.Some)
+  |> json.nullable(serialize)
+}
 
 // TODO: error handling
 pub fn get_body(

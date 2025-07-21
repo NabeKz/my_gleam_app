@@ -43,6 +43,11 @@ fn serialize(loan: loan.Loan) -> json.Json {
     #("book_id", loan.book_id |> book.id_to_string |> json.string()),
     #("loan_date", loan.loan_date |> date.to_string() |> json.string()),
     #("due_date", loan.due_date |> date.to_string() |> json.string()),
+    #(
+      "return_date",
+      loan.return_date
+        |> json.map_or(date.to_string, "", json.string),
+    ),
   ]
   |> json.object()
 }
