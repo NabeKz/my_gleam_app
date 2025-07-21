@@ -10,7 +10,7 @@ Content-Type: application/json
 Authorization: Bearer hogehoge
 
 {
-  "book_id": "12BD8E30-8F33-4B46-88E6-DD88B70EE6E2",
+  "book_id": "12BD8E30-8F33-4B46-88E6-DD88B70EE6E2"
 }
 ###
 Put http://localhost:8000/api/loans
@@ -18,5 +18,5 @@ Content-Type: application/json
 Authorization: Bearer hogehoge
 
 {
-  "book_id": "64727F60-DFCD-4776-826D-C9FFFD334A3A",
+  "book_id": "64727F60-DFCD-4776-826D-C9FFFD334A3A"
 }

@@ -19,7 +19,11 @@ fn parse_decode_error(error: decode.DecodeError) -> json.Json {
 fn parse_error(error: json.DecodeError) -> List(decode.DecodeError) {
   case error {
     json.UnableToDecode(errors) -> errors
-    _ -> decode.decode_error("error", dynamic.string("ng"))
+    json.UnexpectedByte(error) | json.UnexpectedSequence(error) -> {
+      echo error
+      decode.decode_error("invalid json format", dynamic.string("json format"))
+    }
+    _ -> decode.decode_error("unexpected_error", dynamic.string("json format"))
   }
 }
 
@@ -77,10 +81,10 @@ pub fn get_body(
 ) -> wisp.Response {
   use <- wisp.require_content_type(req, "application/json")
   use body <- wisp.require_string_body(req)
-  let body = json.parse(body, decoder())
+  let json = json.parse(body, decoder())
 
-  case body {
-    Ok(json) -> next(json)
+  case json {
+    Ok(value) -> next(value)
     Error(error) -> {
       error
       |> parse_error()
