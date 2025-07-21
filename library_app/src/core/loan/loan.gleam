@@ -11,14 +11,14 @@ import shell/shared/lib/uuid
 pub type GetLoan =
   fn(GetLoanParams) -> Result(Loan, String)
 
+pub type GetLoanByBookId =
+  fn(book.BookId) -> Result(Loan, String)
+
 pub type GetLoans =
   fn(GetLoansParams) -> List(Loan)
 
 pub type SaveLoan =
   fn(Loan) -> Result(Nil, String)
-
-pub type UpdateLoan =
-  fn(Loan) -> Result(Loan, String)
 
 pub type GetLoanParams {
   GetLoanParams(loan_id: String)
@@ -30,6 +30,14 @@ pub type GetLoansParams {
 
 pub type CreateLoanParams {
   CreateLoanParams(book_id: String)
+}
+
+// update
+pub type UpdateLoan =
+  fn(Loan) -> Result(Loan, String)
+
+pub type UpdateLoanParams {
+  UpdateLoanParams(book_id: book.BookId)
 }
 
 // domain model

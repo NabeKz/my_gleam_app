@@ -27,17 +27,13 @@ pub fn get_loan(id: String, get_loan: loan.GetLoan) -> wisp.Response {
 
 // handlerでcaseを使うのは1回まで
 // 極力、handler内でresultを使わない
-pub fn create_loan(req: wisp.Request, ctx: context.Context) {
+pub fn create_loan(req: wisp.Request, ctx: context.Context) -> wisp.Response {
   use user <- json.authenticated(req, ctx.authenticated)
   use json <- json.get_body(req, loan_command.create_loan_decoder)
 
   case ctx.create_loan(user, json) {
     Ok(_) -> wisp.created()
-    Error(error) -> {
-      error
-      |> json.string()
-      |> json.bad_request()
-    }
+    Error(error) -> json.bad_request(error |> json.string())
   }
 }
 
@@ -49,4 +45,15 @@ fn serialize(loan: loan.Loan) -> json.Json {
     #("due_date", loan.due_date |> date.to_string() |> json.string()),
   ]
   |> json.object()
+}
+
+pub fn update_loan_by_return_book(
+  req: wisp.Request,
+  ctx: context.Context,
+) -> wisp.Response {
+  use params <- json.get_body(req, loan_command.update_loan_decoder)
+  case ctx.update_loan(params) {
+    Ok(_) -> wisp.no_content()
+    Error(error) -> json.bad_request(error |> json.string())
+  }
 }

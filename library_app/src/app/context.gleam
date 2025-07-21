@@ -14,6 +14,7 @@ pub type Context {
     current_date: date.GetDate,
     search_books: book_ports.GetBooksWorkflow,
     create_loan: loan_command.CreateLoan,
+    update_loan: loan_command.ReturnLoan,
     get_loan: loan_query.GetLoan,
     get_loans: loan_query.GetLoans,
   )
@@ -29,6 +30,7 @@ pub fn new() -> Context {
     current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
     create_loan: fn(_, _) { Ok(Nil) },
+    update_loan: fn(_) { todo },
     get_loan: fn(_) { Error("error") },
     get_loans: fn(_) { [] },
   )
@@ -50,6 +52,7 @@ pub fn on_ets() -> Context {
       loan_repo_on_ets.get_loans(_, loan_repo),
       loan_repo_on_ets.save_loan(_, loan_repo),
     ),
+    update_loan: fn(_) { todo },
     get_loans: loan_repo_on_ets.get_loans(_, loan_repo),
     get_loan: loan_repo_on_ets.get_loan(_, loan_repo),
   )

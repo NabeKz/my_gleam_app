@@ -10,6 +10,9 @@ pub type CheckBookExists =
 pub type GetBooks =
   fn(SearchParams) -> List(Book)
 
+pub type GetBook =
+  fn(SearchParams) -> Result(Book, String)
+
 pub type CreateBook =
   fn() -> Result(Nil, String)
 

@@ -1,9 +1,9 @@
+import core/book/book
 import gleam/bool
 import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
-import core/book/book
 import core/loan/loan
 import core/shared/helper/decoder
 import core/shared/types/date
@@ -13,7 +13,7 @@ pub type CreateLoan =
   fn(user.User, loan.CreateLoanParams) -> Result(Nil, String)
 
 pub type ReturnLoan =
-  fn(loan.Loan) -> Result(loan.Loan, String)
+  fn(loan.UpdateLoanParams) -> Result(loan.Loan, String)
 
 // Command functions
 pub fn create_loan_workflow(
@@ -47,13 +47,22 @@ pub fn create_loan_decoder() -> decode.Decoder(loan.CreateLoanParams) {
   decode.success(loan.CreateLoanParams(book_id))
 }
 
+// Update functions
 pub fn return_book_workflow(
   current_date: date.GetDate,
+  get_loan_by_book_id: loan.GetLoanByBookId,
   update_loan: loan.UpdateLoan,
 ) -> ReturnLoan {
-  fn(loan: loan.Loan) -> Result(loan.Loan, String) {
+  fn(params: loan.UpdateLoanParams) -> Result(loan.Loan, String) {
+    use loan <- result.try(params.book_id |> get_loan_by_book_id())
+
     loan.return_book(loan, current_date())
     |> result.map(update_loan)
     |> result.flatten()
   }
+}
+
+pub fn update_loan_decoder() -> decode.Decoder(loan.UpdateLoanParams) {
+  use book_id <- decoder.required_field("book_id", decode.string)
+  decode.success(loan.UpdateLoanParams(book_id |> book.id_from_string()))
 }
