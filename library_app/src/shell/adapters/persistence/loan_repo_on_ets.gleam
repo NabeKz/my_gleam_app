@@ -1,3 +1,6 @@
+import gleam/list
+import gleam/result
+
 import core/book/book
 import core/loan/loan
 import core/shared/types/date
@@ -30,6 +33,21 @@ pub fn get_loan(
   conn.get(params.loan_id)
 }
 
+pub fn get_loan_by_id(
+  book_id: book.BookId,
+  conn: LoanRepo,
+) -> Result(loan.Loan, String) {
+  let rows = conn.all()
+
+  list.find(rows, fn(it) { it.book_id == book_id })
+  |> result.replace_error("貸出履歴が見つかりません")
+}
+
 pub fn save_loan(loan: loan.Loan, conn: LoanRepo) {
   conn.create(#(loan |> loan.id_value, loan))
+}
+
+pub fn put_loan(loan: loan.Loan, conn: LoanRepo) {
+  conn.put(#(loan |> loan.id_value, loan))
+  Ok(loan)
 }

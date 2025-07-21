@@ -30,7 +30,7 @@ pub fn new() -> Context {
     current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
     create_loan: fn(_, _) { Ok(Nil) },
-    update_loan: fn(_) { todo },
+    update_loan: fn(_) { Error("not implements") },
     get_loan: fn(_) { Error("error") },
     get_loans: fn(_) { [] },
   )
@@ -52,7 +52,11 @@ pub fn on_ets() -> Context {
       loan_repo_on_ets.get_loans(_, loan_repo),
       loan_repo_on_ets.save_loan(_, loan_repo),
     ),
-    update_loan: fn(_) { todo },
+    update_loan: loan_command.return_book_workflow(
+      now,
+      loan_repo_on_ets.get_loan_by_id(_, loan_repo),
+      loan_repo_on_ets.put_loan(_, loan_repo),
+    ),
     get_loans: loan_repo_on_ets.get_loans(_, loan_repo),
     get_loan: loan_repo_on_ets.get_loan(_, loan_repo),
   )
