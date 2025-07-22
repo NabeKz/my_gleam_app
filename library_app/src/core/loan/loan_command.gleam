@@ -1,16 +1,16 @@
-import core/book/book
 import gleam/bool
 import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
+import core/book/book
 import core/loan/loan
 import core/shared/helper/decoder
 import core/shared/types/date
 import core/shared/types/user
 
 pub type CreateLoan =
-  fn(user.User, loan.CreateLoanParams) -> Result(Nil, String)
+  fn(user.User, String) -> Result(Nil, String)
 
 pub type ReturnLoan =
   fn(loan.UpdateLoanParams) -> Result(loan.Loan, String)
@@ -22,8 +22,8 @@ pub fn create_loan_workflow(
   get_loans: loan.GetLoans,
   save_loan: loan.SaveLoan,
 ) -> CreateLoan {
-  fn(user: user.User, params: loan.CreateLoanParams) -> Result(Nil, String) {
-    use book_id <- result.try(check_book_exists(params.book_id))
+  fn(user: user.User, book_id: String) -> Result(Nil, String) {
+    use book_id <- result.try(check_book_exists(book_id))
 
     let loans =
       loan.GetLoansParams(option.None)
