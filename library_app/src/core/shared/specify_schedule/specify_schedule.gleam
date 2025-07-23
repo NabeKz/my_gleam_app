@@ -1,5 +1,8 @@
 import core/shared/types/date
 
+pub type GetSpecifySchedulesAfterCurrentDate =
+  fn(date.Date) -> List(SpecifySchedule)
+
 pub type SpecifySchedule {
   SpecifySchedule(schedule_type: ScheduleType, date: date.Date)
 }
