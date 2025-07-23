@@ -1,3 +1,5 @@
+import gleam/list
+
 import core/shared/library_schedule/specify_schedule
 import core/shared/types/date
 
@@ -13,7 +15,14 @@ pub fn find_due_date(
   candidate: date.Date,
   schedule_list: List(specify_schedule.SpecifySchedule),
 ) {
-  todo
+  let due_date = {
+    use it <- list.find(schedule_list)
+    it.date == candidate
+  }
+  case due_date {
+    Ok(schedule) -> schedule.date
+    Error(_) -> candidate
+  }
 }
 
 pub fn calculate_due_date(
