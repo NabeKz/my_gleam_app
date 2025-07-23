@@ -1,11 +1,9 @@
 import gleam/bool
-import gleam/dynamic/decode
 import gleam/option
 import gleam/result
 
 import core/book/book
 import core/loan/loan
-import core/shared/helper/decoder
 import core/shared/types/date
 import core/shared/types/user
 
@@ -40,11 +38,6 @@ pub fn create_loan_workflow(
     |> loan.new(user.id, current_date())
     |> save_loan()
   }
-}
-
-pub fn create_loan_decoder() -> decode.Decoder(loan.CreateLoanParams) {
-  use book_id <- decoder.required_field("book_id", decode.string)
-  decode.success(loan.CreateLoanParams(book_id))
 }
 
 // Update functions

@@ -3,7 +3,6 @@ import wisp
 import app/context
 import core/book/book
 import core/loan/loan
-import core/loan/loan_command
 import core/loan/loan_query
 import core/shared/types/date
 import shell/adapters/web/handler/helper/json
@@ -33,7 +32,6 @@ pub fn create_loan(
   book_id: String,
 ) -> wisp.Response {
   use user <- json.authenticated(req, ctx.authenticated)
-  use json <- json.get_body(req, loan_command.create_loan_decoder)
 
   case ctx.create_loan(user, book_id) {
     Ok(_) -> wisp.created()
