@@ -6,9 +6,21 @@ import core/shared/types/auth
 import core/shared/types/user
 
 pub fn on_mock() -> auth.AuthContext {
-  fn(_) -> Result(user.User, String) {
-    let user = user.User(user.id_from_string("dummy"))
-    Ok(user)
+  fn(params: List(#(String, String))) -> Result(user.User, String) {
+    let params =
+      {
+        use #(key, _) <- list.find(params)
+        string.lowercase(key) == "authorization"
+      }
+      |> result.replace_error("authorization header not found")
+    let params = result.map(params, fn(it) { it.1 == "dummy" })
+    case params {
+      Ok(True) -> {
+        user.User(user.id_from_string("dummy"))
+        |> Ok()
+      }
+      _ -> Error("invalid header")
+    }
   }
 }
 

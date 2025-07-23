@@ -16,17 +16,12 @@ pub fn main() {
 }
 
 pub fn post_loans_success_test() {
-  let params =
-    json.object([
-      #("book_id", "a" |> json.string()),
-      //
-    ])
   let user = user.new()
   let req =
     testing.post_json(
-      "/api/loans?hoge=1",
+      "/api/books/hoge-fuga/loans",
       [#("authorization", "Bearer hoge")],
-      params,
+      json.object([]),
     )
   let assert Ok(book) = book.new("a", "b")
 
@@ -49,14 +44,13 @@ pub fn post_loans_success_test() {
 }
 
 pub fn post_loans_not_bearer_failure_test() {
-  let params =
-    json.object([
-      #("book_id", "a" |> json.string()),
-      //
-    ])
   let user = user.new()
   let req =
-    testing.post_json("/api/loans?hoge=1", [#("authorization", "hoge")], params)
+    testing.post_json(
+      "/api/books/hoge-fuga/loans",
+      [#("authorization", "hoge")],
+      json.object([]),
+    )
   let assert Ok(book) = book.new("a", "b")
 
   let ctx =
@@ -82,12 +76,7 @@ pub fn post_loans_not_bearer_failure_test() {
 }
 
 pub fn post_loans_not_exits_authorization_failure_test() {
-  let params =
-    json.object([
-      #("book_id", "a" |> json.string()),
-      //
-    ])
-  let req = testing.post_json("/api/loans?hoge=1", [], params)
+  let req = testing.post_json("/api/books/a_b_c/loans", [], json.object([]))
   let assert Ok(book) = book.new("a", "b")
 
   let ctx =

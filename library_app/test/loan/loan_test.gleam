@@ -1,3 +1,4 @@
+import core/auth/auth_provider
 import core/shared/types/user
 import gleam/dynamic/decode
 import gleam/json
@@ -44,16 +45,17 @@ pub fn get_loans_success_test() {
 }
 
 pub fn create_loan_success_test() {
-  let body =
-    json.object([
-      #("book_id", "a" |> json.string),
-      #("user_id", "b" |> json.string()),
-    ])
-  let req = testing.post_json("/api/loans", [], body)
+  let req =
+    testing.post_json(
+      "/api/books/a/loans",
+      [#("authorization", "dummy")],
+      json.object([]),
+    )
   let assert Ok(book) = book.new("a", "b")
   let ctx =
     context.Context(
       ..context.new(),
+      authenticated: auth_provider.on_mock(),
       create_loan: loan_command.create_loan_workflow(
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Ok(book.id) },
@@ -72,12 +74,12 @@ pub fn create_loan_success_test() {
 }
 
 pub fn create_loan_failure_test() {
-  let body =
-    json.object([
-      #("book_id", "a" |> json.string()),
-      #("user_id", "b" |> json.string()),
-    ])
-  let req = testing.post_json("/api/loans", [], body)
+  let req =
+    testing.post_json(
+      "/api/books/a/loans",
+      [#("authorization", "dummy")],
+      json.object([]),
+    )
   let ctx =
     context.Context(
       ..context.new(),
