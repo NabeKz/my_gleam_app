@@ -1,7 +1,7 @@
 import gleeunit
 import gleeunit/should
 
-import core/shared/library_schedule/library_schedule
+import core/loan/library_schedule/library_schedule
 import core/shared/types/date
 
 pub fn main() {

@@ -1,5 +1,5 @@
-import core/shared/specify_schedule/specify_schedule
 import core/shared/types/date
+import core/shared/types/specify_schedule
 
 pub fn get_specify_schedules_workflow(
   get_specify_schedules: specify_schedule.GetSpecifySchedulesAfterCurrentDate,

@@ -1,7 +1,7 @@
 import gleam/list
 
-import core/shared/library_schedule/specify_schedule
 import core/shared/types/date
+import core/shared/types/specify_schedule
 
 pub fn is_open_day(date: date.Date) {
   todo
