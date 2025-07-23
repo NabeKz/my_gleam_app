@@ -57,11 +57,10 @@ fn serialize(loan: loan.Loan) -> json.Json {
 }
 
 pub fn update_loan_by_return_book(
-  req: wisp.Request,
+  book_id: String,
   ctx: context.Context,
 ) -> wisp.Response {
-  use params <- json.get_body(req, loan_command.update_loan_decoder)
-  case ctx.update_loan(params) {
+  case ctx.update_loan(book_id) {
     Ok(_) -> wisp.no_content()
     Error(error) -> json.bad_request(error |> json.string())
   }

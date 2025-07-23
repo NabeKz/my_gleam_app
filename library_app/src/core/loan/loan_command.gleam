@@ -13,7 +13,7 @@ pub type CreateLoan =
   fn(user.User, String) -> Result(Nil, String)
 
 pub type ReturnLoan =
-  fn(loan.UpdateLoanParams) -> Result(loan.Loan, String)
+  fn(String) -> Result(loan.Loan, String)
 
 // Command functions
 pub fn create_loan_workflow(
@@ -53,16 +53,13 @@ pub fn return_book_workflow(
   get_loan_by_book_id: loan.GetLoanByBookId,
   update_loan: loan.UpdateLoan,
 ) -> ReturnLoan {
-  fn(params: loan.UpdateLoanParams) -> Result(loan.Loan, String) {
-    use loan <- result.try(params.book_id |> get_loan_by_book_id())
+  fn(book_id: String) -> Result(loan.Loan, String) {
+    use loan <- result.try(
+      book_id |> book.id_from_string() |> get_loan_by_book_id(),
+    )
 
     loan.return_book(loan, current_date())
     |> result.map(update_loan)
     |> result.flatten()
   }
-}
-
-pub fn update_loan_decoder() -> decode.Decoder(loan.UpdateLoanParams) {
-  use book_id <- decoder.required_field("book_id", decode.string)
-  decode.success(loan.UpdateLoanParams(book_id |> book.id_from_string()))
 }
