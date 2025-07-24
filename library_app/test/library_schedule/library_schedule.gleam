@@ -1,3 +1,4 @@
+import core/shared/types/specify_schedule
 import gleeunit
 import gleeunit/should
 
@@ -13,6 +14,19 @@ pub fn find_due_date_test() {
   let candidate = date.from(#(2025, 7, 1))
   let schedule_list = []
 
-  library_schedule.calculate_due_date(candidate, schedule_list)
-  |> should.equal(200)
+  library_schedule.find_due_date(candidate, schedule_list)
+  |> should.equal(date.from(#(2025, 7, 1)))
+}
+
+pub fn find_due_date_next_test() {
+  let candidate = date.from(#(2025, 7, 1))
+  let schedule_list = [
+    specify_schedule.SpecifySchedule(
+      specify_schedule.Close,
+      date.from(#(2025, 7, 1)),
+    ),
+  ]
+
+  library_schedule.find_due_date(candidate, schedule_list)
+  |> should.equal(date.from(#(2025, 7, 2)))
 }

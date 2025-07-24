@@ -101,3 +101,29 @@ pub fn compare(a: Date, order: order.Order, b: Date) -> Bool {
     order.Lt -> a < b
   }
 }
+
+pub type Weekday {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+@external(erlang, "calendar", "day_of_the_week")
+pub fn day_of_the_week(year: Int, month: Int, day: Int) -> Int
+
+pub fn get_weekday(date: Date) -> Weekday {
+  case day_of_the_week(date.year, date.month, date.day) {
+    1 -> Monday
+    2 -> Tuesday
+    3 -> Wednesday
+    4 -> Thursday
+    5 -> Friday
+    6 -> Saturday
+    7 -> Sunday
+    _ -> Monday
+  }
+}
