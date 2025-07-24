@@ -7,6 +7,7 @@ import core/shared/types/auth
 import core/shared/types/date
 import shell/adapters/persistence/book_repo_on_ets
 import shell/adapters/persistence/loan_repo_on_ets
+import shell/adapters/persistence/specify_schedule_repo_on_ets
 
 pub type Context {
   Context(
@@ -39,6 +40,7 @@ pub fn new() -> Context {
 pub fn on_ets() -> Context {
   let book_repo = book_repo_on_ets.new()
   let loan_repo = loan_repo_on_ets.new()
+  let specify_schedule_repo = specify_schedule_repo_on_ets.new()
   Context(
     authenticated: auth_provider.on_mock(),
     current_date: now,
@@ -49,6 +51,10 @@ pub fn on_ets() -> Context {
     create_loan: loan_command.create_loan_workflow(
       now,
       book_repo_on_ets.exits(_, book_repo),
+      specify_schedule_repo_on_ets.get_specify_schedules(
+        _,
+        specify_schedule_repo,
+      ),
       loan_repo_on_ets.get_loans(_, loan_repo),
       loan_repo_on_ets.save_loan(_, loan_repo),
     ),

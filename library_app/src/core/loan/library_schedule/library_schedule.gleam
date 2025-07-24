@@ -5,6 +5,9 @@ import gleam/result
 import core/shared/types/date
 import core/shared/types/specify_schedule
 
+pub type GetSpecifySchedulesAfterCurrentDate =
+  fn(date.Date) -> List(specify_schedule.SpecifySchedule)
+
 pub fn find_due_date(
   candidate: date.Date,
   schedule_list: List(specify_schedule.SpecifySchedule),

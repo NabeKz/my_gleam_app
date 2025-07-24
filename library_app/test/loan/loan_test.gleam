@@ -3,6 +3,7 @@ import core/shared/types/user
 import gleam/dynamic/decode
 import gleam/json
 import gleam/list
+import gleam/result
 import gleeunit
 import gleeunit/should
 import wisp/testing
@@ -24,10 +25,26 @@ pub fn get_loans_success_test() {
   let ctx =
     context.Context(..context.new(), get_loans: fn(_) {
       [
-        loan.new(book.id, user.id_from_string("1"), date.from(#(2025, 7, 31))),
-        loan.new(book.id, user.id_from_string("2"), date.from(#(2025, 8, 1))),
-        loan.new(book.id, user.id_from_string("3"), date.from(#(2025, 8, 30))),
+        loan.new(
+          book.id,
+          user.id_from_string("1"),
+          date.from(#(2025, 7, 31)),
+          [],
+        ),
+        loan.new(
+          book.id,
+          user.id_from_string("2"),
+          date.from(#(2025, 8, 1)),
+          [],
+        ),
+        loan.new(
+          book.id,
+          user.id_from_string("3"),
+          date.from(#(2025, 8, 30)),
+          [],
+        ),
       ]
+      |> result.values()
     })
   let response = router.handle_request(req, ctx)
 
@@ -60,6 +77,7 @@ pub fn create_loan_success_test() {
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Ok(book.id) },
         fn(_) { [] },
+        fn(_) { [] },
         fn(_) { Ok(Nil) },
       ),
     )
@@ -87,6 +105,7 @@ pub fn create_loan_failure_test() {
         fn() { date.from(#(2025, 7, 31)) },
         fn(_) { Error("not found") },
         fn(_) { [] },
+        fn(_) { [] },
         fn(_) { Ok(Nil) },
       ),
     )
@@ -103,8 +122,8 @@ pub fn create_loan_failure_test() {
 pub fn has_overdue_false_test() {
   let loan_date = date.from(#(2025, 7, 1))
   let current_date = date.from(#(2025, 7, 15))
-  let loan =
-    loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date)
+  let assert Ok(loan) =
+    loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date, [])
 
   loan.has_overdue([loan], current_date)
   |> should.be_false()
@@ -113,8 +132,8 @@ pub fn has_overdue_false_test() {
 pub fn has_overdue_true_test() {
   let loan_date = date.from(#(2025, 7, 1))
   let current_date = date.from(#(2025, 7, 16))
-  let loan =
-    loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date)
+  let assert Ok(loan) =
+    loan.new(book.id_from_string("1"), user.id_from_string("a"), loan_date, [])
 
   loan.has_overdue([loan], current_date)
   |> should.be_true()
@@ -127,9 +146,11 @@ pub fn is_loan_limit_true_test() {
         book.id_from_string("1"),
         user.id_from_string("a"),
         date.from(#(2025, 7, 16)),
+        [],
       ),
       10,
     )
+    |> result.values()
 
   expect
   |> loan.is_loan_limit()
@@ -143,9 +164,11 @@ pub fn is_loan_limit_false_test() {
         book.id_from_string("1"),
         user.id_from_string("a"),
         date.from(#(2025, 7, 16)),
+        [],
       ),
       9,
     )
+    |> result.values()
 
   expect
   |> loan.is_loan_limit()

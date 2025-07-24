@@ -1,5 +1,6 @@
 import core/shared/types/date
 import core/shared/types/specify_schedule
+import gleam/list
 import shell/shared/lib/ets
 
 type SpecifyScheduleRepo =
@@ -10,20 +11,21 @@ pub fn new() -> SpecifyScheduleRepo {
     [
       specify_schedule.SpecifySchedule(
         specify_schedule.Open,
-        date.from(#(2025, 7, 1)),
+        date.from(#(2025, 7, 31)),
       ),
       specify_schedule.SpecifySchedule(
         specify_schedule.Open,
-        date.from(#(2025, 7, 1)),
+        date.from(#(2025, 8, 1)),
       ),
     ],
     fn(it) { it.date |> date.to_string() },
   )
 }
 
-pub fn get_loan(
+pub fn get_specify_schedules(
   date: date.Date,
   conn: SpecifyScheduleRepo,
-) -> Result(specify_schedule.SpecifySchedule, String) {
-  conn.get(date |> date.to_string())
+) -> List(specify_schedule.SpecifySchedule) {
+  conn.all()
+  |> list.filter(fn(it) { it.date == date })
 }
