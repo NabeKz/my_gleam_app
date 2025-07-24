@@ -1,5 +1,6 @@
 import gleam/list
 import gleam/order
+import gleam/result
 
 import core/shared/types/date
 import core/shared/types/specify_schedule
@@ -16,27 +17,26 @@ pub fn find_due_date(
   candidate: date.Date,
   schedule_list: List(specify_schedule.SpecifySchedule),
 ) -> date.Date {
-  let schedule_list =
-    list.range(0, 7)
-    |> list.map(date.add_days(candidate, _))
-    |> list.map(fn(date) {
-      let schedule =
-        list.find(schedule_list, fn(schedule) { date == schedule.date })
-      case schedule {
-        Ok(schedule) -> schedule
-        Error(_) -> specify_schedule.with_date(date)
-      }
-    })
-
-  let due_date = {
-    use schedule <- list.find(schedule_list)
+  list.range(0, 7)
+  |> list.map(date.add_days(candidate, _))
+  |> list.map(get_or_create_schedule(_, schedule_list))
+  |> list.find(fn(schedule) {
     specify_schedule.is_open(schedule) && le(candidate, schedule.date)
-  }
+  })
+  |> result.map(fn(it) { it.date })
+  |> result.unwrap(candidate)
+}
 
-  case due_date {
-    Ok(schedule) -> schedule.date
-    Error(_) -> candidate
+fn get_or_create_schedule(
+  date: date.Date,
+  schedule_list: List(specify_schedule.SpecifySchedule),
+) -> specify_schedule.SpecifySchedule {
+  let schedule = {
+    use schedule <- list.find(schedule_list)
+    schedule.date == date
   }
+  schedule
+  |> result.unwrap(specify_schedule.with_date(date))
 }
 
 pub fn le(a: date.Date, b: date.Date) -> Bool {
