@@ -16,9 +16,7 @@ pub fn find_due_date(
     specify_schedule.is_open(schedule) && le(candidate, schedule.date)
   })
   |> result.map(fn(it) { it.date })
-  |> result.map_error(fn(_) { 
-    "30日以内に開館日が見つかりません。管理者にお問い合わせください。" 
-  })
+  |> result.replace_error("30日以内に開館日が見つかりません。管理者にお問い合わせください。")
 }
 
 fn get_or_create_schedule(
