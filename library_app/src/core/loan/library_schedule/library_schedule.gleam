@@ -8,15 +8,17 @@ import core/shared/types/specify_schedule
 pub fn find_due_date(
   candidate: date.Date,
   schedule_list: List(specify_schedule.SpecifySchedule),
-) -> date.Date {
-  list.range(0, 7)
+) -> Result(date.Date, String) {
+  list.range(0, 30)
   |> list.map(date.add_days(candidate, _))
   |> list.map(get_or_create_schedule(_, schedule_list))
   |> list.find(fn(schedule) {
     specify_schedule.is_open(schedule) && le(candidate, schedule.date)
   })
   |> result.map(fn(it) { it.date })
-  |> result.unwrap(candidate)
+  |> result.map_error(fn(_) { 
+    "30日以内に開館日が見つかりません。管理者にお問い合わせください。" 
+  })
 }
 
 fn get_or_create_schedule(
