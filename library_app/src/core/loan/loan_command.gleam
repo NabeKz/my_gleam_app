@@ -35,8 +35,9 @@ pub fn create_loan_workflow(
     use <- bool.guard(loans |> loan.is_loan_limit(), Error("貸出上限です"))
 
     book_id
-    |> loan.new(user.id, current_date())
-    |> save_loan()
+    |> loan.new(user.id, current_date(), [])
+    |> result.map(save_loan)
+    |> result.flatten()
   }
 }
 

@@ -1,6 +1,7 @@
 import core/auth/auth_provider
 import core/shared/types/user
 import gleam/json
+import gleam/result
 import gleeunit
 import gleeunit/should
 import wisp/testing
@@ -31,9 +32,15 @@ pub fn post_loans_success_test() {
       authenticated: auth_provider.on_request(_, fn(_) { Ok(user) }),
       get_loans: fn(_) {
         [
-          loan.new(book.id, user.id, date.from(#(2025, 7, 31))),
-          loan.new(book.id, user.id_from_string("1"), date.from(#(2025, 7, 31))),
+          loan.new(book.id, user.id, date.from(#(2025, 7, 31)), []),
+          loan.new(
+            book.id,
+            user.id_from_string("1"),
+            date.from(#(2025, 7, 31)),
+            [],
+          ),
         ]
+        |> result.values()
       },
       create_loan: fn(_, _) { Ok(Nil) },
     )
@@ -59,9 +66,15 @@ pub fn post_loans_not_bearer_failure_test() {
       authenticated: auth_provider.on_request(_, fn(_) { Ok(user) }),
       get_loans: fn(_) {
         [
-          loan.new(book.id, user.id, date.from(#(2025, 7, 31))),
-          loan.new(book.id, user.id_from_string("1"), date.from(#(2025, 7, 31))),
+          loan.new(book.id, user.id, date.from(#(2025, 7, 31)), []),
+          loan.new(
+            book.id,
+            user.id_from_string("1"),
+            date.from(#(2025, 7, 31)),
+            [],
+          ),
         ]
+        |> result.values()
       },
       create_loan: fn(_, _) { Ok(Nil) },
     )
@@ -85,10 +98,26 @@ pub fn post_loans_not_exits_authorization_failure_test() {
       authenticated: auth_provider.on_request(_, fn(_) { Ok(user.new()) }),
       get_loans: fn(_) {
         [
-          loan.new(book.id, user.id_from_string("1"), date.from(#(2025, 7, 31))),
-          loan.new(book.id, user.id_from_string("2"), date.from(#(2025, 8, 1))),
-          loan.new(book.id, user.id_from_string("3"), date.from(#(2025, 8, 30))),
+          loan.new(
+            book.id,
+            user.id_from_string("1"),
+            date.from(#(2025, 7, 31)),
+            [],
+          ),
+          loan.new(
+            book.id,
+            user.id_from_string("2"),
+            date.from(#(2025, 8, 1)),
+            [],
+          ),
+          loan.new(
+            book.id,
+            user.id_from_string("3"),
+            date.from(#(2025, 8, 30)),
+            [],
+          ),
         ]
+        |> result.values()
       },
       create_loan: fn(_, _) { Ok(Nil) },
     )

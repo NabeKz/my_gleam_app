@@ -1,6 +1,9 @@
+import core/loan/library_schedule/library_schedule
+import core/shared/types/specify_schedule
 import gleam/list
 import gleam/option
 import gleam/order
+import gleam/result
 
 import core/book/book
 import core/shared/types/date
@@ -64,15 +67,24 @@ pub fn new(
   book_id: book.BookId,
   user_id: user.UserId,
   current_date: date.Date,
-) -> Loan {
+  schedule_list: List(specify_schedule.SpecifySchedule),
+) -> Result(Loan, String) {
+  let due_date =
+    current_date
+    |> date.add_days(14)
+    |> library_schedule.find_due_date(schedule_list)
+
+  use due_date <- result.try(due_date)
+
   Loan(
     id: new_id(),
     book_id:,
     user_id:,
     loan_date: current_date,
-    due_date: current_date |> date.add_days(14),
+    due_date:,
     return_date: option.None,
   )
+  |> Ok()
 }
 
 // Getter functions for accessing opaque type fields

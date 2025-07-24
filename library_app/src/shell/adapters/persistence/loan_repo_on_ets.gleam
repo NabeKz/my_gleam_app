@@ -15,9 +15,15 @@ pub fn new() -> LoanRepo {
   let assert Ok(book2) = book.new("fuga", "b")
   ets.conn(
     [
-      loan.new(book1.id, user.id_from_string("1"), date.from(#(2025, 7, 31))),
-      loan.new(book2.id, user.id_from_string("2"), date.from(#(2025, 8, 1))),
-    ],
+      loan.new(
+        book1.id,
+        user.id_from_string("1"),
+        date.from(#(2025, 7, 31)),
+        [],
+      ),
+      loan.new(book2.id, user.id_from_string("2"), date.from(#(2025, 8, 1)), []),
+    ]
+      |> result.values(),
     fn(it) { it |> loan.id_value },
   )
 }
