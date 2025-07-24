@@ -5,14 +5,6 @@ import gleam/result
 import core/shared/types/date
 import core/shared/types/specify_schedule
 
-pub fn is_open_day(date: date.Date) {
-  todo
-}
-
-pub fn is_weekday_open(date: date.Date) {
-  todo
-}
-
 pub fn find_due_date(
   candidate: date.Date,
   schedule_list: List(specify_schedule.SpecifySchedule),
@@ -41,11 +33,4 @@ fn get_or_create_schedule(
 
 pub fn le(a: date.Date, b: date.Date) -> Bool {
   date.compare(a, order.Lt, b) || date.compare(a, order.Eq, b)
-}
-
-pub fn calculate_due_date(
-  loan_date: date.Date,
-  schedule_list: List(specify_schedule.SpecifySchedule),
-) {
-  todo
 }
