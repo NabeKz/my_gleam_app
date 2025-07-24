@@ -15,7 +15,7 @@ pub fn find_due_date_test() {
   let schedule_list = []
 
   library_schedule.find_due_date(candidate, schedule_list)
-  |> should.equal(date.from(#(2025, 7, 1)))
+  |> should.equal(date.from(#(2025, 7, 1)) |> Ok)
 }
 
 pub fn find_due_date_next_test() {
@@ -28,5 +28,5 @@ pub fn find_due_date_next_test() {
   ]
 
   library_schedule.find_due_date(candidate, schedule_list)
-  |> should.equal(date.from(#(2025, 7, 2)))
+  |> should.equal(date.from(#(2025, 7, 2)) |> Ok)
 }
