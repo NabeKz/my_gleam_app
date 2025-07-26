@@ -1,4 +1,5 @@
 import core/auth/auth_provider
+import core/book/book_command
 import core/book/book_ports
 import core/book/book_query
 import core/loan/loan_command
@@ -14,6 +15,7 @@ pub type Context {
     authenticated: auth.AuthContext,
     current_date: date.GetDate,
     search_books: book_ports.GetBooksWorkflow,
+    create_book: book_ports.CreateBookWorkflow,
     create_loan: loan_command.CreateLoan,
     update_loan: loan_command.ReturnLoan,
     get_loan: loan_query.GetLoan,
@@ -30,6 +32,7 @@ pub fn new() -> Context {
     authenticated: auth_provider.on_mock(),
     current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
+    create_book: fn(_) { Ok(Nil) },
     create_loan: fn(_, _) { Ok(Nil) },
     update_loan: fn(_) { Error("not implements") },
     get_loan: fn(_) { Error("error") },
@@ -48,6 +51,10 @@ pub fn on_ets() -> Context {
       _,
       book_repo_on_ets.search_books(_, book_repo),
     ),
+    create_book: book_command.create_book_workflow(book_repo_on_ets.create(
+      _,
+      book_repo,
+    )),
     create_loan: loan_command.create_loan_workflow(
       now,
       book_repo_on_ets.exits(_, book_repo),

@@ -11,6 +11,7 @@ pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response 
 
   case path, req.method {
     ["books"], Get -> book_handler.get(req, ctx.search_books)
+    ["books"], Post -> book_handler.post(req, ctx.create_book)
     ["books", book_id, "loans"], Post ->
       loan_handler.create_loan(req, ctx, book_id)
     ["loans", book_id], Put ->

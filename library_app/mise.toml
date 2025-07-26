@@ -8,3 +8,14 @@ run = """
   watchexec --restart --clear --wrap-process=session --stop-signal \
   SIGTERM --exts gleam --watch src/ -- "gleam run"
 """
+
+[tasks.start]
+run = """
+  gleam run > /dev/null 2>&1 &
+  echo "Server started in background"
+"""
+
+[tasks.stop]
+run = """
+  pkill -f "library_app@@main:run" 2>/dev/null && echo "Server stopped" || echo "Server not running"
+"""

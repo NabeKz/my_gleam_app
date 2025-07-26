@@ -17,6 +17,8 @@ This is a Gleam web application for library management with book lending functio
 
 ### Development Tasks
 - `mise run serve` - Start development server with auto-reload using watchexec
+- `mise run start` - Start server in background for testing (no logs)
+- `mise run stop` - Stop background server
 - `mise install` - Install development tools (Erlang, Gleam, Rebar)
 
 ### Package Management
@@ -92,6 +94,7 @@ The application uses dependency injection through the context pattern (`app/cont
 
 ### API Endpoints
 - `GET /api/books` - Search books with optional query parameters
+- `POST /api/books` - Create new book
 - `GET /api/loans` - List all loans
 - `GET /api/loans/:id` - Get specific loan
 - `POST /api/loans` - Create new loan
@@ -113,3 +116,32 @@ Uses gleeunit for testing. Test functions must end with `_test` suffix. Integrat
 ## Development Environment
 
 Uses `mise` for tool management with Erlang, Gleam, and Rebar. The development server supports auto-reload via watchexec when source files change.
+
+## Testing Procedures
+
+### Background Server Testing
+For API testing and integration tests, use the background server tasks:
+
+```bash
+# 1. Start server in background (no logs)
+mise run start
+
+# 2. Wait for server startup (2-3 seconds)
+sleep 3
+
+# 3. Run tests
+curl -X POST http://localhost:8000/api/books \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Test Book", "author": "Test Author"}'
+
+# 4. Stop server
+mise run stop
+```
+
+**Testing Checklist:**
+- ✅ Successful cases (201 Created)
+- ✅ Validation errors (400 Bad Request) 
+- ✅ Data persistence (GET to verify)
+- ✅ Japanese UTF-8 support
+
+**Note:** `mise run stop` may show task error but server stops correctly. Verify with health check if needed.
