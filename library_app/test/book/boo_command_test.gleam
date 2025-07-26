@@ -1,8 +1,9 @@
-import core/book/book
-import core/book/book_command
 import gleam/option
 import gleeunit
 import gleeunit/should
+
+import core/book/book_command
+import core/book/book_ports
 
 pub fn main() {
   gleeunit.main()
@@ -11,8 +12,8 @@ pub fn main() {
 // gleeunit test functions end in `_test`
 pub fn books_success_test() {
   let actual =
-    book_command.create_book_workflows(
-      book.CreateParams(title: option.Some("a"), author: option.Some("a")),
+    book_command.create_book_workflow(
+      book_ports.CreateParams(title: option.Some("a"), author: option.Some("a")),
       fn(_) { Ok(Nil) },
     )
 
@@ -22,8 +23,8 @@ pub fn books_success_test() {
 
 pub fn books_failure_test() {
   let actual =
-    book_command.create_book_workflows(
-      book.CreateParams(title: option.None, author: option.None),
+    book_command.create_book_workflow(
+      book_ports.CreateParams(title: option.None, author: option.None),
       fn(_) { Ok(Nil) },
     )
 

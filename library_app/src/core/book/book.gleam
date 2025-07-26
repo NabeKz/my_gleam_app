@@ -18,14 +18,6 @@ pub type SearchParams {
   SearchParams(title: option.Option(String), author: option.Option(String))
 }
 
-/// create
-pub type CreateBook =
-  fn(Book) -> Result(Nil, List(String))
-
-pub type CreateParams {
-  CreateParams(title: option.Option(String), author: option.Option(String))
-}
-
 /// model
 pub type Book {
   Book(id: BookId, title: BookTitle, author: BookAuthor)
