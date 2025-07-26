@@ -7,7 +7,7 @@ import shell/adapters/web/handler/book_handler
 import shell/adapters/web/handler/loan_handler
 
 pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response {
-  use path <- api_group("api", req)
+  use path <- api_group(req)
 
   case path, req.method {
     ["books"], Get -> book_handler.get(req, ctx.search_books)
@@ -23,12 +23,11 @@ pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response 
 }
 
 fn api_group(
-  _group: String,
   req: wisp.Request,
   resp: fn(List(String)) -> wisp.Response,
 ) -> wisp.Response {
   case wisp.path_segments(req) {
-    [_group, ..rest] -> rest
+    ["api", ..rest] -> rest
     _ -> []
   }
   |> resp()
