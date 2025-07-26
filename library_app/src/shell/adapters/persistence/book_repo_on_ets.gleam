@@ -1,6 +1,7 @@
 import gleam/result
 
 import core/book/book
+import core/book/book_ports
 import shell/shared/lib/ets
 
 type BookRepo =
@@ -21,7 +22,7 @@ pub fn new() -> BookRepo {
 }
 
 pub fn search_books(
-  _create_params: book.SearchParams,
+  _create_params: book_ports.SearchParams,
   conn: BookRepo,
 ) -> List(book.Book) {
   conn.all()

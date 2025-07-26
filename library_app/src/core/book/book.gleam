@@ -1,22 +1,5 @@
-import gleam/option
-
 import core/shared/services/validator
 import shell/shared/lib/uuid
-
-/// repository
-pub type CheckBookExists =
-  fn(String) -> Result(BookId, String)
-
-/// get
-pub type GetBooks =
-  fn(SearchParams) -> List(Book)
-
-pub type GetBook =
-  fn(SearchParams) -> Result(Book, String)
-
-pub type SearchParams {
-  SearchParams(title: option.Option(String), author: option.Option(String))
-}
 
 /// model
 pub type Book {

@@ -13,7 +13,7 @@ pub type SearchParams {
 }
 
 pub type GetBooksWorkflow =
-  fn(book.SearchParams) -> Result(List(book.Book), List(String))
+  fn(SearchParams) -> Result(List(book.Book), List(String))
 
 /// create
 pub type CreateBook =

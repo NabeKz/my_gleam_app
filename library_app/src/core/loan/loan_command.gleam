@@ -2,6 +2,7 @@ import gleam/option
 import gleam/result
 
 import core/book/book
+import core/book/book_ports
 import core/loan/loan
 import core/shared/types/date
 import core/shared/types/specify_schedule
@@ -21,7 +22,7 @@ type ValidatedUser {
 // Command functions
 pub fn create_loan_workflow(
   current_date: fn() -> date.Date,
-  check_book_exists: book.CheckBookExists,
+  check_book_exists: book_ports.CheckBookExists,
   get_specify_schedules: specify_schedule.GetSpecifySchedulesAfterCurrentDate,
   get_loans: loan.GetLoans,
   save_loan: loan.SaveLoan,
