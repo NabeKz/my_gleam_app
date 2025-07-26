@@ -7,17 +7,33 @@ import shell/shared/lib/uuid
 pub type CheckBookExists =
   fn(String) -> Result(BookId, String)
 
+/// get
 pub type GetBooks =
   fn(SearchParams) -> List(Book)
 
 pub type GetBook =
   fn(SearchParams) -> Result(Book, String)
 
-pub type CreateBook =
-  fn() -> Result(Nil, String)
-
 pub type SearchParams {
   SearchParams(title: option.Option(String), author: option.Option(String))
+}
+
+/// create
+pub type CreateBook =
+  fn(ValidatedCreateParams) -> Result(Nil, List(String))
+
+pub type UnValidatedCreateParams {
+  UnValidatedCreateParams(
+    title: option.Option(String),
+    author: option.Option(String),
+  )
+}
+
+pub type ValidatedCreateParams {
+  ValidatedCreateParams(
+    title: option.Option(String),
+    author: option.Option(String),
+  )
 }
 
 pub type UnValidatedBook {
