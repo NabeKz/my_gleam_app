@@ -1,4 +1,4 @@
-import gleam/http.{Get, Post, Put}
+import gleam/http.{Delete, Get, Post, Put}
 import gleam/json
 import wisp
 
@@ -12,6 +12,7 @@ pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response 
   case path, req.method {
     ["books"], Get -> book_handler.get(req, ctx.search_books)
     ["books"], Post -> book_handler.post(req, ctx.create_book)
+    ["books", book_id], Delete -> book_handler.delete(book_id, ctx.delete_book)
     ["books", book_id, "loans"], Post ->
       loan_handler.create_loan(req, ctx, book_id)
     ["loans", book_id], Put ->

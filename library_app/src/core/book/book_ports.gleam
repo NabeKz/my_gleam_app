@@ -25,3 +25,17 @@ pub type CreateParams {
 
 pub type CreateBookWorkflow =
   fn(CreateParams) -> Result(Nil, List(String))
+
+/// update
+pub type UpdateBook =
+  fn(book.Book) -> Result(Nil, List(String))
+
+pub type UpdateBookWorkflow =
+  fn() -> Result(Nil, List(String))
+
+/// delete
+pub type DeleteBook =
+  fn(String) -> Result(Nil, List(String))
+
+pub type DeleteBookWorkflow =
+  fn(String) -> Result(Nil, List(String))

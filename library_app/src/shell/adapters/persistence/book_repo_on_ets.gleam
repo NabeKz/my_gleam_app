@@ -37,3 +37,8 @@ pub fn create(book: book.Book, conn: BookRepo) -> Result(Nil, List(String)) {
   conn.create(#(book.id |> book.id_to_string(), book))
   |> result.map_error(fn(it) { [it] })
 }
+
+pub fn delete(book_id: String, conn: BookRepo) -> Result(Nil, List(String)) {
+  conn.delete(book_id)
+  |> result.map_error(fn(it) { [it] })
+}

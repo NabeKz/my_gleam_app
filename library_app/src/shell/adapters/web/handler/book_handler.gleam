@@ -44,3 +44,14 @@ pub fn post(
     Error(error) -> json.bad_request(error |> json.error)
   }
 }
+
+///
+pub fn delete(
+  book_id: String,
+  delete_book: book_ports.DeleteBookWorkflow,
+) -> wisp.Response {
+  case delete_book(book_id) {
+    Ok(_) -> wisp.no_content()
+    Error(error) -> json.bad_request(error |> json.error)
+  }
+}

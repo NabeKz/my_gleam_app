@@ -7,7 +7,7 @@ pub type Conn(k, v) {
     get: fn(k) -> Result(v, String),
     create: fn(#(k, v)) -> Result(Nil, String),
     put: fn(#(k, v)) -> Nil,
-    delete: fn(k) -> Nil,
+    delete: fn(k) -> Result(Nil, String),
   )
 }
 
@@ -85,6 +85,6 @@ fn put(table: Table, tuple: #(k, v)) -> Nil {
 @external(erlang, "ets", "delete")
 fn delete_table(table: Tid, key: k) -> Nil
 
-fn delete(table: Table, key: k) -> Nil {
-  table.value |> delete_table(key)
+fn delete(table: Table, key: k) -> Result(Nil, String) {
+  table.value |> delete_table(key) |> Ok()
 }

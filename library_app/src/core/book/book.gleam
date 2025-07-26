@@ -1,6 +1,15 @@
 import core/shared/services/validator
 import shell/shared/lib/uuid
 
+pub type BookRepository {
+  BookRepository(
+    create: fn(Book) -> Result(Nil, List(String)),
+    read: fn() -> Result(Nil, List(String)),
+    update: fn(Book) -> Result(Nil, List(String)),
+    delete: fn() -> Result(Nil, List(String)),
+  )
+}
+
 /// model
 pub type Book {
   Book(id: BookId, title: BookTitle, author: BookAuthor)

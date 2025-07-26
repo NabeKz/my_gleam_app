@@ -8,6 +8,7 @@ import core/book/book_ports
 import core/shared/helper/decoder
 import core/shared/services/validator
 
+/// create
 pub fn create_book_workflow(
   create_book: book_ports.CreateBook,
 ) -> book_ports.CreateBookWorkflow {
@@ -31,4 +32,11 @@ pub fn decode_create_params() -> decode.Decoder(book_ports.CreateParams) {
   use author <- decoder.optional_field("author", decode.string)
 
   decode.success(book_ports.CreateParams(title:, author:))
+}
+
+/// delete
+pub fn delete_book_workflow(
+  delete_book: book_ports.DeleteBook,
+) -> book_ports.DeleteBookWorkflow {
+  fn(book_id) { delete_book(book_id) }
 }
