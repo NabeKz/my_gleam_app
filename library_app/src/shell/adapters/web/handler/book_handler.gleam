@@ -1,6 +1,7 @@
 import wisp
 
 import core/book/book
+import core/book/book_command
 import core/book/book_ports
 import core/book/book_query
 import shell/adapters/web/handler/helper/json
@@ -32,6 +33,14 @@ fn decode(book: book.Book) -> json.Json {
 }
 
 ///
-pub fn post(req: wisp.Request) -> wisp.Response {
-  todo
+pub fn post(
+  req: wisp.Request,
+  create_book: book_ports.CreateBookWorkflow,
+) -> wisp.Response {
+  use params <- json.get_body(req, book_command.decode_create_params)
+
+  case create_book(params) {
+    Ok(_) -> wisp.created()
+    Error(error) -> json.bad_request(error |> json.error)
+  }
 }

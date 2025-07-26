@@ -53,6 +53,11 @@ pub fn bad_request(body: json.Json) -> wisp.Response {
   |> wisp.json_response(400)
 }
 
+pub fn error(errors: List(String)) -> json.Json {
+  errors
+  |> json.array(json.string)
+}
+
 pub const string = json.string
 
 pub const int = json.int
