@@ -12,9 +12,8 @@ pub fn main() {
 // gleeunit test functions end in `_test`
 pub fn books_success_test() {
   let actual =
-    book_command.create_book_workflow(
+    book_command.create_book_workflow(fn(_) { Ok(Nil) })(
       book_ports.CreateParams(title: option.Some("a"), author: option.Some("a")),
-      fn(_) { Ok(Nil) },
     )
 
   actual
@@ -23,9 +22,8 @@ pub fn books_success_test() {
 
 pub fn books_failure_test() {
   let actual =
-    book_command.create_book_workflow(
+    book_command.create_book_workflow(fn(_) { Ok(Nil) })(
       book_ports.CreateParams(title: option.None, author: option.None),
-      fn(_) { Ok(Nil) },
     )
 
   actual

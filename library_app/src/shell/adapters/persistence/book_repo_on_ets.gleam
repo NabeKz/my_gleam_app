@@ -31,3 +31,8 @@ pub fn exits(id: String, conn: BookRepo) -> Result(book.BookId, String) {
   use book <- result.map(conn.get(id))
   book.id
 }
+
+pub fn create(book: book.Book, conn: BookRepo) -> Result(Nil, List(String)) {
+  conn.create(#(book.id |> book.id_to_string(), book))
+  |> result.map_error(fn(it) { [it] })
+}
