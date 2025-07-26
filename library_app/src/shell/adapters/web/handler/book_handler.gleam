@@ -30,3 +30,8 @@ fn decode(book: book.Book) -> json.Json {
   ]
   |> json.object()
 }
+
+///
+pub fn post(req: wisp.Request) -> wisp.Response {
+  todo
+}
