@@ -34,6 +34,35 @@ pub fn decode_create_params() -> decode.Decoder(book_ports.CreateParams) {
   decode.success(book_ports.CreateParams(title:, author:))
 }
 
+/// update
+pub fn update_book_workflow(
+  update_book: book_ports.UpdateBook,
+) -> book_ports.UpdateBookWorkflow {
+  fn(params) {
+    params
+    |> validate_update_params()
+    |> result.map(update_book)
+    |> result.flatten()
+  }
+}
+
+fn validate_update_params(
+  params: book_ports.UpdateParams,
+) -> Result(book.Book, List(String)) {
+  let title = option.unwrap(params.title, "")
+  let author = option.unwrap(params.author, "")
+
+  book.new(title, author)
+  |> result.map_error(fn(it) { list.map(it, validator.to_string) })
+}
+
+pub fn decode_update_params() -> decode.Decoder(book_ports.CreateParams) {
+  use title <- decoder.optional_field("title", decode.string)
+  use author <- decoder.optional_field("author", decode.string)
+
+  decode.success(book_ports.CreateParams(title:, author:))
+}
+
 /// delete
 pub fn delete_book_workflow(
   delete_book: book_ports.DeleteBook,

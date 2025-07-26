@@ -31,7 +31,11 @@ pub type UpdateBook =
   fn(book.Book) -> Result(Nil, List(String))
 
 pub type UpdateBookWorkflow =
-  fn() -> Result(Nil, List(String))
+  fn(UpdateParams) -> Result(Nil, List(String))
+
+pub type UpdateParams {
+  UpdateParams(title: option.Option(String), author: option.Option(String))
+}
 
 /// delete
 pub type DeleteBook =
