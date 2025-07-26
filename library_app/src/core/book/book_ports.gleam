@@ -15,9 +15,5 @@ pub type SearchParams {
 pub type CreateBook =
   fn() -> Result(Nil, String)
 
-pub type UnValidatedBook {
-  UnValidatedBook(title: option.Option(String), author: option.Option(String))
-}
-
 pub type GetBooksWorkflow =
   fn(book.SearchParams) -> Result(List(book.Book), List(String))

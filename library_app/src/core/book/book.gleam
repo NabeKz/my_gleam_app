@@ -20,24 +20,10 @@ pub type SearchParams {
 
 /// create
 pub type CreateBook =
-  fn(ValidatedCreateParams) -> Result(Nil, List(String))
+  fn(Book) -> Result(Nil, List(String))
 
-pub type UnValidatedCreateParams {
-  UnValidatedCreateParams(
-    title: option.Option(String),
-    author: option.Option(String),
-  )
-}
-
-pub type ValidatedCreateParams {
-  ValidatedCreateParams(
-    title: option.Option(String),
-    author: option.Option(String),
-  )
-}
-
-pub type UnValidatedBook {
-  UnValidatedBook(title: option.Option(String), author: option.Option(String))
+pub type CreateParams {
+  CreateParams(title: option.Option(String), author: option.Option(String))
 }
 
 /// model
