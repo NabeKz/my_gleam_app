@@ -41,6 +41,21 @@ pub fn new(
   validator.run(validated)
 }
 
+pub fn update(
+  existing_book: Book,
+  title: String,
+  author: String,
+) -> Result(Book, List(validator.ValidateError)) {
+  let validated = {
+    use title <- validator.field(validate_title(title))
+    use author <- validator.field(validate_author(author))
+
+    Book(id: existing_book.id, title:, author:)
+    |> validator.success()
+  }
+  validator.run(validated)
+}
+
 fn new_id() -> BookId {
   BookId(uuid.v4())
 }

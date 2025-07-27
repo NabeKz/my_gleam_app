@@ -40,10 +40,10 @@ pub fn update_book_workflow(
   update_book: book_ports.UpdateBook,
 ) -> book_ports.UpdateBookWorkflow {
   fn(book_id, params) {
-    use book <- result.try(book_id |> get_book())
+    use existing_book <- result.try(book_id |> get_book())
 
     params
-    |> validate_update_params()
+    |> validate_update_params(existing_book)
     |> result.map(update_book)
     |> result.flatten()
   }
@@ -51,11 +51,12 @@ pub fn update_book_workflow(
 
 fn validate_update_params(
   params: book_ports.UpdateParams,
+  existing_book: book.Book,
 ) -> Result(book.Book, List(String)) {
-  let title = option.unwrap(params.title, "")
-  let author = option.unwrap(params.author, "")
+  let title = option.unwrap(params.title, book.title_value(existing_book))
+  let author = option.unwrap(params.author, book.author_value(existing_book))
 
-  book.new(title, author)
+  book.update(existing_book, title, author)
   |> result.map_error(fn(it) { list.map(it, validator.to_string) })
 }
 

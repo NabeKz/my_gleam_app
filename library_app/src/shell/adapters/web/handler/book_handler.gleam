@@ -1,4 +1,3 @@
-import gleam/result
 import wisp
 
 import core/book/book
@@ -55,7 +54,7 @@ pub fn put(
   use params <- json.get_body(req, book_command.decode_update_params)
 
   case update_book(book_id, params) {
-    Ok(_) -> wisp.created()
+    Ok(_) -> wisp.ok()
     Error(error) -> json.bad_request(error |> json.error)
   }
 }
