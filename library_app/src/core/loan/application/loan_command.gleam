@@ -1,9 +1,10 @@
-import core/book/domain/book_repository
 import gleam/option
 import gleam/result
 
 import core/book/domain/book
-import core/loan/loan
+import core/book/domain/book_repository
+import core/loan/domain/loan
+import core/loan/domain/loan_repository
 import core/shared/types/date
 import core/shared/types/specify_schedule
 import core/shared/types/user
@@ -24,8 +25,8 @@ pub fn create_loan_workflow(
   current_date: fn() -> date.Date,
   check_book_exists: book_repository.CheckBookExists,
   get_specify_schedules: specify_schedule.GetSpecifySchedulesAfterCurrentDate,
-  get_loans: loan.GetLoans,
-  save_loan: loan.SaveLoan,
+  get_loans: loan_repository.GetLoans,
+  save_loan: loan_repository.SaveLoan,
 ) -> CreateLoan {
   fn(user: user.User, book_id: String) -> Result(Nil, String) {
     use book_id <- result.try(check_book_exists(book_id))
@@ -48,9 +49,9 @@ pub fn create_loan_workflow(
 fn validate_user_loan_eligibility(
   user: user.User,
   current_date: date.Date,
-  get_loans: loan.GetLoans,
+  get_loans: loan_repository.GetLoans,
 ) -> Result(ValidatedUser, String) {
-  let loans = loan.GetLoansParams(option.None) |> get_loans()
+  let loans = loan_repository.GetLoansParams(option.None) |> get_loans()
 
   [validate_no_overdue(loans, current_date), validate_loan_limit(loans)]
   |> result.all()
@@ -88,8 +89,8 @@ fn create_loan_with_schedule(
 // Update functions
 pub fn return_book_workflow(
   current_date: date.GetDate,
-  get_loan_by_book_id: loan.GetLoanByBookId,
-  update_loan: loan.UpdateLoan,
+  get_loan_by_book_id: loan_repository.GetLoanByBookId,
+  update_loan: loan_repository.UpdateLoan,
 ) -> ReturnLoan {
   fn(book_id) {
     use loan <- result.try(

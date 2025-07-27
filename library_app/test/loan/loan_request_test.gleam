@@ -8,8 +8,8 @@ import app/context
 import core/auth/auth_provider
 import core/book/domain/book
 import core/book/domain/book_repository
-import core/loan/loan
-import core/loan/ports/loan_repository
+import core/loan/domain/loan
+import core/loan/domain/loan_repository
 import core/shared/types/date
 import core/shared/types/user
 import shell/adapters/web/router

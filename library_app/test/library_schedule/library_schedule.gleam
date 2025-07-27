@@ -1,9 +1,9 @@
-import core/shared/types/specify_schedule
 import gleeunit
 import gleeunit/should
 
-import core/loan/library_schedule/library_schedule
+import core/loan/domain/library_schedule/library_schedule
 import core/shared/types/date
+import core/shared/types/specify_schedule
 
 pub fn main() {
   gleeunit.main()

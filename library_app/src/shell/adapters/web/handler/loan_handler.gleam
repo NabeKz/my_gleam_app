@@ -2,8 +2,8 @@ import wisp
 
 import app/context
 import core/book/domain/book
-import core/loan/loan
-import core/loan/loan_query
+import core/loan/application/loan_query
+import core/loan/domain/loan
 import core/shared/types/date
 import shell/adapters/web/handler/helper/json
 

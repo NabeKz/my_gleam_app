@@ -2,9 +2,9 @@ import core/auth/auth_provider
 import core/book/application/book_command
 import core/book/application/book_query
 import core/book/domain/book_repository
-import core/loan/loan_command
-import core/loan/loan_query
-import core/loan/ports/loan_repository
+import core/loan/application/loan_command
+import core/loan/application/loan_query
+import core/loan/domain/loan_repository
 import core/shared/ports/schedule_repository
 import core/shared/types/auth
 import core/shared/types/date

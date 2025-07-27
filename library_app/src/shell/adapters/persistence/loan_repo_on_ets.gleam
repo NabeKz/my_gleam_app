@@ -2,8 +2,8 @@ import gleam/list
 import gleam/result
 
 import core/book/domain/book
-import core/loan/loan
-import core/loan/ports/loan_repository
+import core/loan/domain/loan
+import core/loan/domain/loan_repository
 import core/shared/types/date
 import core/shared/types/user
 import shell/shared/lib/ets
@@ -41,12 +41,12 @@ fn create_conn() -> LoanRepo {
   )
 }
 
-pub fn get_loans(_params: loan.GetLoansParams, conn: LoanRepo) {
+pub fn get_loans(_params: loan_repository.GetLoansParams, conn: LoanRepo) {
   conn.all()
 }
 
 pub fn get_loan(
-  params: loan.GetLoanParams,
+  params: loan_repository.GetLoanParams,
   conn: LoanRepo,
 ) -> Result(loan.Loan, String) {
   conn.get(params.loan_id)
