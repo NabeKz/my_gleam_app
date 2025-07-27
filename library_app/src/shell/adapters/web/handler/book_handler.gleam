@@ -1,15 +1,15 @@
 import wisp
 
+import app/context
 import core/book/book
 import core/book/book_command
-import core/book/book_ports
 import core/book/book_query
 import shell/adapters/web/handler/helper/json
 
-pub fn get(req: wisp.Request, search_books: book_ports.GetBooksWorkflow) {
+pub fn get(req: wisp.Request, ops: context.Operations) {
   use query <- json.get_query(req, book_query.generate_search_params)
 
-  case search_books(query) {
+  case ops.book.search(query) {
     Ok(books) -> {
       books
       |> json.array(decode)
@@ -35,11 +35,11 @@ fn decode(book: book.Book) -> json.Json {
 ///
 pub fn post(
   req: wisp.Request,
-  create_book: book_ports.CreateBookWorkflow,
+  ops: context.Operations,
 ) -> wisp.Response {
   use params <- json.get_body(req, book_command.decode_create_params)
 
-  case create_book(params) {
+  case ops.book.create(params) {
     Ok(_) -> wisp.created()
     Error(error) -> json.bad_request(error |> json.error)
   }
@@ -49,11 +49,11 @@ pub fn post(
 pub fn put(
   req: wisp.Request,
   book_id: String,
-  update_book: book_ports.UpdateBookWorkflow,
+  ops: context.Operations,
 ) -> wisp.Response {
   use params <- json.get_body(req, book_command.decode_update_params)
 
-  case update_book(book_id, params) {
+  case ops.book.update(book_id, params) {
     Ok(_) -> wisp.ok()
     Error(error) -> json.bad_request(error |> json.error)
   }
@@ -62,9 +62,9 @@ pub fn put(
 ///
 pub fn delete(
   book_id: String,
-  delete_book: book_ports.DeleteBookWorkflow,
+  ops: context.Operations,
 ) -> wisp.Response {
-  case delete_book(book_id) {
+  case ops.book.delete(book_id) {
     Ok(_) -> wisp.no_content()
     Error(error) -> json.bad_request(error |> json.error)
   }

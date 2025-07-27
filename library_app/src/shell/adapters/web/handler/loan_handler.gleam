@@ -7,18 +7,18 @@ import core/loan/loan_query
 import core/shared/types/date
 import shell/adapters/web/handler/helper/json
 
-pub fn get_loans(req: wisp.Request, get_loans: loan.GetLoans) -> wisp.Response {
+pub fn get_loans(req: wisp.Request, ops: context.Operations) -> wisp.Response {
   use params <- json.get_query(req, loan_query.get_loans_params_decoder)
 
-  get_loans(params)
+  ops.loan.get_all(params)
   |> json.array(serialize)
   |> json.ok()
 }
 
-pub fn get_loan(id: String, get_loan: loan.GetLoan) -> wisp.Response {
+pub fn get_loan(id: String, ops: context.Operations) -> wisp.Response {
   let params = loan_query.generate_get_loan_params(id)
 
-  case get_loan(params) {
+  case ops.loan.get(params) {
     Ok(loan) -> loan |> serialize() |> json.ok()
     Error(_) -> wisp.bad_request()
   }
@@ -29,11 +29,12 @@ pub fn get_loan(id: String, get_loan: loan.GetLoan) -> wisp.Response {
 pub fn create_loan(
   req: wisp.Request,
   ctx: context.Context,
+  ops: context.Operations,
   book_id: String,
 ) -> wisp.Response {
   use user <- json.authenticated(req, ctx.authenticated)
 
-  case ctx.create_loan(user, book_id) {
+  case ops.loan.create(user, book_id) {
     Ok(_) -> wisp.created()
     Error(error) -> json.bad_request(error |> json.string())
   }
@@ -56,9 +57,9 @@ fn serialize(loan: loan.Loan) -> json.Json {
 
 pub fn update_loan_by_return_book(
   book_id: String,
-  ctx: context.Context,
+  ops: context.Operations,
 ) -> wisp.Response {
-  case ctx.update_loan(book_id) {
+  case ops.loan.update(book_id) {
     Ok(_) -> wisp.no_content()
     Error(error) -> json.bad_request(error |> json.string())
   }

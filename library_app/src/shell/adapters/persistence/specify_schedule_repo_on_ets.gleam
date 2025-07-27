@@ -1,3 +1,4 @@
+import core/shared/ports/schedule_repository
 import core/shared/types/date
 import core/shared/types/specify_schedule
 import gleam/list
@@ -6,7 +7,15 @@ import shell/shared/lib/ets
 type SpecifyScheduleRepo =
   ets.Conn(String, specify_schedule.SpecifySchedule)
 
-pub fn new() -> SpecifyScheduleRepo {
+pub fn new() -> schedule_repository.ScheduleRepository {
+  let conn = create_conn()
+  
+  schedule_repository.ScheduleRepository(
+    get_specify_schedules: get_specify_schedules(_, conn),
+  )
+}
+
+fn create_conn() -> SpecifyScheduleRepo {
   ets.conn(
     [
       specify_schedule.SpecifySchedule(

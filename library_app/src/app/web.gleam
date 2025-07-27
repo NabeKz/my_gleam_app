@@ -12,7 +12,9 @@ pub fn run() {
   // load this from somewhere so that it is not regenerated on every restart.
   let secret_key = wisp.random_string(64)
   let ctx = context.on_ets()
-  let controller = router.handle_request(_, ctx)
+  let repos = context.ets_repositories()
+  let ops = context.create_operations(ctx, repos)
+  let controller = router.handle_request(_, ctx, ops)
 
   let assert Ok(_) =
     wisp_mist.handler(controller, secret_key)

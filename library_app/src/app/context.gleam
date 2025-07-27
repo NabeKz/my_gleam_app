@@ -2,26 +2,51 @@ import core/auth/auth_provider
 import core/book/book_command
 import core/book/book_ports
 import core/book/book_query
+import core/book/ports/book_repository
 import core/loan/loan_command
 import core/loan/loan_query
+import core/loan/ports/loan_repository
+import core/shared/ports/schedule_repository
 import core/shared/types/auth
 import core/shared/types/date
 import shell/adapters/persistence/book_repo_on_ets
 import shell/adapters/persistence/loan_repo_on_ets
 import shell/adapters/persistence/specify_schedule_repo_on_ets
 
+// Context = 前提条件のみ
 pub type Context {
-  Context(
-    authenticated: auth.AuthContext,
-    current_date: date.GetDate,
-    search_books: book_ports.GetBooksWorkflow,
-    create_book: book_ports.CreateBookWorkflow,
-    update_book: book_ports.UpdateBookWorkflow,
-    delete_book: book_ports.DeleteBookWorkflow,
-    create_loan: loan_command.CreateLoan,
-    update_loan: loan_command.ReturnLoan,
-    get_loan: loan_query.GetLoan,
-    get_loans: loan_query.GetLoans,
+  Context(authenticated: auth.AuthContext, current_date: date.GetDate)
+}
+
+// Operations = 文脈固定済みの操作群
+pub type Operations {
+  Operations(book: BookOperations, loan: LoanOperations)
+}
+
+pub type BookOperations {
+  BookOperations(
+    search: book_ports.GetBooksWorkflow,
+    create: book_ports.CreateBookWorkflow,
+    update: book_ports.UpdateBookWorkflow,
+    delete: book_ports.DeleteBookWorkflow,
+  )
+}
+
+pub type LoanOperations {
+  LoanOperations(
+    create: loan_command.CreateLoan,
+    update: loan_command.ReturnLoan,
+    get: loan_query.GetLoan,
+    get_all: loan_query.GetLoans,
+  )
+}
+
+// Repository interfaces
+pub type Repositories {
+  Repositories(
+    book: book_repository.BookRepository,
+    loan: loan_repository.LoanRepository,
+    schedule: schedule_repository.ScheduleRepository,
   )
 }
 
@@ -29,60 +54,74 @@ fn now() {
   date.now().date
 }
 
+// Context作成関数
 pub fn new() -> Context {
-  Context(
-    authenticated: auth_provider.on_mock(),
-    current_date: now,
-    search_books: book_query.compose_search_books(_, fn(_) { [] }),
-    create_book: fn(_) { Ok(Nil) },
-    update_book: fn(_, _) { Ok(Nil) },
-    delete_book: fn(_) { Ok(Nil) },
-    create_loan: fn(_, _) { Ok(Nil) },
-    update_loan: fn(_) { Error("not implements") },
-    get_loan: fn(_) { Error("error") },
-    get_loans: fn(_) { [] },
-  )
+  Context(authenticated: auth_provider.on_mock(), current_date: now)
 }
 
 pub fn on_ets() -> Context {
-  let book_repo = book_repo_on_ets.new()
-  let loan_repo = loan_repo_on_ets.new()
-  let specify_schedule_repo = specify_schedule_repo_on_ets.new()
-  Context(
-    authenticated: auth_provider.on_mock(),
-    current_date: now,
-    search_books: book_query.compose_search_books(
-      _,
-      book_repo_on_ets.search_books(_, book_repo),
+  Context(authenticated: auth_provider.on_mock(), current_date: now)
+}
+
+// Repository作成関数
+pub fn mock_repositories() -> Repositories {
+  Repositories(
+    book: book_repository.BookRepository(
+      search: fn(_) { [] },
+      create: fn(_) { Ok(Nil) },
+      read: fn(_) { Error(["not implemented"]) },
+      update: fn(_) { Ok(Nil) },
+      delete: fn(_) { Ok(Nil) },
+      exists: fn(_) { Error("not implemented") },
     ),
-    create_book: book_command.create_book_workflow(book_repo_on_ets.create(
-      _,
-      book_repo,
-    )),
-    update_book: book_command.update_book_workflow(
-      book_repo_on_ets.read(_, book_repo),
-      book_repo_on_ets.update(_, book_repo),
+    loan: loan_repository.LoanRepository(
+      get_loans: fn(_) { [] },
+      get_loan: fn(_) { Error("not implemented") },
+      get_loan_by_id: fn(_) { Error("not implemented") },
+      save_loan: fn(_) { Ok(Nil) },
+      put_loan: fn(_) { Ok(Nil) },
     ),
-    delete_book: book_command.delete_book_workflow(book_repo_on_ets.delete(
-      _,
-      book_repo,
-    )),
-    create_loan: loan_command.create_loan_workflow(
-      now,
-      book_repo_on_ets.exits(_, book_repo),
-      specify_schedule_repo_on_ets.get_specify_schedules(
-        _,
-        specify_schedule_repo,
+    schedule: schedule_repository.ScheduleRepository(
+      get_specify_schedules: fn(_) { [] },
+    ),
+  )
+}
+
+pub fn ets_repositories() -> Repositories {
+  Repositories(
+    book: book_repo_on_ets.new(),
+    loan: loan_repo_on_ets.new(),
+    schedule: specify_schedule_repo_on_ets.new(),
+  )
+}
+
+// Operations作成関数（文脈とRepositoryを組み合わせて部分適用）
+pub fn create_operations(ctx: Context, repos: Repositories) -> Operations {
+  Operations(
+    book: BookOperations(
+      search: book_query.compose_search_books(_, repos.book.search),
+      create: book_command.create_book_workflow(repos.book.create),
+      update: book_command.update_book_workflow(
+        repos.book.read,
+        repos.book.update,
       ),
-      loan_repo_on_ets.get_loans(_, loan_repo),
-      loan_repo_on_ets.save_loan(_, loan_repo),
+      delete: book_command.delete_book_workflow(repos.book.delete),
     ),
-    update_loan: loan_command.return_book_workflow(
-      now,
-      loan_repo_on_ets.get_loan_by_id(_, loan_repo),
-      loan_repo_on_ets.put_loan(_, loan_repo),
+    loan: LoanOperations(
+      create: loan_command.create_loan_workflow(
+        ctx.current_date,
+        repos.book.exists,
+        repos.schedule.get_specify_schedules,
+        repos.loan.get_loans,
+        repos.loan.save_loan,
+      ),
+      update: loan_command.return_book_workflow(
+        ctx.current_date,
+        repos.loan.get_loan_by_id,
+        repos.loan.put_loan,
+      ),
+      get: repos.loan.get_loan,
+      get_all: repos.loan.get_loans,
     ),
-    get_loans: loan_repo_on_ets.get_loans(_, loan_repo),
-    get_loan: loan_repo_on_ets.get_loan(_, loan_repo),
   )
 }

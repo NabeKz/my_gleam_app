@@ -3,6 +3,7 @@ import gleam/result
 
 import core/book/book
 import core/loan/loan
+import core/loan/ports/loan_repository
 import core/shared/types/date
 import core/shared/types/user
 import shell/shared/lib/ets
@@ -10,7 +11,19 @@ import shell/shared/lib/ets
 type LoanRepo =
   ets.Conn(String, loan.Loan)
 
-pub fn new() -> LoanRepo {
+pub fn new() -> loan_repository.LoanRepository {
+  let conn = create_conn()
+  
+  loan_repository.LoanRepository(
+    get_loans: get_loans(_, conn),
+    get_loan: get_loan(_, conn),
+    get_loan_by_id: get_loan_by_id(_, conn),
+    save_loan: save_loan(_, conn),
+    put_loan: put_loan(_, conn),
+  )
+}
+
+fn create_conn() -> LoanRepo {
   let assert Ok(book1) = book.new("hoge", "a")
   let assert Ok(book2) = book.new("fuga", "b")
   ets.conn(
@@ -49,7 +62,7 @@ pub fn get_loan_by_id(
   |> result.replace_error("貸出履歴が見つかりません")
 }
 
-pub fn save_loan(loan: loan.Loan, conn: LoanRepo) {
+pub fn save_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, String) {
   conn.create(#(loan |> loan.id_value, loan))
 }
 

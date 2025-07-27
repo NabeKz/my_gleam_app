@@ -6,20 +6,24 @@ import app/context
 import shell/adapters/web/handler/book_handler
 import shell/adapters/web/handler/loan_handler
 
-pub fn handle_request(req: wisp.Request, ctx: context.Context) -> wisp.Response {
+pub fn handle_request(
+  req: wisp.Request,
+  ctx: context.Context,
+  ops: context.Operations,
+) -> wisp.Response {
   use path <- api_group(req)
 
   case path, req.method {
-    ["books"], Get -> book_handler.get(req, ctx.search_books)
-    ["books"], Post -> book_handler.post(req, ctx.create_book)
-    ["books", book_id], Put -> book_handler.put(req, book_id, ctx.update_book)
-    ["books", book_id], Delete -> book_handler.delete(book_id, ctx.delete_book)
+    ["books"], Get -> book_handler.get(req, ops)
+    ["books"], Post -> book_handler.post(req, ops)
+    ["books", book_id], Put -> book_handler.put(req, book_id, ops)
+    ["books", book_id], Delete -> book_handler.delete(book_id, ops)
     ["books", book_id, "loans"], Post ->
-      loan_handler.create_loan(req, ctx, book_id)
+      loan_handler.create_loan(req, ctx, ops, book_id)
     ["loans", book_id], Put ->
-      loan_handler.update_loan_by_return_book(book_id, ctx)
-    ["loans"], Get -> loan_handler.get_loans(req, ctx.get_loans)
-    ["loans", id], Get -> loan_handler.get_loan(id, ctx.get_loan)
+      loan_handler.update_loan_by_return_book(book_id, ops)
+    ["loans"], Get -> loan_handler.get_loans(req, ops)
+    ["loans", id], Get -> loan_handler.get_loan(id, ops)
     ["health_check"], Get -> health_check()
     _, _ -> wisp.not_found()
   }

@@ -1,4 +1,7 @@
 import core/auth/auth_provider
+import core/book/ports/book_repository
+import core/loan/ports/loan_repository
+import core/shared/ports/schedule_repository
 import core/shared/types/user
 import gleam/dynamic/decode
 import gleam/json
@@ -11,7 +14,6 @@ import wisp/testing
 import app/context
 import core/book/book
 import core/loan/loan
-import core/loan/loan_command
 import core/shared/types/date
 import shell/adapters/web/router
 
@@ -22,31 +24,44 @@ pub fn main() {
 pub fn get_loans_success_test() {
   let req = testing.get("/api/loans?hoge=1", [])
   let assert Ok(book) = book.new("a", "b")
-  let ctx =
-    context.Context(..context.new(), get_loans: fn(_) {
-      [
-        loan.new(
-          book.id,
-          user.id_from_string("1"),
-          date.from(#(2025, 7, 31)),
-          [],
-        ),
-        loan.new(
-          book.id,
-          user.id_from_string("2"),
-          date.from(#(2025, 8, 1)),
-          [],
-        ),
-        loan.new(
-          book.id,
-          user.id_from_string("3"),
-          date.from(#(2025, 8, 30)),
-          [],
-        ),
-      ]
-      |> result.values()
-    })
-  let response = router.handle_request(req, ctx)
+  let ctx = context.new()
+  
+  let repos = context.Repositories(
+    book: context.mock_repositories().book,
+    loan: loan_repository.LoanRepository(
+      get_loans: fn(_) {
+        [
+          loan.new(
+            book.id,
+            user.id_from_string("1"),
+            date.from(#(2025, 7, 31)),
+            [],
+          ),
+          loan.new(
+            book.id,
+            user.id_from_string("2"),
+            date.from(#(2025, 8, 1)),
+            [],
+          ),
+          loan.new(
+            book.id,
+            user.id_from_string("3"),
+            date.from(#(2025, 8, 30)),
+            [],
+          ),
+        ]
+        |> result.values()
+      },
+      get_loan: fn(_) { Error("not implemented") },
+      get_loan_by_id: fn(_) { Error("not implemented") },
+      save_loan: fn(_) { Ok(Nil) },
+      put_loan: fn(_) { Ok(Nil) },
+    ),
+    schedule: context.mock_repositories().schedule,
+  )
+  
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
   response.status
   |> should.equal(200)
@@ -73,15 +88,31 @@ pub fn create_loan_success_test() {
     context.Context(
       ..context.new(),
       authenticated: auth_provider.on_mock(),
-      create_loan: loan_command.create_loan_workflow(
-        fn() { date.from(#(2025, 7, 31)) },
-        fn(_) { Ok(book.id) },
-        fn(_) { [] },
-        fn(_) { [] },
-        fn(_) { Ok(Nil) },
-      ),
     )
-  let response = router.handle_request(req, ctx)
+  
+  let repos = context.Repositories(
+    book: book_repository.BookRepository(
+      search: fn(_) { [] },
+      create: fn(_) { Ok(Nil) },
+      read: fn(_) { Error(["not implemented"]) },
+      update: fn(_) { Ok(Nil) },
+      delete: fn(_) { Ok(Nil) },
+      exists: fn(_) { Ok(book.id) },
+    ),
+    loan: loan_repository.LoanRepository(
+      get_loans: fn(_) { [] },
+      get_loan: fn(_) { Error("not implemented") },
+      get_loan_by_id: fn(_) { Error("not implemented") },
+      save_loan: fn(_) { Ok(Nil) },
+      put_loan: fn(_) { Ok(Nil) },
+    ),
+    schedule: schedule_repository.ScheduleRepository(
+      get_specify_schedules: fn(_) { [] },
+    ),
+  )
+  
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
   response.status
   |> should.equal(201)
@@ -98,18 +129,23 @@ pub fn create_loan_failure_test() {
       [#("authorization", "dummy")],
       json.object([]),
     )
-  let ctx =
-    context.Context(
-      ..context.new(),
-      create_loan: loan_command.create_loan_workflow(
-        fn() { date.from(#(2025, 7, 31)) },
-        fn(_) { Error("not found") },
-        fn(_) { [] },
-        fn(_) { [] },
-        fn(_) { Ok(Nil) },
-      ),
-    )
-  let response = router.handle_request(req, ctx)
+  let ctx = context.new()
+  
+  let repos = context.Repositories(
+    book: book_repository.BookRepository(
+      search: fn(_) { [] },
+      create: fn(_) { Ok(Nil) },
+      read: fn(_) { Error(["not implemented"]) },
+      update: fn(_) { Ok(Nil) },
+      delete: fn(_) { Ok(Nil) },
+      exists: fn(_) { Error("not found") },
+    ),
+    loan: context.mock_repositories().loan,
+    schedule: context.mock_repositories().schedule,
+  )
+  
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
   response.status
   |> should.equal(400)

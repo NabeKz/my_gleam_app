@@ -1,4 +1,5 @@
 import core/auth/auth_provider
+import core/loan/ports/loan_repository
 import core/shared/types/user
 import gleam/json
 import gleam/result
@@ -24,17 +25,22 @@ pub fn post_loans_success_test() {
       [#("authorization", "Bearer hoge")],
       json.object([]),
     )
-  let assert Ok(book) = book.new("a", "b")
+  let assert Ok(test_book) = book.new("a", "b")
 
   let ctx =
     context.Context(
       ..context.new(),
       authenticated: auth_provider.on_request(_, fn(_) { Ok(user) }),
+    )
+  
+  let repos = context.Repositories(
+    book: context.mock_repositories().book,
+    loan: loan_repository.LoanRepository(
       get_loans: fn(_) {
         [
-          loan.new(book.id, user.id, date.from(#(2025, 7, 31)), []),
+          loan.new(test_book.id, user.id, date.from(#(2025, 7, 31)), []),
           loan.new(
-            book.id,
+            test_book.id,
             user.id_from_string("1"),
             date.from(#(2025, 7, 31)),
             [],
@@ -42,9 +48,16 @@ pub fn post_loans_success_test() {
         ]
         |> result.values()
       },
-      create_loan: fn(_, _) { Ok(Nil) },
-    )
-  let response = router.handle_request(req, ctx)
+      get_loan: fn(_) { Error("not implemented") },
+      get_loan_by_id: fn(_) { Error("not implemented") },
+      save_loan: fn(_) { Ok(Nil) },
+      put_loan: fn(_) { Ok(Nil) },
+    ),
+    schedule: context.mock_repositories().schedule,
+  )
+  
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
   response.status
   |> should.equal(201)
@@ -58,27 +71,17 @@ pub fn post_loans_not_bearer_failure_test() {
       [#("authorization", "hoge")],
       json.object([]),
     )
-  let assert Ok(book) = book.new("a", "b")
+  let assert Ok(_test_book) = book.new("a", "b")
 
   let ctx =
     context.Context(
       ..context.new(),
       authenticated: auth_provider.on_request(_, fn(_) { Ok(user) }),
-      get_loans: fn(_) {
-        [
-          loan.new(book.id, user.id, date.from(#(2025, 7, 31)), []),
-          loan.new(
-            book.id,
-            user.id_from_string("1"),
-            date.from(#(2025, 7, 31)),
-            [],
-          ),
-        ]
-        |> result.values()
-      },
-      create_loan: fn(_, _) { Ok(Nil) },
     )
-  let response = router.handle_request(req, ctx)
+  
+  let repos = context.mock_repositories()
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
   response.status
   |> should.equal(401)
@@ -90,38 +93,17 @@ pub fn post_loans_not_bearer_failure_test() {
 
 pub fn post_loans_not_exits_authorization_failure_test() {
   let req = testing.post_json("/api/books/a_b_c/loans", [], json.object([]))
-  let assert Ok(book) = book.new("a", "b")
+  let assert Ok(_test_book) = book.new("a", "b")
 
   let ctx =
     context.Context(
       ..context.new(),
       authenticated: auth_provider.on_request(_, fn(_) { Ok(user.new()) }),
-      get_loans: fn(_) {
-        [
-          loan.new(
-            book.id,
-            user.id_from_string("1"),
-            date.from(#(2025, 7, 31)),
-            [],
-          ),
-          loan.new(
-            book.id,
-            user.id_from_string("2"),
-            date.from(#(2025, 8, 1)),
-            [],
-          ),
-          loan.new(
-            book.id,
-            user.id_from_string("3"),
-            date.from(#(2025, 8, 30)),
-            [],
-          ),
-        ]
-        |> result.values()
-      },
-      create_loan: fn(_, _) { Ok(Nil) },
     )
-  let response = router.handle_request(req, ctx)
+  
+  let repos = context.mock_repositories()
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
   response.status
   |> should.equal(401)

@@ -2,6 +2,7 @@ import gleam/result
 
 import core/book/book
 import core/book/book_ports
+import core/book/ports/book_repository
 import shell/shared/lib/ets
 
 type BookRepo =
@@ -10,17 +11,26 @@ type BookRepo =
 type Command =
   Result(Nil, List(String))
 
-pub fn new() -> BookRepo {
-  ets.conn(
-    [
-      book.new("hoge", "aaa"),
-      book.new("fuga", "bbb"),
-      book.new("piyo", "ccc"),
-      book.new("foo", "ddd"),
-      book.new("bar", "ddd"),
-    ]
-      |> result.values(),
-    fn(it) { it.id |> book.id_to_string() },
+pub fn new() -> book_repository.BookRepository {
+  let conn =
+    ets.conn(
+      [
+        book.new("hoge", "aaa"),
+        book.new("fuga", "bbb"),
+        book.new("piyo", "ccc"),
+        book.new("foo", "ddd"),
+        book.new("bar", "ddd"),
+      ]
+        |> result.values(),
+      fn(it) { it.id |> book.id_to_string() },
+    )
+  book_repository.BookRepository(
+    search: search_books(_, conn),
+    create: create(_, conn),
+    read: read(_, conn),
+    update: update(_, conn),
+    delete: delete(_, conn),
+    exists: exits(_, conn),
   )
 }
 
@@ -29,11 +39,6 @@ pub fn search_books(
   conn: BookRepo,
 ) -> List(book.Book) {
   conn.all()
-}
-
-pub fn exits(id: String, conn: BookRepo) -> Result(book.BookId, String) {
-  use book <- result.map(conn.get(id))
-  book.id
 }
 
 pub fn create(book: book.Book, conn: BookRepo) -> Command {
@@ -53,4 +58,11 @@ pub fn update(book: book.Book, conn: BookRepo) -> Command {
 pub fn delete(book_id: String, conn: BookRepo) -> Command {
   conn.delete(book_id)
   |> result.map_error(fn(it) { [it] })
+}
+
+pub fn exits(id: String, conn: BookRepo) -> Result(book.BookId, String) {
+  case conn.get(id) {
+    Ok(book) -> Ok(book.id)
+    Error(error) -> Error(error)
+  }
 }
