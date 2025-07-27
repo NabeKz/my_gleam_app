@@ -9,7 +9,7 @@ type SpecifyScheduleRepo =
 
 pub fn new() -> schedule_repository.ScheduleRepository {
   let conn = create_conn()
-  
+
   schedule_repository.ScheduleRepository(
     get_specify_schedules: get_specify_schedules(_, conn),
   )

@@ -1,8 +1,7 @@
 import core/auth/auth_provider
-import core/book/book_command
-import core/book/book_ports
-import core/book/book_query
-import core/book/ports/book_repository
+import core/book/application/book_command
+import core/book/application/book_query
+import core/book/domain/book_repository
 import core/loan/loan_command
 import core/loan/loan_query
 import core/loan/ports/loan_repository
@@ -25,10 +24,10 @@ pub type Operations {
 
 pub type BookOperations {
   BookOperations(
-    search: book_ports.GetBooksWorkflow,
-    create: book_ports.CreateBookWorkflow,
-    update: book_ports.UpdateBookWorkflow,
-    delete: book_ports.DeleteBookWorkflow,
+    search: book_query.GetBooksWorkflow,
+    create: book_command.CreateBookWorkflow,
+    update: book_command.UpdateBookWorkflow,
+    delete: book_command.DeleteBookWorkflow,
   )
 }
 
@@ -50,17 +49,17 @@ pub type Repositories {
   )
 }
 
-fn now() {
-  date.now().date
-}
-
 // Context作成関数
 pub fn new() -> Context {
-  Context(authenticated: auth_provider.on_mock(), current_date: now)
+  Context(authenticated: auth_provider.on_mock(), current_date: fn() {
+    date.now().date
+  })
 }
 
 pub fn on_ets() -> Context {
-  Context(authenticated: auth_provider.on_mock(), current_date: now)
+  Context(authenticated: auth_provider.on_mock(), current_date: fn() {
+    date.now().date
+  })
 }
 
 // Repository作成関数

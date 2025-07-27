@@ -1,7 +1,7 @@
 import gleam/list
 import gleam/result
 
-import core/book/book
+import core/book/domain/book
 import core/loan/loan
 import core/loan/ports/loan_repository
 import core/shared/types/date
@@ -13,7 +13,7 @@ type LoanRepo =
 
 pub fn new() -> loan_repository.LoanRepository {
   let conn = create_conn()
-  
+
   loan_repository.LoanRepository(
     get_loans: get_loans(_, conn),
     get_loan: get_loan(_, conn),

@@ -7,7 +7,7 @@ import wisp/testing
 import app/context
 import core/auth/auth_provider
 import core/book/domain/book
-import core/book/domain/repository
+import core/book/domain/book_repository
 import core/loan/loan
 import core/loan/ports/loan_repository
 import core/shared/types/date
@@ -30,7 +30,7 @@ pub fn post_loans_success_test() {
 
   let repos =
     context.Repositories(
-      book: repository.BookRepository(
+      book: book_repository.BookRepository(
         ..context.mock_repositories().book,
         exists: fn(_) { Ok(book.id) },
       ),
@@ -57,52 +57,53 @@ pub fn post_loans_success_test() {
   response.status
   |> should.equal(201)
 }
-// pub fn post_loans_not_bearer_failure_test() {
-//   let user = user.new()
-//   let req =
-//     testing.post_json(
-//       "/api/books/hoge-fuga/loans",
-//       [#("authorization", "hoge")],
-//       json.object([]),
-//     )
-//   let assert Ok(_test_book) = book.new("a", "b")
 
-//   let ctx =
-//     context.Context(
-//       ..context.new(),
-//       authenticated: auth_provider.on_request(_, fn(_) { Ok(user) }),
-//     )
+pub fn post_loans_not_bearer_failure_test() {
+  let user = user.new()
+  let req =
+    testing.post_json(
+      "/api/books/hoge-fuga/loans",
+      [#("authorization", "hoge")],
+      json.object([]),
+    )
+  let assert Ok(_test_book) = book.new("a", "b")
 
-//   let repos = context.mock_repositories()
-//   let ops = context.create_operations(ctx, repos)
-//   let response = router.handle_request(req, ctx, ops)
+  let ctx =
+    context.Context(
+      ..context.new(),
+      authenticated: auth_provider.on_request(_, fn(_) { Ok(user) }),
+    )
 
-//   response.status
-//   |> should.equal(401)
+  let repos = context.mock_repositories()
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
-//   response
-//   |> testing.string_body()
-//   |> should.equal("不正なフォーマットです")
-// }
+  response.status
+  |> should.equal(401)
 
-// pub fn post_loans_not_exits_authorization_failure_test() {
-//   let req = testing.post_json("/api/books/a_b_c/loans", [], json.object([]))
-//   let assert Ok(_test_book) = book.new("a", "b")
+  response
+  |> testing.string_body()
+  |> should.equal("不正なフォーマットです")
+}
 
-//   let ctx =
-//     context.Context(
-//       ..context.new(),
-//       authenticated: auth_provider.on_request(_, fn(_) { Ok(user.new()) }),
-//     )
+pub fn post_loans_not_exits_authorization_failure_test() {
+  let req = testing.post_json("/api/books/a_b_c/loans", [], json.object([]))
+  let assert Ok(_test_book) = book.new("a", "b")
 
-//   let repos = context.mock_repositories()
-//   let ops = context.create_operations(ctx, repos)
-//   let response = router.handle_request(req, ctx, ops)
+  let ctx =
+    context.Context(
+      ..context.new(),
+      authenticated: auth_provider.on_request(_, fn(_) { Ok(user.new()) }),
+    )
 
-//   response.status
-//   |> should.equal(401)
+  let repos = context.mock_repositories()
+  let ops = context.create_operations(ctx, repos)
+  let response = router.handle_request(req, ctx, ops)
 
-//   response
-//   |> testing.string_body()
-//   |> should.equal("トークンが見つかりません")
-// }
+  response.status
+  |> should.equal(401)
+
+  response
+  |> testing.string_body()
+  |> should.equal("トークンが見つかりません")
+}

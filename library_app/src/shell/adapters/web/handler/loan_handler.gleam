@@ -1,7 +1,7 @@
 import wisp
 
 import app/context
-import core/book/book
+import core/book/domain/book
 import core/loan/loan
 import core/loan/loan_query
 import core/shared/types/date

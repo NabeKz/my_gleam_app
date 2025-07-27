@@ -1,7 +1,7 @@
-import shell/adapters/web/router
+import app/context
 import gleeunit
 import gleeunit/should
-import app/context
+import shell/adapters/web/router
 import wisp/testing
 
 pub fn main() {

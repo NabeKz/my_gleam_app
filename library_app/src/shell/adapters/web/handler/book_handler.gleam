@@ -1,9 +1,9 @@
 import wisp
 
 import app/context
-import core/book/book
-import core/book/book_command
-import core/book/book_query
+import core/book/application/book_command
+import core/book/application/book_query
+import core/book/domain/book
 import shell/adapters/web/handler/helper/json
 
 pub fn get(req: wisp.Request, ops: context.Operations) {
@@ -33,10 +33,7 @@ fn decode(book: book.Book) -> json.Json {
 }
 
 ///
-pub fn post(
-  req: wisp.Request,
-  ops: context.Operations,
-) -> wisp.Response {
+pub fn post(req: wisp.Request, ops: context.Operations) -> wisp.Response {
   use params <- json.get_body(req, book_command.decode_create_params)
 
   case ops.book.create(params) {
@@ -60,10 +57,7 @@ pub fn put(
 }
 
 ///
-pub fn delete(
-  book_id: String,
-  ops: context.Operations,
-) -> wisp.Response {
+pub fn delete(book_id: String, ops: context.Operations) -> wisp.Response {
   case ops.book.delete(book_id) {
     Ok(_) -> wisp.no_content()
     Error(error) -> json.bad_request(error |> json.error)

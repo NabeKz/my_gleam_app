@@ -5,7 +5,7 @@ import gleam/option
 import gleam/order
 import gleam/result
 
-import core/book/book
+import core/book/domain/book
 import core/shared/types/date
 import core/shared/types/user
 import shell/shared/lib/uuid

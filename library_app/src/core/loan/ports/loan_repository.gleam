@@ -1,4 +1,4 @@
-import core/book/book
+import core/book/domain/book
 import core/loan/loan
 
 pub type LoanRepository {
