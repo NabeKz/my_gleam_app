@@ -7,6 +7,9 @@ import shell/shared/lib/ets
 type BookRepo =
   ets.Conn(String, book.Book)
 
+type Command =
+  Result(Nil, List(String))
+
 pub fn new() -> BookRepo {
   ets.conn(
     [
@@ -33,12 +36,21 @@ pub fn exits(id: String, conn: BookRepo) -> Result(book.BookId, String) {
   book.id
 }
 
-pub fn create(book: book.Book, conn: BookRepo) -> Result(Nil, List(String)) {
+pub fn create(book: book.Book, conn: BookRepo) -> Command {
   conn.create(#(book.id |> book.id_to_string(), book))
   |> result.map_error(fn(it) { [it] })
 }
 
-pub fn delete(book_id: String, conn: BookRepo) -> Result(Nil, List(String)) {
+pub fn read(book_id: String, conn: BookRepo) -> Result(book.Book, List(String)) {
+  conn.get(book_id)
+  |> result.map_error(fn(it) { [it] })
+}
+
+pub fn update(book: book.Book, conn: BookRepo) -> Command {
+  conn.update(#(book.id |> book.id_to_string(), book))
+}
+
+pub fn delete(book_id: String, conn: BookRepo) -> Command {
   conn.delete(book_id)
   |> result.map_error(fn(it) { [it] })
 }

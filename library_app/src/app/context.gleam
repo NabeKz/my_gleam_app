@@ -16,6 +16,7 @@ pub type Context {
     current_date: date.GetDate,
     search_books: book_ports.GetBooksWorkflow,
     create_book: book_ports.CreateBookWorkflow,
+    update_book: book_ports.UpdateBookWorkflow,
     delete_book: book_ports.DeleteBookWorkflow,
     create_loan: loan_command.CreateLoan,
     update_loan: loan_command.ReturnLoan,
@@ -34,6 +35,7 @@ pub fn new() -> Context {
     current_date: now,
     search_books: book_query.compose_search_books(_, fn(_) { [] }),
     create_book: fn(_) { Ok(Nil) },
+    update_book: fn(_, _) { Ok(Nil) },
     delete_book: fn(_) { Ok(Nil) },
     create_loan: fn(_, _) { Ok(Nil) },
     update_loan: fn(_) { Error("not implements") },
@@ -57,6 +59,10 @@ pub fn on_ets() -> Context {
       _,
       book_repo,
     )),
+    update_book: book_command.update_book_workflow(
+      book_repo_on_ets.read(_, book_repo),
+      book_repo_on_ets.update(_, book_repo),
+    ),
     delete_book: book_command.delete_book_workflow(book_repo_on_ets.delete(
       _,
       book_repo,

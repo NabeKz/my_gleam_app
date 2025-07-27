@@ -8,12 +8,15 @@ pub type CheckBookExists =
 pub type GetBooks =
   fn(SearchParams) -> List(book.Book)
 
-pub type GetBook =
-  fn(String) -> Result(book.Book, List(String))
-
 pub type SearchParams {
   SearchParams(title: option.Option(String), author: option.Option(String))
 }
+
+pub type GetBook =
+  fn(String) -> Result(book.Book, List(String))
+
+pub type GetBookWorkflow =
+  fn(String) -> Result(book.Book, List(String))
 
 pub type GetBooksWorkflow =
   fn(SearchParams) -> Result(List(book.Book), List(String))

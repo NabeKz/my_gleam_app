@@ -50,7 +50,6 @@ pub fn post(
 pub fn put(
   req: wisp.Request,
   book_id: String,
-  get_book: book_ports.GetBook,
   update_book: book_ports.UpdateBookWorkflow,
 ) -> wisp.Response {
   use params <- json.get_body(req, book_command.decode_update_params)
