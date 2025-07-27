@@ -1,3 +1,4 @@
+import gleam/result
 import wisp
 
 import core/book/book
@@ -40,6 +41,21 @@ pub fn post(
   use params <- json.get_body(req, book_command.decode_create_params)
 
   case create_book(params) {
+    Ok(_) -> wisp.created()
+    Error(error) -> json.bad_request(error |> json.error)
+  }
+}
+
+///
+pub fn put(
+  req: wisp.Request,
+  book_id: String,
+  get_book: book_ports.GetBook,
+  update_book: book_ports.UpdateBookWorkflow,
+) -> wisp.Response {
+  use params <- json.get_body(req, book_command.decode_update_params)
+
+  case update_book(book_id, params) {
     Ok(_) -> wisp.created()
     Error(error) -> json.bad_request(error |> json.error)
   }

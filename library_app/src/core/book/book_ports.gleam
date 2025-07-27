@@ -8,6 +8,9 @@ pub type CheckBookExists =
 pub type GetBooks =
   fn(SearchParams) -> List(book.Book)
 
+pub type GetBook =
+  fn(String) -> Result(book.Book, List(String))
+
 pub type SearchParams {
   SearchParams(title: option.Option(String), author: option.Option(String))
 }
@@ -31,7 +34,7 @@ pub type UpdateBook =
   fn(book.Book) -> Result(Nil, List(String))
 
 pub type UpdateBookWorkflow =
-  fn(UpdateParams) -> Result(Nil, List(String))
+  fn(String, UpdateParams) -> Result(Nil, List(String))
 
 pub type UpdateParams {
   UpdateParams(title: option.Option(String), author: option.Option(String))
