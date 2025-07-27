@@ -34,7 +34,7 @@ pub fn new() -> book_repository.BookRepository {
 }
 
 pub fn search_books(
-  _create_params: book.SearchParams,
+  _create_params: book_repository.SearchParams,
   conn: BookRepo,
 ) -> List(book.Book) {
   conn.all()

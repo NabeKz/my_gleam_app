@@ -20,34 +20,6 @@ pub opaque type BookAuthor {
   BookAuthor(value: String)
 }
 
-///
-pub type SearchParams {
-  SearchParams(title: option.Option(String), author: option.Option(String))
-}
-
-pub type CreateParams {
-  CreateParams(title: option.Option(String), author: option.Option(String))
-}
-
-/// Repository function types
-pub type GetBooks =
-  fn(SearchParams) -> List(Book)
-
-pub type GetBook =
-  fn(String) -> Result(Book, List(String))
-
-pub type CreateBook =
-  fn(Book) -> Result(Nil, List(String))
-
-pub type UpdateBook =
-  fn(Book) -> Result(Nil, List(String))
-
-pub type DeleteBook =
-  fn(String) -> Result(Nil, List(String))
-
-pub type CheckBookExists =
-  fn(String) -> Result(BookId, String)
-
 /// Domain Logic
 pub fn new(
   title: String,

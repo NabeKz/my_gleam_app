@@ -1,3 +1,4 @@
+import core/book/domain/book_repository
 import gleam/option
 import gleam/result
 
@@ -21,7 +22,7 @@ type ValidatedUser {
 // Command functions
 pub fn create_loan_workflow(
   current_date: fn() -> date.Date,
-  check_book_exists: book.CheckBookExists,
+  check_book_exists: book_repository.CheckBookExists,
   get_specify_schedules: specify_schedule.GetSpecifySchedulesAfterCurrentDate,
   get_loans: loan.GetLoans,
   save_loan: loan.SaveLoan,

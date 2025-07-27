@@ -2,6 +2,7 @@ import gleam/dynamic/decode
 import gleam/result
 
 import core/book/domain/book
+import core/book/domain/book_repository
 import core/shared/helper/decoder
 
 pub type CheckBookExists =
@@ -11,12 +12,12 @@ pub type GetBookWorkflow =
   fn(String) -> Result(book.Book, List(String))
 
 pub type GetBooksWorkflow =
-  fn(book.SearchParams) -> Result(List(book.Book), List(String))
+  fn(book_repository.SearchParams) -> Result(List(book.Book), List(String))
 
 ///
 pub fn compose_search_books(
-  params: book.SearchParams,
-  get_books: book.GetBooks,
+  params: book_repository.SearchParams,
+  get_books: book_repository.GetBooks,
 ) -> Result(List(book.Book), List(String)) {
   params
   |> validate()
@@ -24,14 +25,14 @@ pub fn compose_search_books(
 }
 
 fn validate(
-  params: book.SearchParams,
-) -> Result(book.SearchParams, List(String)) {
+  params: book_repository.SearchParams,
+) -> Result(book_repository.SearchParams, List(String)) {
   params |> Ok()
 }
 
-pub fn generate_search_params() -> decode.Decoder(book.SearchParams) {
+pub fn generate_search_params() -> decode.Decoder(book_repository.SearchParams) {
   use title <- decoder.optional_field("title", decode.string)
   use author <- decoder.optional_field("author", decode.string)
 
-  decode.success(book.SearchParams(title:, author:))
+  decode.success(book_repository.SearchParams(title:, author:))
 }

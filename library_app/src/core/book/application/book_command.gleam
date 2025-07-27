@@ -6,11 +6,12 @@ import gleam/option
 import gleam/result
 
 import core/book/domain/book
+import core/book/domain/book_repository
 import core/shared/helper/decoder
 import core/shared/services/validator
 
 pub type CreateBookWorkflow =
-  fn(book.CreateParams) -> Result(Nil, List(String))
+  fn(book_repository.CreateParams) -> Result(Nil, List(String))
 
 pub type UpdateBookWorkflow =
   fn(String, UpdateParams) -> Result(Nil, List(String))
@@ -24,7 +25,9 @@ pub type DeleteBookWorkflow =
 
 ///
 /// create
-pub fn create_book_workflow(create_book: book.CreateBook) -> CreateBookWorkflow {
+pub fn create_book_workflow(
+  create_book: book_repository.CreateBook,
+) -> CreateBookWorkflow {
   fn(params) {
     validate(params)
     |> result.map(create_book)
@@ -32,7 +35,9 @@ pub fn create_book_workflow(create_book: book.CreateBook) -> CreateBookWorkflow 
   }
 }
 
-fn validate(params: book.CreateParams) -> Result(book.Book, List(String)) {
+fn validate(
+  params: book_repository.CreateParams,
+) -> Result(book.Book, List(String)) {
   let title = option.unwrap(params.title, "")
   let author = option.unwrap(params.author, "")
 
@@ -40,17 +45,17 @@ fn validate(params: book.CreateParams) -> Result(book.Book, List(String)) {
   |> result.map_error(fn(it) { list.map(it, validator.to_string) })
 }
 
-pub fn decode_create_params() -> decode.Decoder(book.CreateParams) {
+pub fn decode_create_params() -> decode.Decoder(book_repository.CreateParams) {
   use title <- decoder.optional_field("title", decode.string)
   use author <- decoder.optional_field("author", decode.string)
 
-  decode.success(book.CreateParams(title:, author:))
+  decode.success(book_repository.CreateParams(title:, author:))
 }
 
 /// update
 pub fn update_book_workflow(
-  get_book: book.GetBook,
-  update_book: book.UpdateBook,
+  get_book: book_repository.GetBook,
+  update_book: book_repository.UpdateBook,
 ) -> UpdateBookWorkflow {
   fn(book_id: String, params: UpdateParams) {
     use existing_book <- result.try(book_id |> get_book())
@@ -71,6 +76,8 @@ pub fn decode_update_params() -> decode.Decoder(UpdateParams) {
 }
 
 /// delete
-pub fn delete_book_workflow(delete_book: book.DeleteBook) -> DeleteBookWorkflow {
+pub fn delete_book_workflow(
+  delete_book: book_repository.DeleteBook,
+) -> DeleteBookWorkflow {
   fn(book_id) { delete_book(book_id) }
 }
