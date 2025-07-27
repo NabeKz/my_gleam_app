@@ -1,4 +1,5 @@
 import core/shared/services/validator
+import gleam/option
 import shell/shared/lib/uuid
 
 pub type BookRepository {
@@ -43,12 +44,15 @@ pub fn new(
 
 pub fn update(
   existing_book: Book,
-  title: String,
-  author: String,
+  title: option.Option(String),
+  author: option.Option(String),
 ) -> Result(Book, List(validator.ValidateError)) {
+  let title_value = option.unwrap(title, title_value(existing_book))
+  let author_value = option.unwrap(author, author_value(existing_book))
+
   let validated = {
-    use title <- validator.field(validate_title(title))
-    use author <- validator.field(validate_author(author))
+    use title <- validator.field(validate_title(title_value))
+    use author <- validator.field(validate_author(author_value))
 
     Book(id: existing_book.id, title:, author:)
     |> validator.success()

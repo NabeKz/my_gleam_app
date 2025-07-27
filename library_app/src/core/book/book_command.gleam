@@ -39,25 +39,15 @@ pub fn update_book_workflow(
   get_book: book_ports.GetBook,
   update_book: book_ports.UpdateBook,
 ) -> book_ports.UpdateBookWorkflow {
-  fn(book_id, params) {
+  fn(book_id: String, params: book_ports.UpdateParams) {
     use existing_book <- result.try(book_id |> get_book())
+    use updated_book <- result.try(
+      book.update(existing_book, params.title, params.author)
+      |> result.map_error(list.map(_, validator.to_string)),
+    )
 
-    params
-    |> validate_update_params(existing_book)
-    |> result.map(update_book)
-    |> result.flatten()
+    update_book(updated_book)
   }
-}
-
-fn validate_update_params(
-  params: book_ports.UpdateParams,
-  existing_book: book.Book,
-) -> Result(book.Book, List(String)) {
-  let title = option.unwrap(params.title, book.title_value(existing_book))
-  let author = option.unwrap(params.author, book.author_value(existing_book))
-
-  book.update(existing_book, title, author)
-  |> result.map_error(fn(it) { list.map(it, validator.to_string) })
 }
 
 pub fn decode_update_params() -> decode.Decoder(book_ports.UpdateParams) {
