@@ -11,11 +11,13 @@ run = """
 
 [tasks.start]
 run = """
+  #!/usr/bin/env bash
   gleam run > /dev/null 2>&1 &
   echo "Server started in background"
 """
 
 [tasks.stop]
 run = """
+  #!/usr/bin/env bash
   pkill -f "library_app@@main:run" 2>/dev/null && echo "Server stopped" || echo "Server not running"
 """
