@@ -12,7 +12,7 @@ pub type CreateLoan =
   fn(user.User, String) -> Result(Nil, String)
 
 pub type ReturnLoan =
-  fn(String) -> Result(loan.Loan, String)
+  fn(String) -> Result(Nil, String)
 
 // バリデーション済みユーザーを表す型
 type ValidatedUser {
@@ -91,13 +91,13 @@ pub fn return_book_workflow(
   get_loan_by_book_id: loan.GetLoanByBookId,
   update_loan: loan.UpdateLoan,
 ) -> ReturnLoan {
-  fn(book_id: String) -> Result(loan.Loan, String) {
+  fn(book_id) {
     use loan <- result.try(
       book_id |> book.id_from_string() |> get_loan_by_book_id(),
     )
-
+    // TODO: refactor
     loan.return_book(loan, current_date())
-    |> result.map(update_loan)
+    |> result.map(fn(it) { update_loan(it) |> result.replace_error("") })
     |> result.flatten()
   }
 }

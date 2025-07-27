@@ -53,7 +53,6 @@ pub fn save_loan(loan: loan.Loan, conn: LoanRepo) {
   conn.create(#(loan |> loan.id_value, loan))
 }
 
-pub fn put_loan(loan: loan.Loan, conn: LoanRepo) {
-  conn.put(#(loan |> loan.id_value, loan))
-  Ok(loan)
+pub fn put_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, List(String)) {
+  conn.update(#(loan |> loan.id_value, loan))
 }

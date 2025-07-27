@@ -37,7 +37,7 @@ pub type CreateLoanParams {
 
 // update
 pub type UpdateLoan =
-  fn(Loan) -> Result(Loan, String)
+  fn(Loan) -> Result(Nil, List(String))
 
 pub type UpdateLoanParams {
   UpdateLoanParams(book_id: book.BookId)

@@ -6,7 +6,7 @@ pub type Conn(k, v) {
     all: fn() -> List(v),
     get: fn(k) -> Result(v, String),
     create: fn(#(k, v)) -> Result(Nil, String),
-    put: fn(#(k, v)) -> Nil,
+    update: fn(#(k, v)) -> Result(Nil, List(String)),
     delete: fn(k) -> Result(Nil, String),
   )
 }
@@ -24,14 +24,14 @@ pub fn conn(items: List(a), key: fn(a) -> b) -> Conn(b, a) {
   let table = init("ets")
   {
     use it <- list.each(items)
-    put(table, #(key(it), it))
+    update(table, #(key(it), it))
   }
 
   Conn(
     all: fn() { table |> all },
     get: get(table, _),
     create: create(table, _),
-    put: put(table, _),
+    update: update(table, _),
     delete: delete(table, _),
   )
 }
@@ -78,8 +78,10 @@ fn create(table: Table, item: #(k, v)) -> Result(Nil, String) {
 @external(erlang, "ets", "insert")
 fn insert(name: Tid, tuple: #(k, v)) -> Nil
 
-fn put(table: Table, tuple: #(k, v)) -> Nil {
-  table.value |> insert(tuple)
+fn update(table: Table, tuple: #(k, v)) -> Result(Nil, List(String)) {
+  table.value
+  |> insert(tuple)
+  |> Ok()
 }
 
 @external(erlang, "ets", "delete")
