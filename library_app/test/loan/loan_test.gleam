@@ -53,8 +53,8 @@ pub fn get_loans_success_test() {
           ]
           |> result.values()
         },
-        get_loan: fn(_) { Error("not implemented") },
-        get_loan_by_id: fn(_) { Error("not implemented") },
+        get_loan: fn(_) { Error(["not implemented"]) },
+        get_loan_by_id: fn(_) { Error(["not implemented"]) },
         save_loan: fn(_) { Ok(Nil) },
         put_loan: fn(_) { Ok(Nil) },
       ),
@@ -100,8 +100,8 @@ pub fn create_loan_success_test() {
       ),
       loan: loan_repository.LoanRepository(
         get_loans: fn(_) { [] },
-        get_loan: fn(_) { Error("not implemented") },
-        get_loan_by_id: fn(_) { Error("not implemented") },
+        get_loan: fn(_) { Error(["not implemented"]) },
+        get_loan_by_id: fn(_) { Error(["not implemented"]) },
         save_loan: fn(_) { Ok(Nil) },
         put_loan: fn(_) { Ok(Nil) },
       ),

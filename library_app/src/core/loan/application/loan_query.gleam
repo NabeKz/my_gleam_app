@@ -5,7 +5,7 @@ import core/loan/domain/loan_repository
 import core/shared/helper/decoder
 
 pub type GetLoan =
-  fn(loan_repository.GetLoanParams) -> Result(loan.Loan, String)
+  fn(loan_repository.GetLoanParams) -> Result(loan.Loan, List(String))
 
 pub type GetLoans =
   fn(loan_repository.GetLoansParams) -> List(loan.Loan)

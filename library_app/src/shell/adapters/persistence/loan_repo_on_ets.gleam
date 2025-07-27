@@ -41,31 +41,33 @@ fn create_conn() -> LoanRepo {
   )
 }
 
-pub fn get_loans(_params: loan_repository.GetLoansParams, conn: LoanRepo) {
+fn get_loans(_params: loan_repository.GetLoansParams, conn: LoanRepo) {
   conn.all()
 }
 
-pub fn get_loan(
+fn get_loan(
   params: loan_repository.GetLoanParams,
   conn: LoanRepo,
-) -> Result(loan.Loan, String) {
+) -> Result(loan.Loan, List(String)) {
   conn.get(params.loan_id)
+  |> result.map_error(fn(it) { [it] })
 }
 
-pub fn get_loan_by_id(
+fn get_loan_by_id(
   book_id: book.BookId,
   conn: LoanRepo,
-) -> Result(loan.Loan, String) {
+) -> Result(loan.Loan, List(String)) {
   let rows = conn.all()
 
   list.find(rows, fn(it) { it.book_id == book_id })
-  |> result.replace_error("貸出履歴が見つかりません")
+  |> result.replace_error(["貸出履歴が見つかりません"])
 }
 
-pub fn save_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, String) {
+fn save_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, List(String)) {
   conn.create(#(loan |> loan.id_value, loan))
+  |> result.map_error(fn(it) { [it] })
 }
 
-pub fn put_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, List(String)) {
+fn put_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, List(String)) {
   conn.update(#(loan |> loan.id_value, loan))
 }

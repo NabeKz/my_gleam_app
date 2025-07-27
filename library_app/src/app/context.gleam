@@ -75,8 +75,8 @@ pub fn mock_repositories() -> Repositories {
     ),
     loan: loan_repository.LoanRepository(
       get_loans: fn(_) { [] },
-      get_loan: fn(_) { Error("not implemented") },
-      get_loan_by_id: fn(_) { Error("not implemented") },
+      get_loan: fn(_) { Error(["not implemented"]) },
+      get_loan_by_id: fn(_) { Error(["not implemented"]) },
       save_loan: fn(_) { Ok(Nil) },
       put_loan: fn(_) { Ok(Nil) },
     ),

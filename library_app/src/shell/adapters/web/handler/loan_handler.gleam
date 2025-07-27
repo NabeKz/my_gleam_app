@@ -36,7 +36,7 @@ pub fn create_loan(
 
   case ops.loan.create(user, book_id) {
     Ok(_) -> wisp.created()
-    Error(error) -> json.bad_request(error |> json.string())
+    Error(error) -> json.bad_request(error |> json.array(json.string))
   }
 }
 
@@ -61,6 +61,6 @@ pub fn update_loan_by_return_book(
 ) -> wisp.Response {
   case ops.loan.update(book_id) {
     Ok(_) -> wisp.no_content()
-    Error(error) -> json.bad_request(error |> json.string())
+    Error(error) -> json.bad_request(error |> json.array(json.string))
   }
 }

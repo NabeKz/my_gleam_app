@@ -10,14 +10,17 @@ import core/shared/types/specify_schedule
 import core/shared/types/user
 
 pub type CreateLoan =
-  fn(user.User, String) -> Result(Nil, String)
+  fn(user.User, String) -> Result(Nil, List(String))
 
 pub type ReturnLoan =
-  fn(String) -> Result(Nil, String)
+  fn(String) -> Result(Nil, List(String))
 
-// バリデーション済みユーザーを表す型
 type ValidatedUser {
   ValidatedUser(user: user.User)
+}
+
+fn error_to_list(result: Result(a, String)) -> Result(a, List(String)) {
+  result.map_error(result, fn(it) { [it] })
 }
 
 // Command functions
@@ -28,24 +31,25 @@ pub fn create_loan_workflow(
   get_loans: loan_repository.GetLoans,
   save_loan: loan_repository.SaveLoan,
 ) -> CreateLoan {
-  fn(user: user.User, book_id: String) -> Result(Nil, String) {
-    use book_id <- result.try(check_book_exists(book_id))
-    use validated_user <- result.try(validate_user_loan_eligibility(
-      user,
-      current_date(),
-      get_loans,
-    ))
-    use loan <- result.try(create_loan_with_schedule(
-      validated_user,
-      book_id,
-      current_date,
-      get_specify_schedules,
-    ))
+  fn(user: user.User, book_id: String) {
+    use book_id <- result.try(check_book_exists(book_id) |> error_to_list())
+    use validated_user <- result.try(
+      validate_user_loan_eligibility(user, current_date(), get_loans)
+      |> error_to_list(),
+    )
+    use loan <- result.try(
+      create_loan_with_schedule(
+        validated_user,
+        book_id,
+        current_date,
+        get_specify_schedules,
+      )
+      |> error_to_list(),
+    )
     save_loan(loan)
   }
 }
 
-// Pure helper functions
 fn validate_user_loan_eligibility(
   user: user.User,
   current_date: date.Date,
@@ -96,9 +100,11 @@ pub fn return_book_workflow(
     use loan <- result.try(
       book_id |> book.id_from_string() |> get_loan_by_book_id(),
     )
-    // TODO: refactor
-    loan.return_book(loan, current_date())
-    |> result.map(fn(it) { update_loan(it) |> result.replace_error("") })
+
+    current_date()
+    |> loan.return_book(loan, _)
+    |> error_to_list()
+    |> result.map(update_loan)
     |> result.flatten()
   }
 }

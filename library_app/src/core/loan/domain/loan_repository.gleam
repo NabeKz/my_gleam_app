@@ -7,7 +7,7 @@ pub type LoanRepository {
   LoanRepository(
     get_loans: GetLoans,
     get_loan: GetLoan,
-    get_loan_by_id: fn(book.BookId) -> Result(loan.Loan, String),
+    get_loan_by_id: GetLoanByBookId,
     save_loan: SaveLoan,
     put_loan: UpdateLoan,
   )
@@ -15,16 +15,16 @@ pub type LoanRepository {
 
 // repository
 pub type GetLoan =
-  fn(GetLoanParams) -> Result(loan.Loan, String)
+  fn(GetLoanParams) -> Result(loan.Loan, List(String))
 
 pub type GetLoanByBookId =
-  fn(book.BookId) -> Result(loan.Loan, String)
+  fn(book.BookId) -> Result(loan.Loan, List(String))
 
 pub type GetLoans =
   fn(GetLoansParams) -> List(loan.Loan)
 
 pub type SaveLoan =
-  fn(loan.Loan) -> Result(Nil, String)
+  fn(loan.Loan) -> Result(Nil, List(String))
 
 pub type GetLoanParams {
   GetLoanParams(loan_id: String)
