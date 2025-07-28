@@ -86,3 +86,16 @@ pub fn title_value(book: Book) -> String {
 pub fn author_value(book: Book) -> String {
   book.author.value
 }
+
+/// ReadModel for Query operations
+pub type BookReadModel {
+  BookReadModel(id: BookId, title: String, author: String)
+}
+
+pub fn to_read_model(book: Book) -> BookReadModel {
+  BookReadModel(
+    id: book.id,
+    title: title_value(book),
+    author: author_value(book),
+  )
+}
