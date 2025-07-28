@@ -1,5 +1,6 @@
 import gleam/int
 import gleam/list
+import gleam/option
 import gleam/string
 
 pub type Validator(t) {
@@ -9,6 +10,7 @@ pub type Validator(t) {
 pub type ValidateError {
   Required(field: String)
   LessThan(field: String, value: Int)
+  GreaterThan(field: String, value: Int)
 }
 
 pub fn to_string(error: ValidateError) -> String {
@@ -16,6 +18,8 @@ pub fn to_string(error: ValidateError) -> String {
     Required(field) -> field <> " is " <> "required"
     LessThan(field, value) ->
       field <> " must be less than" <> int.to_string(value)
+    GreaterThan(field, value) ->
+      field <> " must be greater than" <> int.to_string(value)
   }
 }
 
@@ -56,11 +60,32 @@ pub fn required_string(validator: Validator(String)) -> Validator(String) {
   }
 }
 
+pub fn required_int(
+  validator: Validator(option.Option(Int)),
+) -> Validator(option.Option(Int)) {
+  let result = validator.function()
+  case result {
+    option.Some(_) -> validator
+    option.None -> validator |> add_error(Required(validator.name))
+  }
+}
+
 pub fn less_than(validator: Validator(String), length: Int) -> Validator(String) {
   let size = validator.function() |> string.length
   case size < length {
     True -> validator
     _ -> validator |> add_error(LessThan(validator.name, length))
+  }
+}
+
+pub fn greater_than(
+  validator: Validator(String),
+  length: Int,
+) -> Validator(String) {
+  let size = validator.function() |> string.length
+  case size < length {
+    True -> validator
+    _ -> validator |> add_error(GreaterThan(validator.name, length))
   }
 }
 
