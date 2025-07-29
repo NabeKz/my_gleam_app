@@ -20,6 +20,22 @@ pub opaque type BookAuthor {
   BookAuthor(value: String)
 }
 
+pub type BookStatus {
+  Available
+  OnLoan
+  Reserved
+  Maintenance
+  Lost
+}
+
+pub type BookCondition {
+  Excellent
+  Good
+  Fair
+  Poor
+  Damaged
+}
+
 /// Domain Logic
 pub fn new(
   title: String,
