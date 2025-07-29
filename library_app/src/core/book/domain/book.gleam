@@ -36,6 +36,58 @@ pub type BookCondition {
   Damaged
 }
 
+/// BookStatusのヘルパー関数
+pub fn status_to_string(status: BookStatus) -> String {
+  case status {
+    Available -> "available"
+    OnLoan -> "on_loan"
+    Reserved -> "reserved"
+    Maintenance -> "maintenance"
+    Lost -> "lost"
+  }
+}
+
+pub fn status_from_string(value: String) -> Result(BookStatus, Nil) {
+  case value {
+    "available" -> Ok(Available)
+    "on_loan" -> Ok(OnLoan)
+    "reserved" -> Ok(Reserved)
+    "maintenance" -> Ok(Maintenance)
+    "lost" -> Ok(Lost)
+    _ -> Error(Nil)
+  }
+}
+
+/// BookConditionのヘルパー関数
+pub fn condition_to_string(condition: BookCondition) -> String {
+  case condition {
+    Excellent -> "excellent"
+    Good -> "good"
+    Fair -> "fair"
+    Poor -> "poor"
+    Damaged -> "damaged"
+  }
+}
+
+pub fn condition_from_string(value: String) -> Result(BookCondition, Nil) {
+  case value {
+    "excellent" -> Ok(Excellent)
+    "good" -> Ok(Good)
+    "fair" -> Ok(Fair)
+    "poor" -> Ok(Poor)
+    "damaged" -> Ok(Damaged)
+    _ -> Error(Nil)
+  }
+}
+
+/// 利用可能かどうかの判定
+pub fn is_available(status: BookStatus) -> Bool {
+  case status {
+    Available -> True
+    _ -> False
+  }
+}
+
 /// Domain Logic
 pub fn new(
   title: String,
