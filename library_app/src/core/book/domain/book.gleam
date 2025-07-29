@@ -3,23 +3,43 @@ import gleam/option
 import core/shared/services/validator
 import shell/shared/lib/uuid
 
-/// Domain Models
+/// 
 pub type Book {
   Book(id: BookId, title: BookTitle, author: BookAuthor)
 }
 
+pub fn new(
+  title: String,
+  author: String,
+) -> Result(Book, List(validator.ValidateError)) {
+  let validated = {
+    use title <- validator.field(validate_title(title))
+    use author <- validator.field(validate_author(author))
+
+    Book(id: new_id(), title:, author:)
+    |> validator.success()
+  }
+  validator.run(validated)
+}
+
+/// 
 pub opaque type BookId {
   BookId(value: String)
 }
 
-pub opaque type BookTitle {
-  BookTitle(value: String)
+fn new_id() -> BookId {
+  BookId(uuid.v4())
 }
 
-pub opaque type BookAuthor {
-  BookAuthor(value: String)
+pub fn id_to_string(vo: BookId) -> String {
+  vo.value
 }
 
+pub fn id_from_string(value: String) -> BookId {
+  BookId(value)
+}
+
+///
 pub type BookStatus {
   Available
   OnLoan
@@ -28,15 +48,6 @@ pub type BookStatus {
   Lost
 }
 
-pub type BookCondition {
-  Excellent
-  Good
-  Fair
-  Poor
-  Damaged
-}
-
-/// BookStatusのヘルパー関数
 pub fn status_to_string(status: BookStatus) -> String {
   case status {
     Available -> "available"
@@ -58,7 +69,18 @@ pub fn status_from_string(value: String) -> Result(BookStatus, Nil) {
   }
 }
 
-/// BookConditionのヘルパー関数
+pub fn is_available(status: BookStatus) -> Bool {
+  status == Available
+}
+
+pub type BookCondition {
+  Excellent
+  Good
+  Fair
+  Poor
+  Damaged
+}
+
 pub fn condition_to_string(condition: BookCondition) -> String {
   case condition {
     Excellent -> "excellent"
@@ -80,27 +102,36 @@ pub fn condition_from_string(value: String) -> Result(BookCondition, Nil) {
   }
 }
 
-/// 利用可能かどうかの判定
-pub fn is_available(status: BookStatus) -> Bool {
-  case status {
-    Available -> True
-    _ -> False
-  }
+/// BookTitle型とその関連関数
+pub opaque type BookTitle {
+  BookTitle(value: String)
 }
 
-/// Domain Logic
-pub fn new(
-  title: String,
-  author: String,
-) -> Result(Book, List(validator.ValidateError)) {
-  let validated = {
-    use title <- validator.field(validate_title(title))
-    use author <- validator.field(validate_author(author))
+fn validate_title(title: String) -> validator.Validator(BookTitle) {
+  validator.wrap("title", title)
+  |> validator.required_string()
+  |> validator.less_than(200)
+  |> validator.map(BookTitle)
+}
 
-    Book(id: new_id(), title:, author:)
-    |> validator.success()
-  }
-  validator.run(validated)
+pub fn title_value(book: Book) -> String {
+  book.title.value
+}
+
+/// BookAuthor型とその関連関数
+pub opaque type BookAuthor {
+  BookAuthor(value: String)
+}
+
+fn validate_author(value: String) -> validator.Validator(BookAuthor) {
+  validator.wrap("author", value)
+  |> validator.required_string()
+  |> validator.less_than(200)
+  |> validator.map(BookAuthor)
+}
+
+pub fn author_value(book: Book) -> String {
+  book.author.value
 }
 
 pub fn update(
@@ -119,40 +150,6 @@ pub fn update(
     |> validator.success()
   }
   validator.run(validated)
-}
-
-fn new_id() -> BookId {
-  BookId(uuid.v4())
-}
-
-pub fn id_to_string(vo: BookId) -> String {
-  vo.value
-}
-
-pub fn id_from_string(value: String) -> BookId {
-  BookId(value)
-}
-
-fn validate_title(title: String) -> validator.Validator(BookTitle) {
-  validator.wrap("title", title)
-  |> validator.required_string()
-  |> validator.less_than(200)
-  |> validator.map(BookTitle)
-}
-
-fn validate_author(value: String) -> validator.Validator(BookAuthor) {
-  validator.wrap("author", value)
-  |> validator.required_string()
-  |> validator.less_than(200)
-  |> validator.map(BookAuthor)
-}
-
-pub fn title_value(book: Book) -> String {
-  book.title.value
-}
-
-pub fn author_value(book: Book) -> String {
-  book.author.value
 }
 
 /// ReadModel for Query operations
