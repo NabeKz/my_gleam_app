@@ -23,7 +23,15 @@
 
 以下の図は、各業務間の依存関係と処理フローを示しています：
 
-![業務相関関係図](business-flow-diagram.drawio.svg)
+![業務相関関係図](business-flow-main.drawio.svg)
+
+
+```mermaid
+graph LR
+  注文開始
+    --> 注文受付
+    --> 在庫確認
+```
 
 **図の説明：**
 - **メインフロー（青矢印）**: 通常の注文処理の流れ
