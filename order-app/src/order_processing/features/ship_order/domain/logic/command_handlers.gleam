@@ -2,17 +2,13 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
 import gleam/time/calendar
-import gleam/time/timestamp
 
 // 時間処理（現在は文字列、後でgleam/time/calendarに変更予定）
 import gleam/int
 import order_processing/features/ship_order/domain/core/aggregate
 import order_processing/features/ship_order/domain/core/events
 import order_processing/features/ship_order/domain/core/value_objects
-import order_processing/features/ship_order/domain/logic/commands.{
-  type OrderCommand, CalculatePrice, CancelOrder, PlaceOrder, PrepareShipping,
-  ProcessPayment, ShipOrder, ValidateOrder,
-}
+import order_processing/features/ship_order/domain/logic/commands
 
 /// コマンド処理結果
 pub type CommandResult {
@@ -43,6 +39,7 @@ pub fn combine_validations(
 pub fn handle_place_order(
   current_order: Option(aggregate.Order),
   command: commands.OrderCommand,
+  current_date: calendar.Date,
 ) -> CommandResult {
   // 既に注文が存在する場合はエラー
   case current_order {
@@ -66,8 +63,8 @@ pub fn handle_place_order(
 
       case combine_validations(validations) {
         Ok(_) -> {
-          // 現在時刻を取得（実際の実装では依存性注入が望ましい）
-          let now = get_current_time()
+          // 引数で受け取った日付を使用
+          let now = current_date
           let event =
             events.OrderPlaced(
               order_id: order_id,
@@ -89,6 +86,7 @@ pub fn handle_place_order(
 pub fn handle_validate_order(
   current_order: Option(aggregate.Order),
   command: commands.OrderCommand,
+  current_date: calendar.Date,
 ) -> CommandResult {
   case current_order {
     None -> Failure("Order not found")
@@ -96,7 +94,7 @@ pub fn handle_validate_order(
       case aggregate.is_in_status(order, value_objects.Placed) {
         True -> {
           let assert commands.ValidateOrder(order_id) = command
-          let now = get_current_time()
+          let now = current_date
           let event =
             events.OrderValidated(order_id: order_id, validated_at: now)
           Success([event])
@@ -115,6 +113,7 @@ pub fn handle_validate_order(
 pub fn handle_calculate_price(
   current_order: Option(aggregate.Order),
   command: commands.OrderCommand,
+  current_date: calendar.Date,
 ) -> CommandResult {
   case current_order {
     None -> Failure("Order not found")
@@ -129,7 +128,7 @@ pub fn handle_calculate_price(
           let shipping_cost = calculate_shipping_cost(order.order_lines)
           let total_amount = subtotal + tax_amount + shipping_cost
 
-          let now = get_current_time()
+          let now = current_date
           let event =
             events.PriceCalculated(
               order_id: order_id,
@@ -155,6 +154,7 @@ pub fn handle_calculate_price(
 pub fn handle_cancel_order(
   current_order: Option(aggregate.Order),
   command: commands.OrderCommand,
+  current_date: calendar.Date,
 ) -> CommandResult {
   case current_order {
     None -> Failure("Order not found")
@@ -162,7 +162,7 @@ pub fn handle_cancel_order(
       case aggregate.can_be_cancelled(order) {
         True -> {
           let assert commands.CancelOrder(order_id, reason) = command
-          let now = get_current_time()
+          let now = current_date
           let event =
             events.OrderCancelled(
               order_id: order_id,
@@ -291,10 +291,3 @@ fn calculate_shipping_cost(order_lines: List(events.OrderLine)) -> Int {
   }
 }
 
-/// 現在時刻を取得
-fn get_current_time() -> calendar.Date {
-  // 現在のタイムスタンプを取得してDate型に変換
-  let now_timestamp = timestamp.system_time()
-  let #(date, _time) = timestamp.to_calendar(now_timestamp, calendar.utc_offset)
-  date
-}

@@ -1,5 +1,6 @@
 import gleam/option.{type Option, None, Some}
-import gleam/result
+import gleam/time/calendar
+import gleam/time/timestamp
 import order_processing/features/ship_order/domain/core/aggregate
 import order_processing/features/ship_order/domain/logic/commands.{type OrderCommand}
 import order_processing/features/ship_order/domain/logic/command_handlers
@@ -33,8 +34,11 @@ pub fn execute_command(
   // イベントストアから現在の注文を復元
   let current_order = load_order(service.event_store, order_id)
   
+  // 現在時刻を取得
+  let current_date = get_current_time()
+  
   // コマンドハンドラーでコマンドを処理
-  let command_result = route_command(current_order, command)
+  let command_result = route_command(current_order, command, current_date)
   
   case command_result {
     command_handlers.Success(events) -> {
@@ -85,23 +89,31 @@ fn load_order(store: EventStore, order_id: String) -> Option(aggregate.Order) {
   }
 }
 
+/// 現在時刻を取得
+fn get_current_time() -> calendar.Date {
+  let now_timestamp = timestamp.system_time()
+  let #(date, _time) = timestamp.to_calendar(now_timestamp, calendar.utc_offset)
+  date
+}
+
 /// コマンドを適切なハンドラーにルーティング
 fn route_command(
   current_order: Option(aggregate.Order),
   command: OrderCommand,
+  current_date: calendar.Date,
 ) -> command_handlers.CommandResult {
   case command {
     commands.PlaceOrder(_, _, _, _, _) as cmd ->
-      command_handlers.handle_place_order(current_order, cmd)
+      command_handlers.handle_place_order(current_order, cmd, current_date)
     
     commands.ValidateOrder(_) as cmd ->
-      command_handlers.handle_validate_order(current_order, cmd)
+      command_handlers.handle_validate_order(current_order, cmd, current_date)
     
     commands.CalculatePrice(_) as cmd ->
-      command_handlers.handle_calculate_price(current_order, cmd)
+      command_handlers.handle_calculate_price(current_order, cmd, current_date)
     
     commands.CancelOrder(_, _) as cmd ->
-      command_handlers.handle_cancel_order(current_order, cmd)
+      command_handlers.handle_cancel_order(current_order, cmd, current_date)
     
     // 他のコマンドは未実装
     commands.ProcessPayment(_, _) ->
