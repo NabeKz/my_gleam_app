@@ -69,9 +69,11 @@ pub fn add_product_already_exists_test() {
   )
   let test_date = create_test_date()
   
+  let assert Ok(pid) = value_objects.create_product_id("prod-001")
+  let assert Ok(pname) = value_objects.create_product_name("Test Product")
   let existing_item = aggregate.InventoryItem(
-    product_id: "prod-001",
-    product_name: "Test Product",
+    product_id: pid,
+    product_name: pname,
     available_quantity: 50,
     reserved_quantity: 0,
     total_quantity: 50,
@@ -103,9 +105,11 @@ pub fn receive_stock_success_test() {
   )
   let test_date = create_test_date()
   
+  let assert Ok(pid) = value_objects.create_product_id("prod-001")
+  let assert Ok(pname) = value_objects.create_product_name("Test Product")
   let existing_item = aggregate.InventoryItem(
-    product_id: "prod-001",
-    product_name: "Test Product",
+    product_id: pid,
+    product_name: pname,
     available_quantity: 100,
     reserved_quantity: 0,
     total_quantity: 100,
@@ -156,9 +160,11 @@ pub fn reserve_stock_success_test() {
   )
   let test_date = create_test_date()
   
+  let assert Ok(pid) = value_objects.create_product_id("prod-001")
+  let assert Ok(pname) = value_objects.create_product_name("Test Product")
   let existing_item = aggregate.InventoryItem(
-    product_id: "prod-001",
-    product_name: "Test Product",
+    product_id: pid,
+    product_name: pname,
     available_quantity: 100,
     reserved_quantity: 0,
     total_quantity: 100,
@@ -208,9 +214,11 @@ pub fn reserve_stock_insufficient_test() {
   )
   let test_date = create_test_date()
   
+  let assert Ok(pid) = value_objects.create_product_id("prod-001")
+  let assert Ok(pname) = value_objects.create_product_name("Test Product")
   let existing_item = aggregate.InventoryItem(
-    product_id: "prod-001",
-    product_name: "Test Product",
+    product_id: pid,
+    product_name: pname,
     available_quantity: 100,
     reserved_quantity: 0,
     total_quantity: 100,
@@ -279,8 +287,8 @@ pub fn apply_events_test() {
   
   let item = aggregate.from_events("prod-001", events)
   
-  should.equal("prod-001", item.product_id)
-  should.equal("Test Product", item.product_name)
+  should.equal("prod-001", value_objects.product_id_to_string(item.product_id))
+  should.equal("Test Product", value_objects.product_name_to_string(item.product_name))
   should.equal(120, item.available_quantity) // 100 + 50 - 30
   should.equal(30, item.reserved_quantity)
   should.equal(150, item.total_quantity) // 100 + 50
