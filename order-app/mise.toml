@@ -1,0 +1,5 @@
+[tools]
+erlang = "latest"
+gleam = "latest"
+node = "22"
+rebar = "latest"
