@@ -1,6 +1,4 @@
 import gleam/string
-import gleam/int
-import gleam/result
 
 /// メールアドレス（不正な状態を型で排除）
 pub opaque type EmailAddress {
@@ -81,10 +79,7 @@ pub fn product_name_to_string(name: ProductName) -> String {
 
 /// 顧客情報
 pub type CustomerInfo {
-  CustomerInfo(
-    name: String,
-    email: EmailAddress,
-  )
+  CustomerInfo(name: String, email: EmailAddress)
 }
 
 /// 注文状況

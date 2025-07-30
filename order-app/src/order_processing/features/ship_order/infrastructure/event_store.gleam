@@ -1,6 +1,5 @@
 import gleam/dict.{type Dict}
 import gleam/list
-import gleam/result
 import order_processing/features/ship_order/domain/core/events.{type OrderEvent}
 
 /// 保存されたイベント
@@ -45,8 +44,9 @@ pub fn save_events(
                 version: index + 1,
               )
             })
-          
-          let new_events_dict = dict.insert(store.events, aggregate_id, stored_events)
+
+          let new_events_dict =
+            dict.insert(store.events, aggregate_id, stored_events)
           Ok(EventStore(events: new_events_dict))
         }
         False -> Error("Expected version should be 0 for new aggregate")
@@ -67,12 +67,19 @@ pub fn save_events(
                 version: expected_version + index + 1,
               )
             })
-          
+
           let updated_events = list.append(existing_events, new_stored_events)
-          let new_events_dict = dict.insert(store.events, aggregate_id, updated_events)
+          let new_events_dict =
+            dict.insert(store.events, aggregate_id, updated_events)
           Ok(EventStore(events: new_events_dict))
         }
-        False -> Error("Version mismatch. Expected: " <> show_int(expected_version) <> ", Actual: " <> show_int(current_version))
+        False ->
+          Error(
+            "Version mismatch. Expected: "
+            <> show_int(expected_version)
+            <> ", Actual: "
+            <> show_int(current_version),
+          )
       }
     }
   }
@@ -114,13 +121,13 @@ pub fn get_all_events(store: EventStore) -> List(StoredEvent) {
 /// イベントの型名を取得
 fn get_event_type(event: OrderEvent) -> String {
   case event {
-    events.OrderPlaced(_, _, _, _, _, _) -> "OrderPlaced"
-    events.OrderValidated(_, _) -> "OrderValidated"
-    events.PriceCalculated(_, _, _, _, _, _) -> "PriceCalculated"
-    events.PaymentProcessed(_, _, _, _) -> "PaymentProcessed"
-    events.ShippingPrepared(_, _, _) -> "ShippingPrepared"
-    events.OrderShipped(_, _, _, _) -> "OrderShipped"
-    events.OrderCancelled(_, _, _) -> "OrderCancelled"
+    events.OrderPlaced(..) -> "OrderPlaced"
+    events.OrderValidated(..) -> "OrderValidated"
+    events.PriceCalculated(..) -> "PriceCalculated"
+    events.PaymentProcessed(..) -> "PaymentProcessed"
+    events.ShippingPrepared(..) -> "ShippingPrepared"
+    events.OrderShipped(..) -> "OrderShipped"
+    events.OrderCancelled(..) -> "OrderCancelled"
   }
 }
 
