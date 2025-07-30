@@ -1,10 +1,9 @@
+import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
 import gleam/time/calendar
 
-// 時間処理（現在は文字列、後でgleam/time/calendarに変更予定）
-import gleam/int
 import order_processing/features/ship_order/domain/core/aggregate
 import order_processing/features/ship_order/domain/core/events
 import order_processing/features/ship_order/domain/core/value_objects
@@ -290,4 +289,3 @@ fn calculate_shipping_cost(order_lines: List(events.OrderLine)) -> Int {
     False -> 500 + { total_items - 5 } * 100
   }
 }
-

@@ -26,18 +26,23 @@ pub fn new(event_store: EventStore) -> OrderService {
   OrderService(event_store: event_store)
 }
 
+/// 現在時刻を取得（便利関数）
+pub fn get_current_date() -> calendar.Date {
+  let now_timestamp = timestamp.system_time()
+  let #(date, _) = timestamp.to_calendar(now_timestamp, calendar.utc_offset)
+  date
+}
+
 /// コマンドを実行
 pub fn execute_command(
   service: OrderService,
   command: OrderCommand,
+  current_date: calendar.Date,
 ) -> ServiceResult(OrderService) {
   let order_id = commands.get_order_id(command)
 
   // イベントストアから現在の注文を復元
   let current_order = load_order(service.event_store, order_id)
-
-  // 現在時刻を取得
-  let current_date = get_current_time()
 
   // コマンドハンドラーでコマンドを処理
   let command_result = route_command(current_order, command, current_date)
@@ -98,12 +103,6 @@ fn load_order(store: EventStore, order_id: String) -> Option(aggregate.Order) {
   }
 }
 
-/// 現在時刻を取得
-fn get_current_time() -> calendar.Date {
-  let now_timestamp = timestamp.system_time()
-  let #(date, _) = timestamp.to_calendar(now_timestamp, calendar.utc_offset)
-  date
-}
 
 /// コマンドを適切なハンドラーにルーティング
 fn route_command(
