@@ -1,6 +1,7 @@
 import gleam/dict.{type Dict}
 import gleam/int
 import gleam/list
+
 import order_processing/features/ship_order/domain/core/events.{type OrderEvent}
 
 /// 保存されたイベント

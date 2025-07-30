@@ -1,5 +1,6 @@
 import gleam/list
 import gleam/option.{type Option, None, Some}
+
 import order_processing/features/ship_order/domain/core/events.{
   type OrderEvent, type OrderLine, type ShippingAddress,
 }

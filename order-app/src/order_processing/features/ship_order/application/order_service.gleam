@@ -1,6 +1,7 @@
 import gleam/option.{type Option, None, Some}
 import gleam/time/calendar
 import gleam/time/timestamp
+
 import order_processing/features/ship_order/domain/core/aggregate
 import order_processing/features/ship_order/domain/logic/command_handlers
 import order_processing/features/ship_order/domain/logic/commands.{
@@ -102,7 +103,6 @@ fn load_order(store: EventStore, order_id: String) -> Option(aggregate.Order) {
     Error(_) -> None
   }
 }
-
 
 /// コマンドを適切なハンドラーにルーティング
 fn route_command(
