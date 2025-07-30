@@ -206,6 +206,34 @@ gleam test --target javascript # JavaScriptターゲットでテスト実行
 - **学習用のため外部システムとの実際の連携はなし**
 - **必要に応じてモック実装**（ランダムで成功/失敗を返すなど）
 
+## コーディング規約
+
+### import文の記述ルール
+import文は以下のルールに従って記述する：
+
+1. **グループ化**: 標準ライブラリとプロジェクト内モジュールを分離
+2. **改行での分離**: `gleam/*` や `gleeunit/*` で始まるモジュールと、プロジェクト内モジュールの間に1行改行を入れる
+3. **視覚的分離**: 外部依存関係と自プロジェクトのモジュールが一目で区別できるようにする
+
+**例：**
+```gleam
+import gleam/list
+import gleam/option.{type Option, None, Some}
+import gleam/time/calendar
+import gleeunit
+import gleeunit/should
+
+import order_processing/features/ship_order/domain/core/aggregate
+import order_processing/features/ship_order/domain/core/events
+import order_processing/features/ship_order/domain/logic/commands
+```
+
+**利点：**
+- 標準ライブラリと自プロジェクトのモジュールが視覚的に分離される
+- import文の構造が読みやすくなる
+- 依存関係の把握が容易になる
+- コードレビュー時の変更箇所の特定が簡単になる
+
 ## 実装時の注意点
 1. **価格計算は階層化アプローチ**: `core/pricing`サービスを直接呼び出し
 2. **バリデーションはcommand_handlers.gleamに統合**
