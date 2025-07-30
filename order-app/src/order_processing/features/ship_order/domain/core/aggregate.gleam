@@ -1,13 +1,14 @@
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import order_processing/features/ship_order/domain/core/events.{
-  type OrderEvent, type ShippingAddress, type OrderLine,
+  type OrderEvent, type OrderLine, type ShippingAddress,
 }
 import order_processing/features/ship_order/domain/core/value_objects.{
-  type CustomerInfo, type OrderStatus, Cancelled, PaymentProcessed,
-  PriceCalculated, Placed, ShippingPrepared, Shipped, Validated,
+  type CustomerInfo, type OrderStatus, Cancelled, PaymentProcessed, Placed,
+  PriceCalculated, Shipped, ShippingPrepared, Validated,
 }
-// 時間は文字列として扱う
+
+// 時間処理（現在は文字列、後でgleam/time/calendarに変更予定）
 
 /// 注文アグリゲート
 pub type Order {
@@ -69,16 +70,13 @@ pub fn apply_event(order: Order, event: OrderEvent) -> Order {
             version: order.version + 1,
           )
         }
-        Error(_) -> order // バリデーションエラーの場合は状態を変更しない
+        Error(_) -> order
+        // バリデーションエラーの場合は状態を変更しない
       }
     }
 
     events.OrderValidated(_order_id, _validated_at) ->
-      Order(
-        ..order,
-        status: Validated,
-        version: order.version + 1,
-      )
+      Order(..order, status: Validated, version: order.version + 1)
 
     events.PriceCalculated(
       _order_id,
@@ -99,18 +97,10 @@ pub fn apply_event(order: Order, event: OrderEvent) -> Order {
       )
 
     events.PaymentProcessed(_order_id, _payment_method, _amount, _processed_at) ->
-      Order(
-        ..order,
-        status: PaymentProcessed,
-        version: order.version + 1,
-      )
+      Order(..order, status: PaymentProcessed, version: order.version + 1)
 
     events.ShippingPrepared(_order_id, _prepared_items, _prepared_at) ->
-      Order(
-        ..order,
-        status: ShippingPrepared,
-        version: order.version + 1,
-      )
+      Order(..order, status: ShippingPrepared, version: order.version + 1)
 
     events.OrderShipped(_order_id, tracking_number, _carrier, _shipped_at) ->
       Order(
@@ -121,11 +111,7 @@ pub fn apply_event(order: Order, event: OrderEvent) -> Order {
       )
 
     events.OrderCancelled(_order_id, _reason, _cancelled_at) ->
-      Order(
-        ..order,
-        status: Cancelled,
-        version: order.version + 1,
-      )
+      Order(..order, status: Cancelled, version: order.version + 1)
   }
 }
 

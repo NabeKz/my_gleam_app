@@ -1,8 +1,10 @@
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
+import gleam/time/calendar
+import gleam/time/timestamp
 
-// 現在時刻は文字列として生成
+// 時間処理（現在は文字列、後でgleam/time/calendarに変更予定）
 import gleam/int
 import order_processing/features/ship_order/domain/core/aggregate
 import order_processing/features/ship_order/domain/core/events
@@ -289,8 +291,10 @@ fn calculate_shipping_cost(order_lines: List(events.OrderLine)) -> Int {
   }
 }
 
-/// 現在時刻を文字列として取得（簡単な実装）
-fn get_current_time() -> String {
-  "2024-01-01T12:00:00Z"
-  // 実際の実装では現在時刻を取得
+/// 現在時刻を取得
+fn get_current_time() -> calendar.Date {
+  // 現在のタイムスタンプを取得してDate型に変換
+  let now_timestamp = timestamp.system_time()
+  let #(date, _time) = timestamp.to_calendar(now_timestamp, calendar.utc_offset)
+  date
 }
