@@ -1,4 +1,5 @@
 import gleam/dict.{type Dict}
+import gleam/int
 import gleam/list
 import order_processing/features/ship_order/domain/core/events.{type OrderEvent}
 
@@ -76,9 +77,9 @@ pub fn save_events(
         False ->
           Error(
             "Version mismatch. Expected: "
-            <> show_int(expected_version)
+            <> int.to_string(expected_version)
             <> ", Actual: "
-            <> show_int(current_version),
+            <> int.to_string(current_version),
           )
       }
     }
@@ -128,29 +129,5 @@ fn get_event_type(event: OrderEvent) -> String {
     events.ShippingPrepared(..) -> "ShippingPrepared"
     events.OrderShipped(..) -> "OrderShipped"
     events.OrderCancelled(..) -> "OrderCancelled"
-  }
-}
-
-/// Int を String に変換するヘルパー
-fn show_int(n: Int) -> String {
-  case n < 0 {
-    True -> "-" <> show_int_positive(-n)
-    False -> show_int_positive(n)
-  }
-}
-
-fn show_int_positive(n: Int) -> String {
-  case n {
-    0 -> "0"
-    1 -> "1"
-    2 -> "2"
-    3 -> "3"
-    4 -> "4"
-    5 -> "5"
-    6 -> "6"
-    7 -> "7"
-    8 -> "8"
-    9 -> "9"
-    _ -> show_int_positive(n / 10) <> show_int_positive(n % 10)
   }
 }

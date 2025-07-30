@@ -8,8 +8,6 @@ import order_processing/features/ship_order/domain/core/value_objects.{
   PriceCalculated, Shipped, ShippingPrepared, Validated,
 }
 
-// 時間処理（現在は文字列、後でgleam/time/calendarに変更予定）
-
 /// 注文アグリゲート
 pub type Order {
   Order(
