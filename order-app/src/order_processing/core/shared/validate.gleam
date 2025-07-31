@@ -2,142 +2,87 @@ import gleam/int
 import gleam/list
 import gleam/string
 
-/// 複数エラーを収集するためのValidated型
 pub type Validated(t) {
-  Validated(field_name: String, errors: List(String), function: fn() -> t)
+  Validated(name: String, errors: List(ValidateError), function: fn() -> t)
 }
 
-/// Validated型をResult型に変換
-pub fn to_result(validated: Validated(a)) -> Result(a, List(String)) {
-  let Validated(_, errors, function) = validated
-  case errors {
-    [] -> Ok(function())
-    _ -> Error(errors)
-  }
+pub type ValidateError {
+  Required(field: String)
+  Length(field: String, min: Int, max: Int)
+  LessThan(field: String, value: Int)
+  GreaterThan(field: String, value: Int)
 }
 
-/// 単一エラー用のResult型に変換（最初のエラーのみ）
-pub fn to_single_error_result(validated: Validated(a)) -> Result(a, String) {
-  let Validated(_, errors, function) = validated
-  case errors {
-    [] -> Ok(function())
-    [first, ..] -> Error(first)
-  }
-}
-
-/// use構文対応：文字列の長さをチェック
-pub fn string_length(
-  validated: Validated(String),
-  min_length: Int,
-  max_length: Int,
-  field_name: String,
-) -> Validated(String) {
-  let value = validated.function()
-  let length = string.length(value)
-  let cond = length >= min_length && length <= max_length
-  case cond {
-    True -> validated
-    _ -> {
-      let #(min, max) = #(int.to_string(min_length), int.to_string(max_length))
-      let error = field_name <> " must be between " <> min <> " and " <> max
-      validated
-      |> add_error(error)
+/// utils
+pub fn to_string(error: ValidateError) -> String {
+  case error {
+    Required(field) -> field <> " is " <> "required"
+    Length(field, min, max) -> {
+      let #(min, max) = #(int.to_string(min), int.to_string(max))
+      field <> " must be between " <> min <> " and " <> max
     }
+    LessThan(field, value) ->
+      field <> " must be less than" <> int.to_string(value)
+    GreaterThan(field, value) ->
+      field <> " must be greater than" <> int.to_string(value)
   }
 }
 
-/// use構文対応：空でない文字列をチェック
-pub fn non_empty_string(
-  validated: Validated(String),
-  field_name: String,
-) -> Validated(String) {
-  let value = validated.function()
-  let cond = string.length(value) > 0
-  case cond {
-    True -> validated
-    _ -> {
-      validated |> add_error(field_name <> " cannot be empty")
-    }
-  }
-}
-
-/// use構文対応：正の整数をチェック
-pub fn positive_int(
-  validated: Validated(Int),
-  field_name: String,
-) -> Validated(Int) {
-  let value = validated.function()
-  let cond = value > 0
-
-  case cond {
-    True -> validated
-    _ -> {
-      let error = field_name <> " must be positive"
-      add_error(validated, error)
-    }
-  }
-}
-
-/// use構文対応：整数の範囲をチェック
-pub fn int_range(
-  validated: Validated(Int),
-  min_value: Int,
-  max_value: Int,
-  field_name: String,
-) -> Validated(Int) {
-  let value = validated.function()
-  let cond = value >= min_value && value <= max_value
-
-  case cond {
-    True -> validated
-    _ -> {
-      let error =
-        field_name
-        <> " must be between "
-        <> int.to_string(min_value)
-        <> " and "
-        <> int.to_string(max_value)
-
-      add_error(validated, error)
-    }
-  }
-}
-
-/// use構文対応：メールアドレスをチェック
-pub fn email(
-  validated: Validated(String),
-  field_name: String,
-) -> Validated(String) {
-  let value = validated.function()
-  let cond = string.contains(value, "@") && string.length(value) > 3
-
-  case cond {
-    True -> validated
-    False ->
-      add_error(validated, field_name <> " has invalid email address format")
-  }
-}
-
-fn add_error(validated: Validated(a), error: String) -> Validated(a) {
-  let errors = [error, ..validated.errors] |> list.reverse()
-  Validated(..validated, errors:)
-}
-
-pub fn field(validator: Validated(a), f: fn(a) -> Validated(b)) -> Validated(b) {
-  let value = validator.function()
-  let result = f(value)
-  let errors = [validator.errors, result.errors] |> list.flatten
-
-  Validated(..result, errors:)
-}
-
-pub fn run(validator: Validated(t)) -> Result(t, List(String)) {
-  case validator.errors {
-    [] -> Ok(validator.function())
-    _ -> Error(validator.errors)
+pub fn run(validated: Validated(t)) -> Result(t, List(ValidateError)) {
+  case validated.errors {
+    [] -> validated.function() |> Ok()
+    _ -> validated.errors |> Error()
   }
 }
 
 pub fn success(value: t) -> Validated(t) {
-  Validated(field_name: "success", errors: [], function: fn() { value })
+  Validated(name: "success", errors: [], function: fn() { value })
+}
+
+pub fn field(
+  name: String,
+  value: a,
+  rules: List(fn(Validated(a)) -> Validated(a)),
+) -> Validated(a) {
+  let validated = Validated(name:, errors: [], function: fn() { value })
+  let validated = list.fold(rules, validated, fn(acc, cur) { cur(acc) })
+  validated
+}
+
+pub fn wrap(name: String, value: t) -> Validated(t) {
+  let result = Validated(name:, errors: [], function: fn() { value })
+  result
+}
+
+pub fn map(validator: Validated(a), f: fn(a) -> b) -> Validated(b) {
+  Validated(..validator, function: fn() { validator.function() |> f })
+}
+
+fn add_error(validator: Validated(t), error: ValidateError) -> Validated(t) {
+  let errors = [error, ..validator.errors] |> list.reverse()
+  Validated(..validator, errors:)
+}
+
+/// rules
+pub fn non_empty(validator: Validated(String)) -> Validated(String) {
+  let result = validator.function()
+  let size = result |> string.length
+  case size > 0 {
+    True -> validator
+    False -> validator |> add_error(Required(validator.name))
+  }
+}
+
+pub fn range(
+  validator: Validated(String),
+  min: Int,
+  max: Int,
+) -> Validated(String) {
+  let length = validator.function() |> string.length
+  let cond = length > min && length < max
+
+  case cond {
+    True -> validator
+    False -> validator |> add_error(Required(validator.name))
+  }
 }
