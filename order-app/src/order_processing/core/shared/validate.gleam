@@ -22,9 +22,9 @@ pub fn to_string(error: ValidateError) -> String {
       field <> " must be between " <> min <> " and " <> max
     }
     LessThan(field, value) ->
-      field <> " must be less than" <> int.to_string(value)
+      field <> " must be less than " <> int.to_string(value)
     GreaterThan(field, value) ->
-      field <> " must be greater than" <> int.to_string(value)
+      field <> " must be greater than " <> int.to_string(value)
   }
 }
 
@@ -49,17 +49,8 @@ pub fn field(
   validated
 }
 
-pub fn wrap(name: String, value: t) -> Validated(t) {
-  let result = Validated(name:, errors: [], function: fn() { value })
-  result
-}
-
-pub fn map(validator: Validated(a), f: fn(a) -> b) -> Validated(b) {
-  Validated(..validator, function: fn() { validator.function() |> f })
-}
-
 fn add_error(validator: Validated(t), error: ValidateError) -> Validated(t) {
-  let errors = [error, ..validator.errors] |> list.reverse()
+  let errors = list.append(validator.errors, [error])
   Validated(..validator, errors:)
 }
 
@@ -83,6 +74,6 @@ pub fn range(
 
   case cond {
     True -> validator
-    False -> validator |> add_error(Required(validator.name))
+    False -> validator |> add_error(Length(validator.name, min, max))
   }
 }
