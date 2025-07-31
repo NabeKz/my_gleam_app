@@ -2,6 +2,7 @@ import gleam/option.{type Option, None, Some}
 import gleam/time/calendar
 import gleam/time/timestamp
 
+import order_processing/core/shared/aggregate as shared_aggregate
 import order_processing/features/ship_order/domain/core/aggregate
 import order_processing/features/ship_order/domain/logic/command_handlers
 import order_processing/features/ship_order/domain/logic/commands.{
@@ -97,7 +98,10 @@ fn load_order(store: EventStore, order_id: String) -> Option(aggregate.Order) {
     Ok(events) -> {
       case events {
         [] -> None
-        _ -> Some(aggregate.from_events(order_id, events))
+        _ -> {
+          let initial_order = aggregate.create_initial_order(order_id)
+          Some(shared_aggregate.from_events(initial_order, events, aggregate.apply_event))
+        }
       }
     }
     Error(_) -> None

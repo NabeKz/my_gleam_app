@@ -1,6 +1,4 @@
-import gleam/list
 import gleam/option.{type Option, None, Some}
-
 import order_processing/features/ship_order/domain/core/events.{
   type OrderEvent, type OrderLine, type ShippingAddress,
 }
@@ -41,6 +39,11 @@ pub fn new_order(id: String) -> Order {
     tracking_number: None,
     version: 0,
   )
+}
+
+/// イベントリストから注文を復元するための初期値を作成
+pub fn create_initial_order(order_id: String) -> Order {
+  new_order(order_id)
 }
 
 /// 1つのイベントから状態を更新
@@ -114,16 +117,6 @@ pub fn apply_event(order: Order, event: OrderEvent) -> Order {
   }
 }
 
-/// イベントリストから状態を再構築
-pub fn apply_events(order: Order, events: List(OrderEvent)) -> Order {
-  list.fold(events, order, apply_event)
-}
-
-/// イベントリストから注文を復元
-pub fn from_events(order_id: String, events: List(OrderEvent)) -> Order {
-  let initial_order = new_order(order_id)
-  apply_events(initial_order, events)
-}
 
 /// 注文が特定の状態にあるかチェック
 pub fn is_in_status(order: Order, status: OrderStatus) -> Bool {

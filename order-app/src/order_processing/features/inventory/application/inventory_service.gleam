@@ -2,6 +2,7 @@ import gleam/option.{type Option, None, Some}
 import gleam/time/calendar
 import gleam/time/timestamp
 
+import order_processing/core/shared/aggregate as shared_aggregate
 import order_processing/features/inventory/domain/core/aggregate
 import order_processing/features/inventory/domain/logic/command_handlers
 import order_processing/features/inventory/domain/logic/commands.{type InventoryCommand}
@@ -97,9 +98,16 @@ fn load_inventory_item(store: InventoryStore, product_id: String) -> Option(aggr
       case events {
         [] -> None
         _ -> {
-          case aggregate.from_events(product_id, events) {
-            Ok(item) -> Some(item)
-            Error(_) -> None  // エラーが発生した場合はNoneを返す
+          case aggregate.create_initial_item_from_id(product_id) {
+            Ok(initial_item) -> {
+              let final_item = shared_aggregate.from_events(
+                initial_item,
+                events,
+                aggregate.apply_event,
+              )
+              Some(final_item)
+            }
+            Error(_) -> None  // 初期化エラーの場合はNoneを返す
           }
         }
       }

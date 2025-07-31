@@ -5,6 +5,7 @@ import gleam/time/calendar
 import gleeunit
 import gleeunit/should
 
+import order_processing/core/shared/aggregate as shared_aggregate
 import order_processing/features/inventory/application/inventory_service
 import order_processing/features/inventory/domain/core/aggregate
 import order_processing/features/inventory/domain/core/events
@@ -311,8 +312,13 @@ pub fn apply_events_test() {
     ),
   ]
 
-  case aggregate.from_events("prod-001", events) {
-    Ok(item) -> {
+  case aggregate.create_initial_item_from_id("prod-001") {
+    Ok(initial_item) -> {
+      let item = shared_aggregate.from_events(
+        initial_item,
+        events,
+        aggregate.apply_event,
+      )
       should.equal(
         "prod-001",
         value_objects.product_id_to_string(item.product_id),

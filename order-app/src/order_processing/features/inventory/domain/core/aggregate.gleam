@@ -1,7 +1,6 @@
 import gleam/list
 import gleam/option.{type Option}
 import gleam/result
-
 import order_processing/features/inventory/domain/core/events.{
   type InventoryEvent, type StockReservation,
 }
@@ -41,10 +40,9 @@ pub fn create_initial_item(
   )
 }
 
-/// イベントから在庫アイテムを復元
-pub fn from_events(
+/// イベントから在庫アイテムを復元するための初期値を作成
+pub fn create_initial_item_from_id(
   product_id: String,
-  events: List(InventoryEvent),
 ) -> Result(InventoryItem, String) {
   use pid <- result.try(
     value_objects.create_product_id(product_id)
@@ -54,16 +52,7 @@ pub fn from_events(
     value_objects.create_product_name("Unknown Product")
     |> result.map_error(fn(error) { "Failed to create product name: " <> error }),
   )
-  let initial_item = create_initial_item(pid, pname)
-  Ok(apply_events(initial_item, events))
-}
-
-/// 複数のイベントを適用
-pub fn apply_events(
-  item: InventoryItem,
-  events: List(InventoryEvent),
-) -> InventoryItem {
-  list.fold(events, item, apply_event)
+  create_initial_item(pid, pname) |> Ok()
 }
 
 /// 単一のイベントを適用
