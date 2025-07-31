@@ -9,7 +9,7 @@ pub type Validated(t) {
 
 /// Validated型をResult型に変換
 pub fn to_result(validated: Validated(a)) -> Result(a, List(String)) {
-  let Validated(_field_name, errors, function) = validated
+  let Validated(_, errors, function) = validated
   case errors {
     [] -> Ok(function())
     _ -> Error(errors)
@@ -18,16 +18,11 @@ pub fn to_result(validated: Validated(a)) -> Result(a, List(String)) {
 
 /// 単一エラー用のResult型に変換（最初のエラーのみ）
 pub fn to_single_error_result(validated: Validated(a)) -> Result(a, String) {
-  let Validated(_field_name, errors, function) = validated
+  let Validated(_, errors, function) = validated
   case errors {
     [] -> Ok(function())
     [first, ..] -> Error(first)
   }
-}
-
-/// 値から初期Validatedを作成
-pub fn valid(value: a) -> Validated(a) {
-  Validated("", [], fn() { value })
 }
 
 /// use構文対応：文字列の長さをチェック
@@ -36,31 +31,17 @@ pub fn string_length(
   min_length: Int,
   max_length: Int,
   field_name: String,
-  continue: fn(String) -> Validated(a),
-) -> Validated(a) {
-  let Validated(_prev_field, prev_errors, function) = validated
-  let value = function()
+) -> Validated(String) {
+  let value = validated.function()
   let length = string.length(value)
-  let new_errors = case length >= min_length && length <= max_length {
-    True -> []
-    False -> [
-      field_name
-      <> " must be between "
-      <> int.to_string(min_length)
-      <> " and "
-      <> int.to_string(max_length)
-      <> " characters",
-    ]
-  }
-  case new_errors {
-    [] -> continue(value)
+  let cond = length >= min_length && length <= max_length
+  case cond {
+    True -> validated
     _ -> {
-      let Validated(next_field, next_errors, next_function) = continue(value)
-      Validated(
-        next_field,
-        list.append(list.append(prev_errors, new_errors), next_errors),
-        next_function,
-      )
+      let #(min, max) = #(int.to_string(min_length), int.to_string(max_length))
+      let error = field_name <> " must be between " <> min <> " and " <> max
+      validated
+      |> add_error(error)
     }
   }
 }
@@ -69,23 +50,13 @@ pub fn string_length(
 pub fn non_empty_string(
   validated: Validated(String),
   field_name: String,
-  continue: fn(String) -> Validated(a),
-) -> Validated(a) {
-  let Validated(_prev_field, prev_errors, function) = validated
-  let value = function()
-  let new_errors = case string.length(value) > 0 {
-    True -> []
-    False -> [field_name <> " cannot be empty"]
-  }
-  case new_errors {
-    [] -> continue(value)
+) -> Validated(String) {
+  let value = validated.function()
+  let cond = string.length(value) > 0
+  case cond {
+    True -> validated
     _ -> {
-      let Validated(next_field, next_errors, next_function) = continue(value)
-      Validated(
-        next_field,
-        list.append(list.append(prev_errors, new_errors), next_errors),
-        next_function,
-      )
+      validated |> add_error(field_name <> " cannot be empty")
     }
   }
 }
@@ -94,23 +65,15 @@ pub fn non_empty_string(
 pub fn positive_int(
   validated: Validated(Int),
   field_name: String,
-  continue: fn(Int) -> Validated(a),
-) -> Validated(a) {
-  let Validated(_prev_field, prev_errors, function) = validated
-  let value = function()
-  let new_errors = case value > 0 {
-    True -> []
-    False -> [field_name <> " must be positive"]
-  }
-  case new_errors {
-    [] -> continue(value)
+) -> Validated(Int) {
+  let value = validated.function()
+  let cond = value > 0
+
+  case cond {
+    True -> validated
     _ -> {
-      let Validated(next_field, next_errors, next_function) = continue(value)
-      Validated(
-        next_field,
-        list.append(list.append(prev_errors, new_errors), next_errors),
-        next_function,
-      )
+      let error = field_name <> " must be positive"
+      add_error(validated, error)
     }
   }
 }
@@ -121,29 +84,21 @@ pub fn int_range(
   min_value: Int,
   max_value: Int,
   field_name: String,
-  continue: fn(Int) -> Validated(a),
-) -> Validated(a) {
-  let Validated(_prev_field, prev_errors, function) = validated
-  let value = function()
-  let new_errors = case value >= min_value && value <= max_value {
-    True -> []
-    False -> [
-      field_name
-      <> " must be between "
-      <> int.to_string(min_value)
-      <> " and "
-      <> int.to_string(max_value),
-    ]
-  }
-  case new_errors {
-    [] -> continue(value)
+) -> Validated(Int) {
+  let value = validated.function()
+  let cond = value >= min_value && value <= max_value
+
+  case cond {
+    True -> validated
     _ -> {
-      let Validated(next_field, next_errors, next_function) = continue(value)
-      Validated(
-        next_field,
-        list.append(list.append(prev_errors, new_errors), next_errors),
-        next_function,
-      )
+      let error =
+        field_name
+        <> " must be between "
+        <> int.to_string(min_value)
+        <> " and "
+        <> int.to_string(max_value)
+
+      add_error(validated, error)
     }
   }
 }
@@ -152,25 +107,37 @@ pub fn int_range(
 pub fn email(
   validated: Validated(String),
   field_name: String,
-  continue: fn(String) -> Validated(a),
-) -> Validated(a) {
-  let Validated(_prev_field, prev_errors, function) = validated
-  let value = function()
-  let new_errors = case
-    string.contains(value, "@") && string.length(value) > 3
-  {
-    True -> []
-    False -> [field_name <> " has invalid email address format"]
+) -> Validated(String) {
+  let value = validated.function()
+  let cond = string.contains(value, "@") && string.length(value) > 3
+
+  case cond {
+    True -> validated
+    False ->
+      add_error(validated, field_name <> " has invalid email address format")
   }
-  case new_errors {
-    [] -> continue(value)
-    _ -> {
-      let Validated(next_field, next_errors, next_function) = continue(value)
-      Validated(
-        next_field,
-        list.append(list.append(prev_errors, new_errors), next_errors),
-        next_function,
-      )
-    }
+}
+
+fn add_error(validated: Validated(a), error: String) -> Validated(a) {
+  let errors = [error, ..validated.errors] |> list.reverse()
+  Validated(..validated, errors:)
+}
+
+pub fn field(validator: Validated(a), f: fn(a) -> Validated(b)) -> Validated(b) {
+  let value = validator.function()
+  let result = f(value)
+  let errors = [validator.errors, result.errors] |> list.flatten
+
+  Validated(..result, errors:)
+}
+
+pub fn run(validator: Validated(t)) -> Result(t, List(String)) {
+  case validator.errors {
+    [] -> Ok(validator.function())
+    _ -> Error(validator.errors)
   }
+}
+
+pub fn success(value: t) -> Validated(t) {
+  Validated(field_name: "success", errors: [], function: fn() { value })
 }
