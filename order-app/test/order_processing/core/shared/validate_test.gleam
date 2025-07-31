@@ -9,7 +9,7 @@ pub fn main() {
 }
 
 pub fn success_validation_test() {
-  let result = validate.success("valid_value")
+  let result = validate.field("test", "valid_value", [])
 
   result
   |> validate.run()

@@ -1,4 +1,3 @@
-import gleam/list
 import gleam/result
 import gleam/string
 
@@ -142,20 +141,11 @@ pub type StockLevel {
 pub fn create_stock_level(
   available: Int,
   reserved: Int,
-) -> Result(StockLevel, String) {
-  case
-    create_stock_quantity(available),
-    create_stock_quantity(reserved),
-    create_stock_quantity(available + reserved)
-  {
-    Ok(avail), Ok(res), Ok(tot) -> Ok(StockLevel(avail, res, tot))
-    Error(errors), _, _ ->
-      Error(errors |> list.map(validate.to_string) |> string.join(", "))
-    _, Error(errors), _ ->
-      Error(errors |> list.map(validate.to_string) |> string.join(", "))
-    _, _, Error(errors) ->
-      Error(errors |> list.map(validate.to_string) |> string.join(", "))
-  }
+) -> Result(StockLevel, List(validate.ValidateError)) {
+  use available_qty <- result.try(create_stock_quantity(available))
+  use reserved_qty <- result.try(create_stock_quantity(reserved))  
+  use total_qty <- result.try(create_stock_quantity(available + reserved))
+  Ok(StockLevel(available_qty, reserved_qty, total_qty))
 }
 
 /// 商品情報
