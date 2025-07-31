@@ -1,7 +1,9 @@
+import gleam/bool
 import gleam/list
 import gleam/option.{type Option}
 import gleam/result
 import gleam/string
+import gleam/time/calendar
 
 import order_processing/core/shared/validate
 import order_processing/features/inventory/domain/core/events.{
@@ -49,24 +51,151 @@ pub fn create_initial_item_from_id(
 ) -> Result(InventoryItem, String) {
   use pid <- result.try(
     value_objects.create_product_id(product_id)
-    |> result.map_error(fn(errors) { 
-      "Invalid product_id: " <> {
-        errors |> list.map(validate.to_string) |> string.join(", ")
-      }
+    |> result.map_error(fn(errors) {
+      "Invalid product_id: "
+      <> { errors |> list.map(validate.to_string) |> string.join(", ") }
     }),
   )
   use pname <- result.try(
     value_objects.create_product_name("Unknown Product")
-    |> result.map_error(fn(errors) { 
-      "Failed to create product name: " <> {
-        errors |> list.map(validate.to_string) |> string.join(", ")
-      }
+    |> result.map_error(fn(errors) {
+      "Failed to create product name: "
+      <> { errors |> list.map(validate.to_string) |> string.join(", ") }
     }),
   )
   create_initial_item(pid, pname) |> Ok()
 }
 
+/// ステータス計算のヘルパー関数
+fn calculate_status(available: Int, reserved: Int) -> StockStatus {
+  use <- bool.guard(available > 0, Available)
+
+  case reserved > 0 {
+    True -> Reserved
+    False -> OutOfStock
+  }
+}
+
+fn increment_version(item: InventoryItem) -> InventoryItem {
+  InventoryItem(..item, version: item.version + 1)
+}
+
 /// 単一のイベントを適用
+/// ProductAddedToInventory イベントの処理
+fn apply_product_added_to_inventory(
+  item: InventoryItem,
+  product_id: String,
+  product_name: String,
+  initial_quantity: Int,
+) -> InventoryItem {
+  // イベントから値オブジェクトを作成（エラーの場合はunsafe_createでフォールバック）
+  let product_id = case value_objects.create_product_id(product_id) {
+    Ok(id) -> id
+    Error(_) -> value_objects.unsafe_create_product_id(product_id)
+  }
+  let product_name = case value_objects.create_product_name(product_name) {
+    Ok(name) -> name
+    Error(_) -> value_objects.unsafe_create_product_name(product_name)
+  }
+  let status = calculate_status(initial_quantity, 0)
+
+  InventoryItem(
+    ..item,
+    product_id:,
+    product_name:,
+    available_quantity: initial_quantity,
+    total_quantity: initial_quantity,
+    status:,
+  )
+  |> increment_version()
+}
+
+/// StockReceived イベントの処理
+fn apply_stock_received(item: InventoryItem, quantity: Int) -> InventoryItem {
+  let new_available = item.available_quantity + quantity
+  let new_total = item.total_quantity + quantity
+  InventoryItem(
+    ..item,
+    available_quantity: new_available,
+    total_quantity: new_total,
+    status: calculate_status(new_available, item.reserved_quantity),
+  )
+  |> increment_version()
+}
+
+/// StockReserved イベントの処理
+fn apply_stock_reserved(
+  item: InventoryItem,
+  quantity: Int,
+  reserved_for: String,
+  reserved_at: calendar.Date,
+) -> InventoryItem {
+  let new_available = item.available_quantity - quantity
+  let new_reserved = item.reserved_quantity + quantity
+  let new_reservation =
+    events.StockReservation(
+      reservation_id: reserved_for,
+      product_id: value_objects.product_id_to_string(item.product_id),
+      quantity: quantity,
+      reserved_for: reserved_for,
+      reserved_at: reserved_at,
+    )
+  InventoryItem(
+    ..item,
+    available_quantity: new_available,
+    reserved_quantity: new_reserved,
+    reservations: [new_reservation, ..item.reservations],
+    status: calculate_status(new_available, new_reserved),
+  )
+  |> increment_version()
+}
+
+/// StockReservationReleased イベントの処理
+fn apply_stock_reservation_released(
+  item: InventoryItem,
+  quantity: Int,
+  reservation_id: String,
+) -> InventoryItem {
+  let new_available = item.available_quantity + quantity
+  let new_reserved = item.reserved_quantity - quantity
+  let updated_reservations =
+    list.filter(item.reservations, fn(r) { r.reservation_id != reservation_id })
+  InventoryItem(
+    ..item,
+    available_quantity: new_available,
+    reserved_quantity: new_reserved,
+    reservations: updated_reservations,
+    status: calculate_status(new_available, new_reserved),
+  )
+  |> increment_version()
+}
+
+/// StockIssued イベントの処理
+fn apply_stock_issued(item: InventoryItem, quantity: Int) -> InventoryItem {
+  let new_reserved = item.reserved_quantity - quantity
+  let new_total = item.total_quantity - quantity
+  InventoryItem(
+    ..item,
+    reserved_quantity: new_reserved,
+    total_quantity: new_total,
+    status: calculate_status(item.available_quantity, new_reserved),
+  )
+  |> increment_version()
+}
+
+/// StockAdjusted イベントの処理
+fn apply_stock_adjusted(item: InventoryItem, new_quantity: Int) -> InventoryItem {
+  let quantity_diff = new_quantity - item.total_quantity
+  let new_available = item.available_quantity + quantity_diff
+  InventoryItem(
+    ..item,
+    available_quantity: new_available,
+    total_quantity: new_quantity,
+    status: calculate_status(new_available, item.reserved_quantity),
+  )
+  |> increment_version()
+}
+
 pub fn apply_event(item: InventoryItem, event: InventoryEvent) -> InventoryItem {
   case event {
     events.ProductAddedToInventory(
@@ -74,145 +203,31 @@ pub fn apply_event(item: InventoryItem, event: InventoryEvent) -> InventoryItem 
       product_name,
       initial_quantity,
       _,
-    ) -> {
-      // イベントから値オブジェクトを作成（エラーの場合はunsafe_createでフォールバック）
-      let pid = case value_objects.create_product_id(product_id) {
-        Ok(id) -> id
-        Error(_) -> value_objects.unsafe_create_product_id(product_id)
-        // フォールバック
-      }
-      let pname = case value_objects.create_product_name(product_name) {
-        Ok(name) -> name
-        Error(_) -> value_objects.unsafe_create_product_name(product_name)
-        // フォールバック
-      }
-
-      InventoryItem(
-        ..item,
-        product_id: pid,
-        product_name: pname,
-        available_quantity: initial_quantity,
-        total_quantity: initial_quantity,
-        status: case initial_quantity > 0 {
-          True -> Available
-          False -> OutOfStock
-        },
-        version: item.version + 1,
+    ) ->
+      apply_product_added_to_inventory(
+        item,
+        product_id,
+        product_name,
+        initial_quantity,
       )
-    }
 
-    events.StockReceived(_, quantity, _, _) -> {
-      let new_available = item.available_quantity + quantity
-      let new_total = item.total_quantity + quantity
-      InventoryItem(
-        ..item,
-        available_quantity: new_available,
-        total_quantity: new_total,
-        status: case new_available > 0 {
-          True -> Available
-          False ->
-            case item.reserved_quantity > 0 {
-              True -> Reserved
-              False -> OutOfStock
-            }
-        },
-        version: item.version + 1,
-      )
-    }
+    events.StockReceived(_, quantity, ..) ->
+      apply_stock_received(item, quantity)
 
-    events.StockReserved(_, quantity, reserved_for, reserved_at) -> {
-      let new_available = item.available_quantity - quantity
-      let new_reserved = item.reserved_quantity + quantity
-      let new_reservation =
-        events.StockReservation(
-          reservation_id: reserved_for,
-          product_id: value_objects.product_id_to_string(item.product_id),
-          quantity: quantity,
-          reserved_for: reserved_for,
-          reserved_at: reserved_at,
-        )
-      InventoryItem(
-        ..item,
-        available_quantity: new_available,
-        reserved_quantity: new_reserved,
-        reservations: [new_reservation, ..item.reservations],
-        status: case new_available > 0 {
-          True -> Available
-          False ->
-            case new_reserved > 0 {
-              True -> Reserved
-              False -> OutOfStock
-            }
-        },
-        version: item.version + 1,
-      )
-    }
+    events.StockReserved(_, quantity, reserved_for, reserved_at) ->
+      apply_stock_reserved(item, quantity, reserved_for, reserved_at)
 
-    events.StockReservationReleased(_, quantity, reservation_id, _) -> {
-      let new_available = item.available_quantity + quantity
-      let new_reserved = item.reserved_quantity - quantity
-      let updated_reservations =
-        list.filter(item.reservations, fn(r) {
-          r.reservation_id != reservation_id
-        })
-      InventoryItem(
-        ..item,
-        available_quantity: new_available,
-        reserved_quantity: new_reserved,
-        reservations: updated_reservations,
-        status: case new_available > 0 {
-          True -> Available
-          False ->
-            case new_reserved > 0 {
-              True -> Reserved
-              False -> OutOfStock
-            }
-        },
-        version: item.version + 1,
-      )
-    }
+    events.StockReservationReleased(_, quantity, reservation_id, _) ->
+      apply_stock_reservation_released(item, quantity, reservation_id)
 
-    events.StockIssued(_, quantity, _, _) -> {
-      let new_reserved = item.reserved_quantity - quantity
-      let new_total = item.total_quantity - quantity
-      InventoryItem(
-        ..item,
-        reserved_quantity: new_reserved,
-        total_quantity: new_total,
-        status: case item.available_quantity > 0 {
-          True -> Available
-          False ->
-            case new_reserved > 0 {
-              True -> Reserved
-              False -> OutOfStock
-            }
-        },
-        version: item.version + 1,
-      )
-    }
+    events.StockIssued(_, quantity, ..) -> apply_stock_issued(item, quantity)
 
-    events.StockAdjusted(_, _, new_quantity, _, _) -> {
-      let quantity_diff = new_quantity - item.total_quantity
-      let new_available = item.available_quantity + quantity_diff
-      InventoryItem(
-        ..item,
-        available_quantity: new_available,
-        total_quantity: new_quantity,
-        status: case new_available > 0 {
-          True -> Available
-          False ->
-            case item.reserved_quantity > 0 {
-              True -> Reserved
-              False -> OutOfStock
-            }
-        },
-        version: item.version + 1,
-      )
-    }
+    events.StockAdjusted(_, _, new_quantity, ..) ->
+      apply_stock_adjusted(item, new_quantity)
 
-    events.StockShortage(_, _, _, _) ->
+    events.StockShortage(..) ->
       // 在庫不足イベントは状態を変更しない（記録のみ）
-      InventoryItem(..item, version: item.version + 1)
+      increment_version(item)
   }
 }
 
@@ -245,19 +260,16 @@ pub fn get_stock_level(item: InventoryItem) -> StockLevel {
   {
     Ok(qty) -> qty
     Error(_) -> value_objects.unsafe_create_stock_quantity(0)
-    // フォールバック
   }
   let reserved = case
     value_objects.create_stock_quantity(item.reserved_quantity)
   {
     Ok(qty) -> qty
     Error(_) -> value_objects.unsafe_create_stock_quantity(0)
-    // フォールバック
   }
   let total = case value_objects.create_stock_quantity(item.total_quantity) {
     Ok(qty) -> qty
     Error(_) -> value_objects.unsafe_create_stock_quantity(0)
-    // フォールバック
   }
 
   value_objects.StockLevel(

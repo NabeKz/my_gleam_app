@@ -1,5 +1,3 @@
-import gleam/list
-import gleam/result
 import gleam/string
 
 import order_processing/core/shared/validate
