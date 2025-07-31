@@ -100,7 +100,11 @@ fn load_order(store: EventStore, order_id: String) -> Option(aggregate.Order) {
         [] -> None
         _ -> {
           let initial_order = aggregate.create_initial_order(order_id)
-          Some(shared_aggregate.from_events(initial_order, events, aggregate.apply_event))
+          Some(shared_aggregate.from_events(
+            initial_order,
+            events,
+            aggregate.apply_event,
+          ))
         }
       }
     }

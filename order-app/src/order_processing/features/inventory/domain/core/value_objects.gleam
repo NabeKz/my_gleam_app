@@ -1,4 +1,8 @@
+import gleam/list
+import gleam/result
 import gleam/string
+
+import order_processing/core/shared/validate
 
 /// 商品ID（不正な状態を型で排除）
 pub opaque type ProductId {
@@ -6,11 +10,15 @@ pub opaque type ProductId {
 }
 
 /// 商品IDを作成（バリデーション付き）
-pub fn create_product_id(id: String) -> Result(ProductId, String) {
-  case string.length(id) > 0 && string.length(id) <= 50 {
-    True -> Ok(ProductId(id))
-    False -> Error("Product ID must be between 1 and 50 characters")
-  }
+pub fn create_product_id(
+  id: String,
+) -> Result(ProductId, List(validate.ValidateError)) {
+  validate.field("Product ID", id, [
+    validate.non_empty,
+    validate.range(_, 1, 50),
+  ])
+  |> validate.run()
+  |> validate.success(ProductId)
 }
 
 /// 商品IDの値を取得
@@ -31,11 +39,15 @@ pub opaque type ProductName {
 }
 
 /// 商品名を作成（バリデーション付き）
-pub fn create_product_name(name: String) -> Result(ProductName, String) {
-  case string.length(name) > 0 && string.length(name) <= 100 {
-    True -> Ok(ProductName(name))
-    False -> Error("Product name must be between 1 and 100 characters")
-  }
+pub fn create_product_name(
+  name: String,
+) -> Result(ProductName, List(validate.ValidateError)) {
+  validate.field("Product name", name, [
+    validate.non_empty,
+    validate.range(_, 1, 100),
+  ])
+  |> validate.run()
+  |> validate.success(ProductName)
 }
 
 /// 商品名の値を取得
@@ -56,11 +68,12 @@ pub opaque type StockQuantity {
 }
 
 /// 在庫数量を作成（バリデーション付き）
-pub fn create_stock_quantity(quantity: Int) -> Result(StockQuantity, String) {
-  case quantity >= 0 {
-    True -> Ok(StockQuantity(quantity))
-    False -> Error("Stock quantity cannot be negative")
-  }
+pub fn create_stock_quantity(
+  quantity: Int,
+) -> Result(StockQuantity, List(validate.ValidateError)) {
+  validate.field("Stock quantity", quantity, [validate.min(_, 0)])
+  |> validate.run()
+  |> validate.success(StockQuantity)
 }
 
 /// 在庫数量の値を取得
@@ -77,10 +90,14 @@ pub fn unsafe_create_stock_quantity(quantity: Int) -> StockQuantity {
 
 /// 在庫状態
 pub type StockStatus {
-  Available      // 利用可能
-  Reserved       // 予約済み
-  OutOfStock     // 在庫切れ
-  Discontinued   // 廃止予定
+  Available
+  // 利用可能
+  Reserved
+  // 予約済み
+  OutOfStock
+  // 在庫切れ
+  Discontinued
+  // 廃止予定
 }
 
 /// 在庫状態を文字列に変換
@@ -132,9 +149,12 @@ pub fn create_stock_level(
     create_stock_quantity(available + reserved)
   {
     Ok(avail), Ok(res), Ok(tot) -> Ok(StockLevel(avail, res, tot))
-    Error(err), _, _ -> Error(err)
-    _, Error(err), _ -> Error(err)
-    _, _, Error(err) -> Error(err)
+    Error(errors), _, _ ->
+      Error(errors |> list.map(validate.to_string) |> string.join(", "))
+    _, Error(errors), _ ->
+      Error(errors |> list.map(validate.to_string) |> string.join(", "))
+    _, _, Error(errors) ->
+      Error(errors |> list.map(validate.to_string) |> string.join(", "))
   }
 }
 

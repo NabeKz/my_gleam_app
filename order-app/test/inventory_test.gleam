@@ -314,11 +314,12 @@ pub fn apply_events_test() {
 
   case aggregate.create_initial_item_from_id("prod-001") {
     Ok(initial_item) -> {
-      let item = shared_aggregate.from_events(
-        initial_item,
-        events,
-        aggregate.apply_event,
-      )
+      let item =
+        shared_aggregate.from_events(
+          initial_item,
+          events,
+          aggregate.apply_event,
+        )
       should.equal(
         "prod-001",
         value_objects.product_id_to_string(item.product_id),

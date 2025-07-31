@@ -22,7 +22,8 @@ pub type InventoryEvent {
   StockReserved(
     product_id: String,
     quantity: Int,
-    reserved_for: String, // 注文ID等
+    reserved_for: String,
+    // 注文ID等
     reserved_at: Date,
   )
 
@@ -38,7 +39,8 @@ pub type InventoryEvent {
   StockIssued(
     product_id: String,
     quantity: Int,
-    issued_to: String, // 注文ID等
+    issued_to: String,
+    // 注文ID等
     issued_at: Date,
   )
 
@@ -85,9 +87,14 @@ pub type StockTransaction {
 
 /// トランザクション種別
 pub type TransactionType {
-  Receipt    // 入庫
-  Issue      // 出庫
-  Reserve    // 予約
-  Release    // 予約解除
-  Adjust     // 調整
+  Receipt
+  // 入庫
+  Issue
+  // 出庫
+  Reserve
+  // 予約
+  Release
+  // 予約解除
+  Adjust
+  // 調整
 }

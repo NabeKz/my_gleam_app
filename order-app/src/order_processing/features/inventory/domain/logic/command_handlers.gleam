@@ -3,6 +3,7 @@ import gleam/option.{type Option, None, Some}
 import gleam/string
 import gleam/time/calendar
 
+import order_processing/core/shared/validate
 import order_processing/features/inventory/domain/core/aggregate
 import order_processing/features/inventory/domain/core/events
 import order_processing/features/inventory/domain/core/value_objects
@@ -23,7 +24,11 @@ pub fn handle_add_product(
   case current_item {
     Some(_) -> Failure("Product already exists in inventory")
     None -> {
-      let assert commands.AddProductToInventory(product_id, product_name, initial_quantity) = command
+      let assert commands.AddProductToInventory(
+        product_id,
+        product_name,
+        initial_quantity,
+      ) = command
 
       // バリデーション
       let validations = [
@@ -34,12 +39,13 @@ pub fn handle_add_product(
 
       case combine_validations(validations) {
         Ok(_) -> {
-          let event = events.ProductAddedToInventory(
-            product_id: product_id,
-            product_name: product_name,
-            initial_quantity: initial_quantity,
-            added_at: current_date,
-          )
+          let event =
+            events.ProductAddedToInventory(
+              product_id: product_id,
+              product_name: product_name,
+              initial_quantity: initial_quantity,
+              added_at: current_date,
+            )
           Success([event])
         }
         Error(error) -> Failure(error)
@@ -57,7 +63,8 @@ pub fn handle_receive_stock(
   case current_item {
     None -> Failure("Product not found in inventory")
     Some(_item) -> {
-      let assert commands.ReceiveStock(product_id, quantity, received_from) = command
+      let assert commands.ReceiveStock(product_id, quantity, received_from) =
+        command
 
       // バリデーション
       let validations = [
@@ -67,12 +74,13 @@ pub fn handle_receive_stock(
 
       case combine_validations(validations) {
         Ok(_) -> {
-          let event = events.StockReceived(
-            product_id: product_id,
-            quantity: quantity,
-            received_from: received_from,
-            received_at: current_date,
-          )
+          let event =
+            events.StockReceived(
+              product_id: product_id,
+              quantity: quantity,
+              received_from: received_from,
+              received_at: current_date,
+            )
           Success([event])
         }
         Error(error) -> Failure(error)
@@ -90,7 +98,8 @@ pub fn handle_reserve_stock(
   case current_item {
     None -> Failure("Product not found in inventory")
     Some(item) -> {
-      let assert commands.ReserveStock(product_id, quantity, reserved_for) = command
+      let assert commands.ReserveStock(product_id, quantity, reserved_for) =
+        command
 
       // バリデーション
       let validations = [
@@ -103,22 +112,24 @@ pub fn handle_reserve_stock(
           // 在庫十分性チェック
           case aggregate.can_reserve(item, quantity) {
             True -> {
-              let event = events.StockReserved(
-                product_id: product_id,
-                quantity: quantity,
-                reserved_for: reserved_for,
-                reserved_at: current_date,
-              )
+              let event =
+                events.StockReserved(
+                  product_id: product_id,
+                  quantity: quantity,
+                  reserved_for: reserved_for,
+                  reserved_at: current_date,
+                )
               Success([event])
             }
             False -> {
               // 在庫不足イベントも生成
-              let shortage_event = events.StockShortage(
-                product_id: product_id,
-                requested_quantity: quantity,
-                available_quantity: item.available_quantity,
-                detected_at: current_date,
-              )
+              let shortage_event =
+                events.StockShortage(
+                  product_id: product_id,
+                  requested_quantity: quantity,
+                  available_quantity: item.available_quantity,
+                  detected_at: current_date,
+                )
               Success([shortage_event])
             }
           }
@@ -138,19 +149,24 @@ pub fn handle_release_reservation(
   case current_item {
     None -> Failure("Product not found in inventory")
     Some(item) -> {
-      let assert commands.ReleaseStockReservation(product_id, quantity, reservation_id) = command
+      let assert commands.ReleaseStockReservation(
+        product_id,
+        quantity,
+        reservation_id,
+      ) = command
 
       // 予約の存在確認
       case aggregate.get_reservation(item, reservation_id) {
         Some(reservation) -> {
           case reservation.quantity == quantity {
             True -> {
-              let event = events.StockReservationReleased(
-                product_id: product_id,
-                quantity: quantity,
-                reservation_id: reservation_id,
-                released_at: current_date,
-              )
+              let event =
+                events.StockReservationReleased(
+                  product_id: product_id,
+                  quantity: quantity,
+                  reservation_id: reservation_id,
+                  released_at: current_date,
+                )
               Success([event])
             }
             False -> Failure("Quantity mismatch with reservation")
@@ -184,12 +200,13 @@ pub fn handle_issue_stock(
           // 予約済み在庫から出庫可能かチェック
           case item.reserved_quantity >= quantity {
             True -> {
-              let event = events.StockIssued(
-                product_id: product_id,
-                quantity: quantity,
-                issued_to: issued_to,
-                issued_at: current_date,
-              )
+              let event =
+                events.StockIssued(
+                  product_id: product_id,
+                  quantity: quantity,
+                  issued_to: issued_to,
+                  issued_at: current_date,
+                )
               Success([event])
             }
             False -> Failure("Insufficient reserved stock for issue")
@@ -210,7 +227,8 @@ pub fn handle_adjust_stock(
   case current_item {
     None -> Failure("Product not found in inventory")
     Some(item) -> {
-      let assert commands.AdjustStock(product_id, new_quantity, reason) = command
+      let assert commands.AdjustStock(product_id, new_quantity, reason) =
+        command
 
       // バリデーション
       let validations = [
@@ -220,13 +238,14 @@ pub fn handle_adjust_stock(
 
       case combine_validations(validations) {
         Ok(_) -> {
-          let event = events.StockAdjusted(
-            product_id: product_id,
-            old_quantity: item.total_quantity,
-            new_quantity: new_quantity,
-            reason: reason,
-            adjusted_at: current_date,
-          )
+          let event =
+            events.StockAdjusted(
+              product_id: product_id,
+              old_quantity: item.total_quantity,
+              new_quantity: new_quantity,
+              reason: reason,
+              adjusted_at: current_date,
+            )
           Success([event])
         }
         Error(error) -> Failure(error)
@@ -243,7 +262,8 @@ pub fn handle_check_stock(
 ) -> CommandResult {
   case current_item {
     None -> Failure("Product not found in inventory")
-    Some(_item) -> Success([]) // 確認は成功だがイベントは生成しない
+    Some(_item) -> Success([])
+    // 確認は成功だがイベントは生成しない
   }
 }
 
@@ -253,7 +273,11 @@ pub fn handle_check_stock(
 fn validate_product_id(product_id: String) -> Result(Nil, String) {
   case value_objects.create_product_id(product_id) {
     Ok(_) -> Ok(Nil)
-    Error(error) -> Error(error)
+    Error(errors) -> Error(
+      errors 
+      |> list.map(validate.to_string) 
+      |> string.join(", ")
+    )
   }
 }
 
@@ -261,7 +285,11 @@ fn validate_product_id(product_id: String) -> Result(Nil, String) {
 fn validate_product_name(product_name: String) -> Result(Nil, String) {
   case value_objects.create_product_name(product_name) {
     Ok(_) -> Ok(Nil)
-    Error(error) -> Error(error)
+    Error(errors) -> Error(
+      errors 
+      |> list.map(validate.to_string) 
+      |> string.join(", ")
+    )
   }
 }
 
@@ -269,7 +297,11 @@ fn validate_product_name(product_name: String) -> Result(Nil, String) {
 fn validate_quantity(quantity: Int) -> Result(Nil, String) {
   case value_objects.create_stock_quantity(quantity) {
     Ok(_) -> Ok(Nil)
-    Error(error) -> Error(error)
+    Error(errors) -> Error(
+      errors 
+      |> list.map(validate.to_string) 
+      |> string.join(", ")
+    )
   }
 }
 
@@ -309,12 +341,14 @@ fn validate_adjustment_reason(reason: String) -> Result(Nil, String) {
 fn combine_validations(
   validations: List(Result(Nil, String)),
 ) -> Result(Nil, String) {
-  case list.find(validations, fn(result) {
-    case result {
-      Error(_) -> True
-      Ok(_) -> False
-    }
-  }) {
+  case
+    list.find(validations, fn(result) {
+      case result {
+        Error(_) -> True
+        Ok(_) -> False
+      }
+    })
+  {
     Ok(Error(error)) -> Error(error)
     _ -> Ok(Nil)
   }

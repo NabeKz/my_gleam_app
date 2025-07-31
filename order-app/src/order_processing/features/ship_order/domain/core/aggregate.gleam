@@ -117,7 +117,6 @@ pub fn apply_event(order: Order, event: OrderEvent) -> Order {
   }
 }
 
-
 /// 注文が特定の状態にあるかチェック
 pub fn is_in_status(order: Order, status: OrderStatus) -> Bool {
   order.status == status

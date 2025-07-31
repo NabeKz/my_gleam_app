@@ -1,6 +1,9 @@
 import gleam/list
 import gleam/option.{type Option}
 import gleam/result
+import gleam/string
+
+import order_processing/core/shared/validate
 import order_processing/features/inventory/domain/core/events.{
   type InventoryEvent, type StockReservation,
 }
@@ -46,11 +49,19 @@ pub fn create_initial_item_from_id(
 ) -> Result(InventoryItem, String) {
   use pid <- result.try(
     value_objects.create_product_id(product_id)
-    |> result.map_error(fn(error) { "Invalid product_id: " <> error }),
+    |> result.map_error(fn(errors) { 
+      "Invalid product_id: " <> {
+        errors |> list.map(validate.to_string) |> string.join(", ")
+      }
+    }),
   )
   use pname <- result.try(
     value_objects.create_product_name("Unknown Product")
-    |> result.map_error(fn(error) { "Failed to create product name: " <> error }),
+    |> result.map_error(fn(errors) { 
+      "Failed to create product name: " <> {
+        errors |> list.map(validate.to_string) |> string.join(", ")
+      }
+    }),
   )
   create_initial_item(pid, pname) |> Ok()
 }

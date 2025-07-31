@@ -2,7 +2,9 @@ import gleam/dict.{type Dict}
 import gleam/int
 import gleam/list
 
-import order_processing/features/inventory/domain/core/events.{type InventoryEvent}
+import order_processing/features/inventory/domain/core/events.{
+  type InventoryEvent,
+}
 
 /// 保存された在庫イベント
 pub type StoredInventoryEvent {
@@ -32,15 +34,17 @@ pub fn save_events(
   expected_version: Int,
 ) -> Result(InventoryStore, String) {
   case events {
-    [] -> Ok(store) // 空のイベントリストの場合はそのまま返す
+    [] -> Ok(store)
+    // 空のイベントリストの場合はそのまま返す
     _ -> {
       // 現在のバージョンをチェック
       let current_version = get_version(store, product_id)
-      
+
       case current_version == expected_version {
         True -> {
           // 新しいイベントをStoredInventoryEventに変換
-          let stored_events = events
+          let stored_events =
+            events
             |> list.index_map(fn(event, index) {
               StoredInventoryEvent(
                 product_id: product_id,
@@ -49,18 +53,21 @@ pub fn save_events(
                 event_data: event,
               )
             })
-          
+
           // 既存のイベントリストに追加
           let existing_events = case dict.get(store.events, product_id) {
             Ok(events) -> events
             Error(_) -> []
           }
-          
+
           let updated_events = list.append(existing_events, stored_events)
-          let updated_store = InventoryStore(
-            events: dict.insert(store.events, product_id, updated_events),
-          )
-          
+          let updated_store =
+            InventoryStore(events: dict.insert(
+              store.events,
+              product_id,
+              updated_events,
+            ))
+
           Ok(updated_store)
         }
         False ->

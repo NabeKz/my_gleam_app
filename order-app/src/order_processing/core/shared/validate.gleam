@@ -1,5 +1,6 @@
 import gleam/int
 import gleam/list
+import gleam/result
 import gleam/string
 
 pub type Validated(t) {
@@ -35,8 +36,11 @@ pub fn run(validated: Validated(t)) -> Result(t, List(ValidateError)) {
   }
 }
 
-pub fn success(value: t) -> Validated(t) {
-  Validated(name: "success", errors: [], function: fn() { value })
+pub fn success(
+  value: Result(a, List(ValidateError)),
+  f: fn(a) -> b,
+) -> Result(b, List(ValidateError)) {
+  result.map(value, f)
 }
 
 pub fn field(
@@ -70,10 +74,26 @@ pub fn range(
   max: Int,
 ) -> Validated(String) {
   let length = validator.function() |> string.length
-  let cond = length > min && length < max
+  let cond = length >= min && length <= max
 
   case cond {
     True -> validator
     False -> validator |> add_error(Length(validator.name, min, max))
+  }
+}
+
+pub fn min(validator: Validated(Int), min_val: Int) -> Validated(Int) {
+  let value = validator.function()
+  case value >= min_val {
+    True -> validator
+    False -> validator |> add_error(GreaterThan(validator.name, min_val - 1))
+  }
+}
+
+pub fn max(validator: Validated(Int), max_val: Int) -> Validated(Int) {
+  let value = validator.function()
+  case value <= max_val {
+    True -> validator
+    False -> validator |> add_error(LessThan(validator.name, max_val + 1))
   }
 }

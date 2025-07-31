@@ -5,7 +5,9 @@ import gleam/time/timestamp
 import order_processing/core/shared/aggregate as shared_aggregate
 import order_processing/features/inventory/domain/core/aggregate
 import order_processing/features/inventory/domain/logic/command_handlers
-import order_processing/features/inventory/domain/logic/commands.{type InventoryCommand}
+import order_processing/features/inventory/domain/logic/commands.{
+  type InventoryCommand,
+}
 import order_processing/features/inventory/infrastructure/inventory_store.{
   type InventoryStore,
 }
@@ -40,13 +42,13 @@ pub fn execute_command(
   current_date: calendar.Date,
 ) -> ServiceResult(InventoryService) {
   let product_id = commands.get_product_id(command)
-  
+
   // イベントストアから現在の在庫アイテムを復元
   let current_item = load_inventory_item(service.inventory_store, product_id)
-  
+
   // コマンドハンドラーでコマンドを処理
   let command_result = route_command(current_item, command, current_date)
-  
+
   case command_result {
     command_handlers.Success(events) -> {
       // イベントをイベントストアに保存
@@ -54,8 +56,15 @@ pub fn execute_command(
         Some(item) -> item.version
         None -> 0
       }
-      
-      case inventory_store.save_events(service.inventory_store, product_id, events, current_version) {
+
+      case
+        inventory_store.save_events(
+          service.inventory_store,
+          product_id,
+          events,
+          current_version,
+        )
+      {
         Ok(updated_store) -> {
           let updated_service = InventoryService(inventory_store: updated_store)
           ServiceSuccess(updated_service)
@@ -85,14 +94,20 @@ pub fn get_stock_level(
 }
 
 /// 在庫アイテムの現在のバージョンを取得
-pub fn get_inventory_version(service: InventoryService, product_id: String) -> Int {
+pub fn get_inventory_version(
+  service: InventoryService,
+  product_id: String,
+) -> Int {
   inventory_store.get_version(service.inventory_store, product_id)
 }
 
 // 内部ヘルパー関数
 
 /// イベントストアから在庫アイテムを復元
-fn load_inventory_item(store: InventoryStore, product_id: String) -> Option(aggregate.InventoryItem) {
+fn load_inventory_item(
+  store: InventoryStore,
+  product_id: String,
+) -> Option(aggregate.InventoryItem) {
   case inventory_store.get_events(store, product_id) {
     Ok(events) -> {
       case events {
@@ -100,14 +115,16 @@ fn load_inventory_item(store: InventoryStore, product_id: String) -> Option(aggr
         _ -> {
           case aggregate.create_initial_item_from_id(product_id) {
             Ok(initial_item) -> {
-              let final_item = shared_aggregate.from_events(
-                initial_item,
-                events,
-                aggregate.apply_event,
-              )
+              let final_item =
+                shared_aggregate.from_events(
+                  initial_item,
+                  events,
+                  aggregate.apply_event,
+                )
               Some(final_item)
             }
-            Error(_) -> None  // 初期化エラーの場合はNoneを返す
+            Error(_) -> None
+            // 初期化エラーの場合はNoneを返す
           }
         }
       }
@@ -125,22 +142,26 @@ fn route_command(
   case command {
     commands.AddProductToInventory(..) ->
       command_handlers.handle_add_product(current_item, command, current_date)
-    
+
     commands.ReceiveStock(..) ->
       command_handlers.handle_receive_stock(current_item, command, current_date)
-    
+
     commands.ReserveStock(..) ->
       command_handlers.handle_reserve_stock(current_item, command, current_date)
-    
+
     commands.ReleaseStockReservation(..) ->
-      command_handlers.handle_release_reservation(current_item, command, current_date)
-    
+      command_handlers.handle_release_reservation(
+        current_item,
+        command,
+        current_date,
+      )
+
     commands.IssueStock(..) ->
       command_handlers.handle_issue_stock(current_item, command, current_date)
-    
+
     commands.AdjustStock(..) ->
       command_handlers.handle_adjust_stock(current_item, command, current_date)
-    
+
     commands.CheckStock(..) ->
       command_handlers.handle_check_stock(current_item, command, current_date)
   }
