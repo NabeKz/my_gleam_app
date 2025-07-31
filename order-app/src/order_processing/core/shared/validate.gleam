@@ -97,3 +97,22 @@ pub fn max(validator: Validated(Int), max_val: Int) -> Validated(Int) {
     False -> validator |> add_error(LessThan(validator.name, max_val + 1))
   }
 }
+
+/// 複数のvalidationを組み合わせて全エラーを収集
+pub fn combine_validations(
+  validations: List(Validated(a)),
+) -> Validated(List(a)) {
+  let all_errors =
+    validations
+    |> list.flat_map(fn(validation) { validation.errors })
+  
+  let values = 
+    validations
+    |> list.map(fn(validation) { validation.function() })
+  
+  Validated(
+    name: "combined",
+    errors: all_errors,
+    function: fn() { values },
+  )
+}

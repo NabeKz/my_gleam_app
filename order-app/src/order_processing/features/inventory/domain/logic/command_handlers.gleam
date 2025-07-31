@@ -273,11 +273,12 @@ pub fn handle_check_stock(
 fn validate_product_id(product_id: String) -> Result(Nil, String) {
   case value_objects.create_product_id(product_id) {
     Ok(_) -> Ok(Nil)
-    Error(errors) -> Error(
-      errors 
-      |> list.map(validate.to_string) 
-      |> string.join(", ")
-    )
+    Error(errors) ->
+      Error(
+        errors
+        |> list.map(validate.to_string)
+        |> string.join(", "),
+      )
   }
 }
 
@@ -285,11 +286,12 @@ fn validate_product_id(product_id: String) -> Result(Nil, String) {
 fn validate_product_name(product_name: String) -> Result(Nil, String) {
   case value_objects.create_product_name(product_name) {
     Ok(_) -> Ok(Nil)
-    Error(errors) -> Error(
-      errors 
-      |> list.map(validate.to_string) 
-      |> string.join(", ")
-    )
+    Error(errors) ->
+      Error(
+        errors
+        |> list.map(validate.to_string)
+        |> string.join(", "),
+      )
   }
 }
 
@@ -297,11 +299,12 @@ fn validate_product_name(product_name: String) -> Result(Nil, String) {
 fn validate_quantity(quantity: Int) -> Result(Nil, String) {
   case value_objects.create_stock_quantity(quantity) {
     Ok(_) -> Ok(Nil)
-    Error(errors) -> Error(
-      errors 
-      |> list.map(validate.to_string) 
-      |> string.join(", ")
-    )
+    Error(errors) ->
+      Error(
+        errors
+        |> list.map(validate.to_string)
+        |> string.join(", "),
+      )
   }
 }
 
