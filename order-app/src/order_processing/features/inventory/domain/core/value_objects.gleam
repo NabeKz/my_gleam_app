@@ -13,10 +13,9 @@ pub opaque type ProductId {
 pub fn create_product_id(
   id: String,
 ) -> Result(ProductId, List(validate.ValidateError)) {
-  validate.field("Product ID", id, [
-    validate.non_empty,
-    validate.range(_, 1, 50),
-  ])
+  validate.field2("Product ID", id)
+  |> validate.non_empty()
+  |> validate.range(1, 50)
   |> validate.run()
   |> validate.success(ProductId)
 }
@@ -143,20 +142,28 @@ pub fn create_stock_level(
   available: Int,
   reserved: Int,
 ) -> Result(StockLevel, List(validate.ValidateError)) {
-  let available_validation = validate.field("available", available, [validate.min(_, 0)])
-  let reserved_validation = validate.field("reserved", reserved, [validate.min(_, 0)])
-  let total_validation = validate.field("total", available + reserved, [validate.min(_, 0)])
-  
-  validate.combine_validations([available_validation, reserved_validation, total_validation])
-  |> validate.run()
-  |> result.map(fn(values) {
-    let assert [available_val, reserved_val, total_val] = values
-    // バリデーション済みの値からStockQuantityを直接作成（必ず成功する）
-    let available_qty = StockQuantity(available_val)
-    let reserved_qty = StockQuantity(reserved_val)
-    let total_qty = StockQuantity(total_val)
-    StockLevel(available_qty, reserved_qty, total_qty)
-  })
+  let validate = {
+    use available <- validate.field3(
+      validate.field2("available", available)
+      |> validate.min(0),
+    )
+    use reserved <- validate.field3(
+      validate.field2("reserved", reserved)
+      |> validate.min(0),
+    )
+    use total <- validate.field3(
+      validate.field2("total", available + reserved)
+      |> validate.min(0),
+    )
+
+    StockLevel(
+      StockQuantity(available),
+      StockQuantity(reserved),
+      StockQuantity(total),
+    )
+    |> validate.record()
+  }
+  validate.run(validate)
 }
 
 /// 商品情報

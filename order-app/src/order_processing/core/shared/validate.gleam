@@ -53,6 +53,22 @@ pub fn field(
   validated
 }
 
+pub fn field2(name: String, value: a) -> Validated(a) {
+  Validated(name:, errors: [], function: fn() { value })
+}
+
+pub fn field3(validator: Validated(a), f: fn(a) -> Validated(b)) -> Validated(b) {
+  let value = validator.function()
+  let result = f(value)
+  let errors = [validator.errors, result.errors] |> list.flatten
+
+  Validated(..result, errors:)
+}
+
+pub fn record(value: a) -> Validated(a) {
+  Validated(name: "success", errors: [], function: fn() { value })
+}
+
 fn add_error(validator: Validated(t), error: ValidateError) -> Validated(t) {
   let errors = list.append(validator.errors, [error])
   Validated(..validator, errors:)
@@ -96,23 +112,4 @@ pub fn max(validator: Validated(Int), max_val: Int) -> Validated(Int) {
     True -> validator
     False -> validator |> add_error(LessThan(validator.name, max_val + 1))
   }
-}
-
-/// 複数のvalidationを組み合わせて全エラーを収集
-pub fn combine_validations(
-  validations: List(Validated(a)),
-) -> Validated(List(a)) {
-  let all_errors =
-    validations
-    |> list.flat_map(fn(validation) { validation.errors })
-  
-  let values = 
-    validations
-    |> list.map(fn(validation) { validation.function() })
-  
-  Validated(
-    name: "combined",
-    errors: all_errors,
-    function: fn() { values },
-  )
 }
