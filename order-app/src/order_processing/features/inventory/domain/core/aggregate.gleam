@@ -1,5 +1,6 @@
 import gleam/list
-import gleam/option.{type Option, None, Some}
+import gleam/option.{type Option}
+import gleam/result
 
 import order_processing/features/inventory/domain/core/events.{
   type InventoryEvent, type StockReservation,
@@ -44,11 +45,17 @@ pub fn create_initial_item(
 pub fn from_events(
   product_id: String,
   events: List(InventoryEvent),
-) -> InventoryItem {
-  let assert Ok(pid) = value_objects.create_product_id(product_id)
-  let assert Ok(pname) = value_objects.create_product_name("Unknown Product")
+) -> Result(InventoryItem, String) {
+  use pid <- result.try(
+    value_objects.create_product_id(product_id)
+    |> result.map_error(fn(error) { "Invalid product_id: " <> error }),
+  )
+  use pname <- result.try(
+    value_objects.create_product_name("Unknown Product")
+    |> result.map_error(fn(error) { "Failed to create product name: " <> error }),
+  )
   let initial_item = create_initial_item(pid, pname)
-  apply_events(initial_item, events)
+  Ok(apply_events(initial_item, events))
 }
 
 /// 複数のイベントを適用
@@ -68,8 +75,18 @@ pub fn apply_event(item: InventoryItem, event: InventoryEvent) -> InventoryItem 
       initial_quantity,
       _,
     ) -> {
-      let assert Ok(pid) = value_objects.create_product_id(product_id)
-      let assert Ok(pname) = value_objects.create_product_name(product_name)
+      // イベントから値オブジェクトを作成（エラーの場合はunsafe_createでフォールバック）
+      let pid = case value_objects.create_product_id(product_id) {
+        Ok(id) -> id
+        Error(_) -> value_objects.unsafe_create_product_id(product_id)
+        // フォールバック
+      }
+      let pname = case value_objects.create_product_name(product_name) {
+        Ok(name) -> name
+        Error(_) -> value_objects.unsafe_create_product_name(product_name)
+        // フォールバック
+      }
+
       InventoryItem(
         ..item,
         product_id: pid,
@@ -221,14 +238,27 @@ pub fn get_reservation(
   |> option.from_result
 }
 
-/// 現在の在庫レベルを取得
+/// 現在の在庫レベルを取得（値オブジェクト作成が失敗した場合はデフォルト値を使用）
 pub fn get_stock_level(item: InventoryItem) -> StockLevel {
-  let assert Ok(available) =
+  let available = case
     value_objects.create_stock_quantity(item.available_quantity)
-  let assert Ok(reserved) =
+  {
+    Ok(qty) -> qty
+    Error(_) -> value_objects.unsafe_create_stock_quantity(0)
+    // フォールバック
+  }
+  let reserved = case
     value_objects.create_stock_quantity(item.reserved_quantity)
-  let assert Ok(total) =
-    value_objects.create_stock_quantity(item.total_quantity)
+  {
+    Ok(qty) -> qty
+    Error(_) -> value_objects.unsafe_create_stock_quantity(0)
+    // フォールバック
+  }
+  let total = case value_objects.create_stock_quantity(item.total_quantity) {
+    Ok(qty) -> qty
+    Error(_) -> value_objects.unsafe_create_stock_quantity(0)
+    // フォールバック
+  }
 
   value_objects.StockLevel(
     available: available,

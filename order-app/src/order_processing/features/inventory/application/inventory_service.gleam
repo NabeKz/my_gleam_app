@@ -96,7 +96,12 @@ fn load_inventory_item(store: InventoryStore, product_id: String) -> Option(aggr
     Ok(events) -> {
       case events {
         [] -> None
-        _ -> Some(aggregate.from_events(product_id, events))
+        _ -> {
+          case aggregate.from_events(product_id, events) {
+            Ok(item) -> Some(item)
+            Error(_) -> None  // エラーが発生した場合はNoneを返す
+          }
+        }
       }
     }
     Error(_) -> None

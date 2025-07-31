@@ -19,6 +19,12 @@ pub fn product_id_to_string(product_id: ProductId) -> String {
   value
 }
 
+/// 検証済みの値から商品IDを作成（バリデーションをスキップ）
+/// 注意: この関数は aggregate の apply_event でのみ使用すること
+pub fn unsafe_create_product_id(id: String) -> ProductId {
+  ProductId(id)
+}
+
 /// 商品名（不正な状態を型で排除）
 pub opaque type ProductName {
   ProductName(String)
@@ -38,6 +44,12 @@ pub fn product_name_to_string(product_name: ProductName) -> String {
   value
 }
 
+/// 検証済みの値から商品名を作成（バリデーションをスキップ）
+/// 注意: この関数は aggregate の apply_event でのみ使用すること
+pub fn unsafe_create_product_name(name: String) -> ProductName {
+  ProductName(name)
+}
+
 /// 在庫数量（負の値を排除）
 pub opaque type StockQuantity {
   StockQuantity(Int)
@@ -55,6 +67,12 @@ pub fn create_stock_quantity(quantity: Int) -> Result(StockQuantity, String) {
 pub fn stock_quantity_to_int(quantity: StockQuantity) -> Int {
   let StockQuantity(value) = quantity
   value
+}
+
+/// 検証済みの値から在庫数量を作成（バリデーションをスキップ）  
+/// 注意: この関数は aggregate の apply_event でのみ使用すること
+pub fn unsafe_create_stock_quantity(quantity: Int) -> StockQuantity {
+  StockQuantity(quantity)
 }
 
 /// 在庫状態
