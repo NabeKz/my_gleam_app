@@ -81,23 +81,16 @@ fn apply_product_added_to_inventory(
   product_name: String,
   initial_quantity: Int,
 ) -> Result(InventoryItem, List(validate.ValidateError)) {
-  validate.field2("product_id", product_id)
-  |> validate.field3(fn(pid_str) {
-    case value_objects.create_product_id(pid_str) {
-      Ok(pid) -> validate.record(pid)
-      Error(errors) -> validate.Validated("product_id", errors, fn() { panic })
-    }
-  })
-  |> validate.field3(fn(pid) {
-    case value_objects.create_product_name(product_name) {
-      Ok(pname) -> validate.record(#(pid, pname))
-      Error(errors) ->
-        validate.Validated("product_name", errors, fn() { panic })
-    }
-  })
-  |> validate.run()
-  |> validate.success(fn(tuple) {
-    let #(pid, pname) = tuple
+  let validate = {
+    use pid <- validate.field3(validate.from_result(
+      "product_id",
+      value_objects.create_product_id(product_id),
+    ))
+    use pname <- validate.field3(validate.from_result(
+      "product_name",
+      value_objects.create_product_name(product_name),
+    ))
+
     let status = calculate_status(initial_quantity, 0)
     InventoryItem(
       ..item,
@@ -108,7 +101,9 @@ fn apply_product_added_to_inventory(
       status:,
     )
     |> increment_version()
-  })
+    |> validate.record()
+  }
+  validate.run(validate)
 }
 
 /// StockReceived イベントの処理

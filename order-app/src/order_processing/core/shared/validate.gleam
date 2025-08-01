@@ -69,6 +69,17 @@ pub fn record(value: a) -> Validated(a) {
   Validated(name: "success", errors: [], function: fn() { value })
 }
 
+/// Result型をValidated型に変換
+pub fn from_result(
+  name: String,
+  result: Result(a, List(ValidateError)),
+) -> Validated(a) {
+  case result {
+    Ok(value) -> record(value)
+    Error(errors) -> Validated(name:, errors:, function: fn() { panic })
+  }
+}
+
 fn add_error(validator: Validated(t), error: ValidateError) -> Validated(t) {
   let errors = list.append(validator.errors, [error])
   Validated(..validator, errors:)
