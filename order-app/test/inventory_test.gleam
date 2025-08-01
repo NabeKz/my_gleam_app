@@ -1,11 +1,13 @@
 import gleam/int
 import gleam/list
 import gleam/option.{None, Some}
+import gleam/string
 import gleam/time/calendar
 import gleeunit
 import gleeunit/should
 
 import order_processing/core/shared/aggregate as shared_aggregate
+import order_processing/core/shared/validate
 import order_processing/features/inventory/application/inventory_service
 import order_processing/features/inventory/domain/core/aggregate
 import order_processing/features/inventory/domain/core/events
@@ -314,30 +316,46 @@ pub fn apply_events_test() {
 
   case aggregate.create_initial_item_from_id("prod-001") {
     Ok(initial_item) -> {
-      let item =
-        shared_aggregate.from_events(
+      case
+        shared_aggregate.from_events_result(
           initial_item,
           events,
           aggregate.apply_event,
         )
-      should.equal(
-        "prod-001",
-        value_objects.product_id_to_string(item.product_id),
-      )
-      should.equal(
-        "Test Product",
-        value_objects.product_name_to_string(item.product_name),
-      )
-      should.equal(120, item.available_quantity)
-      // 100 + 50 - 30
-      should.equal(30, item.reserved_quantity)
-      should.equal(150, item.total_quantity)
-      // 100 + 50
-      should.equal(value_objects.Available, item.status)
-      should.equal(3, item.version)
-      should.equal(1, list.length(item.reservations))
+      {
+        Ok(item) -> {
+          should.equal(
+            "prod-001",
+            value_objects.product_id_to_string(item.product_id),
+          )
+          should.equal(
+            "Test Product",
+            value_objects.product_name_to_string(item.product_name),
+          )
+          should.equal(120, item.available_quantity)
+          // 100 + 50 - 30
+          should.equal(30, item.reserved_quantity)
+          should.equal(150, item.total_quantity)
+          // 100 + 50
+          should.equal(value_objects.Available, item.status)
+          should.equal(3, item.version)
+          should.equal(1, list.length(item.reservations))
+        }
+        Error(errors) -> {
+          let error_messages =
+            errors |> list.map(validate.to_string) |> string.join(", ")
+          should.equal(
+            "Expected success",
+            "but got event replay: " <> error_messages,
+          )
+        }
+      }
     }
-    Error(error) -> should.equal("Expected success", "but got: " <> error)
+    Error(errors) -> {
+      let error_messages =
+        errors |> list.map(validate.to_string) |> string.join(", ")
+      should.equal("Expected success", "but got initial: " <> error_messages)
+    }
   }
 }
 

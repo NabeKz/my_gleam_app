@@ -1,8 +1,6 @@
 import gleam/bool
 import gleam/list
 import gleam/option.{type Option}
-import gleam/result
-import gleam/string
 import gleam/time/calendar
 
 import order_processing/core/shared/validate
@@ -48,22 +46,17 @@ pub fn create_initial_item(
 /// イベントから在庫アイテムを復元するための初期値を作成
 pub fn create_initial_item_from_id(
   product_id: String,
-) -> Result(InventoryItem, String) {
-  use pid <- result.try(
-    value_objects.create_product_id(product_id)
-    |> result.map_error(fn(errors) {
-      "Invalid product_id: "
-      <> { errors |> list.map(validate.to_string) |> string.join(", ") }
-    }),
-  )
-  use pname <- result.try(
-    value_objects.create_product_name("Unknown Product")
-    |> result.map_error(fn(errors) {
-      "Failed to create product name: "
-      <> { errors |> list.map(validate.to_string) |> string.join(", ") }
-    }),
-  )
-  create_initial_item(pid, pname) |> Ok()
+) -> Result(InventoryItem, List(validate.ValidateError)) {
+  let pid_result = value_objects.create_product_id(product_id)
+  let pname_result = value_objects.create_product_name("Unknown Product")
+
+  case pid_result, pname_result {
+    Ok(pid), Ok(pname) -> create_initial_item(pid, pname) |> Ok()
+    Error(pid_errors), Ok(_) -> Error(pid_errors)
+    Ok(_), Error(pname_errors) -> Error(pname_errors)
+    Error(pid_errors), Error(pname_errors) ->
+      Error(list.append(pid_errors, pname_errors))
+  }
 }
 
 /// ステータス計算のヘルパー関数
@@ -87,31 +80,36 @@ fn apply_product_added_to_inventory(
   product_id: String,
   product_name: String,
   initial_quantity: Int,
-) -> InventoryItem {
-  // イベントから値オブジェクトを作成（エラーの場合はunsafe_createでフォールバック）
-  let product_id = case value_objects.create_product_id(product_id) {
-    Ok(id) -> id
-    Error(_) -> value_objects.unsafe_create_product_id(product_id)
-  }
-  let product_name = case value_objects.create_product_name(product_name) {
-    Ok(name) -> name
-    Error(_) -> value_objects.unsafe_create_product_name(product_name)
-  }
-  let status = calculate_status(initial_quantity, 0)
+) -> Result(InventoryItem, List(validate.ValidateError)) {
+  let pid_result = value_objects.create_product_id(product_id)
+  let pname_result = value_objects.create_product_name(product_name)
 
-  InventoryItem(
-    ..item,
-    product_id:,
-    product_name:,
-    available_quantity: initial_quantity,
-    total_quantity: initial_quantity,
-    status:,
-  )
-  |> increment_version()
+  case pid_result, pname_result {
+    Ok(pid), Ok(pname) -> {
+      let status = calculate_status(initial_quantity, 0)
+      InventoryItem(
+        ..item,
+        product_id: pid,
+        product_name: pname,
+        available_quantity: initial_quantity,
+        total_quantity: initial_quantity,
+        status:,
+      )
+      |> increment_version()
+      |> Ok()
+    }
+    Error(pid_errors), Ok(_) -> Error(pid_errors)
+    Ok(_), Error(pname_errors) -> Error(pname_errors)
+    Error(pid_errors), Error(pname_errors) ->
+      Error(list.append(pid_errors, pname_errors))
+  }
 }
 
 /// StockReceived イベントの処理
-fn apply_stock_received(item: InventoryItem, quantity: Int) -> InventoryItem {
+fn apply_stock_received(
+  item: InventoryItem,
+  quantity: Int,
+) -> Result(InventoryItem, List(validate.ValidateError)) {
   let new_available = item.available_quantity + quantity
   let new_total = item.total_quantity + quantity
   InventoryItem(
@@ -121,6 +119,7 @@ fn apply_stock_received(item: InventoryItem, quantity: Int) -> InventoryItem {
     status: calculate_status(new_available, item.reserved_quantity),
   )
   |> increment_version()
+  |> Ok()
 }
 
 /// StockReserved イベントの処理
@@ -129,7 +128,7 @@ fn apply_stock_reserved(
   quantity: Int,
   reserved_for: String,
   reserved_at: calendar.Date,
-) -> InventoryItem {
+) -> Result(InventoryItem, List(validate.ValidateError)) {
   let new_available = item.available_quantity - quantity
   let new_reserved = item.reserved_quantity + quantity
   let new_reservation =
@@ -148,6 +147,7 @@ fn apply_stock_reserved(
     status: calculate_status(new_available, new_reserved),
   )
   |> increment_version()
+  |> Ok()
 }
 
 /// StockReservationReleased イベントの処理
@@ -155,7 +155,7 @@ fn apply_stock_reservation_released(
   item: InventoryItem,
   quantity: Int,
   reservation_id: String,
-) -> InventoryItem {
+) -> Result(InventoryItem, List(validate.ValidateError)) {
   let new_available = item.available_quantity + quantity
   let new_reserved = item.reserved_quantity - quantity
   let updated_reservations =
@@ -168,10 +168,14 @@ fn apply_stock_reservation_released(
     status: calculate_status(new_available, new_reserved),
   )
   |> increment_version()
+  |> Ok()
 }
 
 /// StockIssued イベントの処理
-fn apply_stock_issued(item: InventoryItem, quantity: Int) -> InventoryItem {
+fn apply_stock_issued(
+  item: InventoryItem,
+  quantity: Int,
+) -> Result(InventoryItem, List(validate.ValidateError)) {
   let new_reserved = item.reserved_quantity - quantity
   let new_total = item.total_quantity - quantity
   InventoryItem(
@@ -181,10 +185,14 @@ fn apply_stock_issued(item: InventoryItem, quantity: Int) -> InventoryItem {
     status: calculate_status(item.available_quantity, new_reserved),
   )
   |> increment_version()
+  |> Ok()
 }
 
 /// StockAdjusted イベントの処理
-fn apply_stock_adjusted(item: InventoryItem, new_quantity: Int) -> InventoryItem {
+fn apply_stock_adjusted(
+  item: InventoryItem,
+  new_quantity: Int,
+) -> Result(InventoryItem, List(validate.ValidateError)) {
   let quantity_diff = new_quantity - item.total_quantity
   let new_available = item.available_quantity + quantity_diff
   InventoryItem(
@@ -194,9 +202,13 @@ fn apply_stock_adjusted(item: InventoryItem, new_quantity: Int) -> InventoryItem
     status: calculate_status(new_available, item.reserved_quantity),
   )
   |> increment_version()
+  |> Ok()
 }
 
-pub fn apply_event(item: InventoryItem, event: InventoryEvent) -> InventoryItem {
+pub fn apply_event(
+  item: InventoryItem,
+  event: InventoryEvent,
+) -> Result(InventoryItem, List(validate.ValidateError)) {
   case event {
     events.ProductAddedToInventory(
       product_id,
@@ -227,7 +239,7 @@ pub fn apply_event(item: InventoryItem, event: InventoryEvent) -> InventoryItem 
 
     events.StockShortage(..) ->
       // 在庫不足イベントは状態を変更しない（記録のみ）
-      increment_version(item)
+      increment_version(item) |> Ok()
   }
 }
 

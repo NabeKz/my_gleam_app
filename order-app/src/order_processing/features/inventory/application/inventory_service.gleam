@@ -115,13 +115,17 @@ fn load_inventory_item(
         _ -> {
           case aggregate.create_initial_item_from_id(product_id) {
             Ok(initial_item) -> {
-              let final_item =
-                shared_aggregate.from_events(
+              case
+                shared_aggregate.from_events_result(
                   initial_item,
                   events,
                   aggregate.apply_event,
                 )
-              Some(final_item)
+              {
+                Ok(final_item) -> Some(final_item)
+                Error(_) -> None
+                // イベント適用エラーの場合はNoneを返す
+              }
             }
             Error(_) -> None
             // 初期化エラーの場合はNoneを返す
