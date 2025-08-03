@@ -10,6 +10,7 @@ pub type LoanRepository {
     get_loan_by_id: GetLoanByBookId,
     save_loan: SaveLoan,
     put_loan: UpdateLoan,
+    extend_loan: ExtendLoan,
   )
 }
 
@@ -40,6 +41,9 @@ pub type CreateLoanParams {
 
 // update
 pub type UpdateLoan =
+  fn(loan.Loan) -> Result(Nil, List(String))
+
+pub type ExtendLoan =
   fn(loan.Loan) -> Result(Nil, List(String))
 
 pub type UpdateLoanParams {

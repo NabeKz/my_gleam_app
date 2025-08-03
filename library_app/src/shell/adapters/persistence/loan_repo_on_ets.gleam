@@ -20,6 +20,7 @@ pub fn new() -> loan_repository.LoanRepository {
     get_loan_by_id: get_loan_by_id(_, conn),
     save_loan: save_loan(_, conn),
     put_loan: put_loan(_, conn),
+    extend_loan: extend_loan(_, conn),
   )
 }
 
@@ -69,5 +70,9 @@ fn save_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, List(String)) {
 }
 
 fn put_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, List(String)) {
+  conn.update(#(loan |> loan.id_value, loan))
+}
+
+fn extend_loan(loan: loan.Loan, conn: LoanRepo) -> Result(Nil, List(String)) {
   conn.update(#(loan |> loan.id_value, loan))
 }

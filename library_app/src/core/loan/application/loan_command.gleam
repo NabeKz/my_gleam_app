@@ -15,6 +15,9 @@ pub type CreateLoan =
 pub type ReturnLoan =
   fn(String) -> Result(Nil, List(String))
 
+pub type ExtendLoan =
+  fn(String) -> Result(Nil, List(String))
+
 type ValidatedUser {
   ValidatedUser(user: user.User)
 }
@@ -105,6 +108,27 @@ pub fn return_book_workflow(
     |> loan.return_book(loan, _)
     |> error_to_list()
     |> result.map(update_loan)
+    |> result.flatten()
+  }
+}
+
+pub fn extend_loan_workflow(
+  current_date: date.GetDate,
+  get_specify_schedules: specify_schedule.GetSpecifySchedulesAfterCurrentDate,
+  get_loan: loan_repository.GetLoan,
+  extend_loan: loan_repository.ExtendLoan,
+) -> ExtendLoan {
+  fn(loan_id) {
+    use loan <- result.try(
+      loan_repository.GetLoanParams(loan_id) |> get_loan()
+    )
+
+    let schedules = current_date() |> get_specify_schedules()
+    
+    loan
+    |> loan.extend_loan(current_date(), schedules)
+    |> error_to_list()
+    |> result.map(extend_loan)
     |> result.flatten()
   }
 }

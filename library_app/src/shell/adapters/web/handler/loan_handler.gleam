@@ -51,6 +51,7 @@ fn serialize(loan: loan.Loan) -> json.Json {
       loan.return_date
         |> json.map_or(date.to_string, "", json.string),
     ),
+    #("extension_count", loan.extension_count |> json.int()),
   ]
   |> json.object()
 }
@@ -60,6 +61,16 @@ pub fn update_loan_by_return_book(
   ops: context.Operations,
 ) -> wisp.Response {
   case ops.loan.update(book_id) {
+    Ok(_) -> wisp.no_content()
+    Error(error) -> json.bad_request(error |> json.array(json.string))
+  }
+}
+
+pub fn extend_loan(
+  loan_id: String,
+  ops: context.Operations,
+) -> wisp.Response {
+  case ops.loan.extend(loan_id) {
     Ok(_) -> wisp.no_content()
     Error(error) -> json.bad_request(error |> json.array(json.string))
   }
