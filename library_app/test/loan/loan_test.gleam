@@ -1,6 +1,7 @@
 import gleam/dynamic/decode
 import gleam/json
 import gleam/list
+import gleam/option
 import gleam/result
 import gleeunit
 import gleeunit/should
@@ -23,7 +24,7 @@ pub fn main() {
 
 pub fn get_loans_success_test() {
   let req = testing.get("/api/loans?hoge=1", [])
-  let assert Ok(book) = book.new("a", "b")
+  let assert Ok(_book) = book.new("a", "b")
   let ctx = context.new()
 
   let repos =
@@ -33,19 +34,19 @@ pub fn get_loans_success_test() {
         get_loans: fn(_) {
           [
             loan.new(
-              book.id,
+              book.id_from_string("1"),
               user.id_from_string("1"),
               date.from(#(2025, 7, 31)),
               [],
             ),
             loan.new(
-              book.id,
+              book.id_from_string("2"),
               user.id_from_string("2"),
               date.from(#(2025, 8, 1)),
               [],
             ),
             loan.new(
-              book.id,
+              book.id_from_string("3"),
               user.id_from_string("3"),
               date.from(#(2025, 8, 30)),
               [],
@@ -57,6 +58,7 @@ pub fn get_loans_success_test() {
         get_loan_by_id: fn(_) { Error(["not implemented"]) },
         save_loan: fn(_) { Ok(Nil) },
         put_loan: fn(_) { Ok(Nil) },
+        extend_loan: fn(_) { Ok(Nil) },
       ),
       schedule: context.mock_repositories().schedule,
     )
@@ -104,6 +106,7 @@ pub fn create_loan_success_test() {
         get_loan_by_id: fn(_) { Error(["not implemented"]) },
         save_loan: fn(_) { Ok(Nil) },
         put_loan: fn(_) { Ok(Nil) },
+        extend_loan: fn(_) { Ok(Nil) },
       ),
       schedule: schedule_repository.ScheduleRepository(
         get_specify_schedules: fn(_) { [] },
@@ -209,4 +212,85 @@ pub fn is_loan_limit_false_test() {
   expect
   |> loan.is_loan_limit()
   |> should.be_false()
+}
+
+pub fn extend_loan_success_test() {
+  let loan_date = date.from(#(2025, 7, 1))
+  let due_date = date.from(#(2025, 7, 15))
+  let current_date = date.from(#(2025, 7, 10))
+  
+  let test_loan = loan.Loan(
+    id: loan.id_from_string("test-id"),
+    book_id: book.id_from_string("1"),
+    user_id: user.id_from_string("a"),
+    loan_date: loan_date,
+    due_date: due_date,
+    return_date: option.None,
+    extension_count: 0,
+  )
+
+  test_loan
+  |> loan.extend_loan(current_date, [])
+  |> should.be_ok()
+}
+
+pub fn extend_loan_already_extended_test() {
+  let loan_date = date.from(#(2025, 7, 1))
+  let due_date = date.from(#(2025, 7, 15))
+  let current_date = date.from(#(2025, 7, 10))
+  
+  let test_loan = loan.Loan(
+    id: loan.id_from_string("test-id"),
+    book_id: book.id_from_string("1"),
+    user_id: user.id_from_string("a"),
+    loan_date: loan_date,
+    due_date: due_date,
+    return_date: option.None,
+    extension_count: 1,
+  )
+
+  test_loan
+  |> loan.extend_loan(current_date, [])
+  |> should.be_error()
+}
+
+pub fn extend_loan_overdue_test() {
+  let loan_date = date.from(#(2025, 7, 1))
+  let due_date = date.from(#(2025, 7, 15))
+  let current_date = date.from(#(2025, 7, 20))
+  
+  let test_loan = loan.Loan(
+    id: loan.id_from_string("test-id"),
+    book_id: book.id_from_string("1"),
+    user_id: user.id_from_string("a"),
+    loan_date: loan_date,
+    due_date: due_date,
+    return_date: option.None,
+    extension_count: 0,
+  )
+
+  test_loan
+  |> loan.extend_loan(current_date, [])
+  |> should.be_error()
+}
+
+pub fn extend_loan_already_returned_test() {
+  let loan_date = date.from(#(2025, 7, 1))
+  let due_date = date.from(#(2025, 7, 15))
+  let current_date = date.from(#(2025, 7, 10))
+  let return_date = date.from(#(2025, 7, 8))
+  
+  let test_loan = loan.Loan(
+    id: loan.id_from_string("test-id"),
+    book_id: book.id_from_string("1"),
+    user_id: user.id_from_string("a"),
+    loan_date: loan_date,
+    due_date: due_date,
+    return_date: option.Some(return_date),
+    extension_count: 0,
+  )
+
+  test_loan
+  |> loan.extend_loan(current_date, [])
+  |> should.be_error()
 }

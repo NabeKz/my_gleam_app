@@ -35,6 +35,7 @@ pub type LoanOperations {
   LoanOperations(
     create: loan_command.CreateLoan,
     update: loan_command.ReturnLoan,
+    extend: loan_command.ExtendLoan,
     get: loan_query.GetLoan,
     get_all: loan_query.GetLoans,
   )
@@ -79,6 +80,7 @@ pub fn mock_repositories() -> Repositories {
       get_loan_by_id: fn(_) { Error(["not implemented"]) },
       save_loan: fn(_) { Ok(Nil) },
       put_loan: fn(_) { Ok(Nil) },
+      extend_loan: fn(_) { Ok(Nil) },
     ),
     schedule: schedule_repository.ScheduleRepository(
       get_specify_schedules: fn(_) { [] },
@@ -118,6 +120,12 @@ pub fn create_operations(ctx: Context, repos: Repositories) -> Operations {
         ctx.current_date,
         repos.loan.get_loan_by_id,
         repos.loan.put_loan,
+      ),
+      extend: loan_command.extend_loan_workflow(
+        ctx.current_date,
+        repos.schedule.get_specify_schedules,
+        repos.loan.get_loan,
+        repos.loan.extend_loan,
       ),
       get: repos.loan.get_loan,
       get_all: repos.loan.get_loans,

@@ -22,6 +22,8 @@ pub fn handle_request(
       loan_handler.create_loan(req, ctx, ops, book_id)
     ["loans", book_id], Put ->
       loan_handler.update_loan_by_return_book(book_id, ops)
+    ["loans", loan_id, "extend"], Put ->
+      loan_handler.extend_loan(loan_id, ops)
     ["loans"], Get -> loan_handler.get_loans(req, ops)
     ["loans", id], Get -> loan_handler.get_loan(id, ops)
     ["health_check"], Get -> health_check()
