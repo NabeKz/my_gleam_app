@@ -14,6 +14,46 @@ pub type ValidateError {
   GreaterThan(field: String, value: Int)
 }
 
+/// rules
+pub fn non_empty(validator: Validated(String)) -> Validated(String) {
+  let result = validator.function()
+  let size = result |> string.length
+  case size > 0 {
+    True -> validator
+    False -> validator |> add_error(Required(validator.name))
+  }
+}
+
+pub fn range(
+  validator: Validated(String),
+  min: Int,
+  max: Int,
+) -> Validated(String) {
+  let length = validator.function() |> string.length
+  let cond = length >= min && length <= max
+
+  case cond {
+    True -> validator
+    False -> validator |> add_error(Length(validator.name, min, max))
+  }
+}
+
+pub fn min(validator: Validated(Int), min_val: Int) -> Validated(Int) {
+  let value = validator.function()
+  case value >= min_val {
+    True -> validator
+    False -> validator |> add_error(GreaterThan(validator.name, min_val - 1))
+  }
+}
+
+pub fn max(validator: Validated(Int), max_val: Int) -> Validated(Int) {
+  let value = validator.function()
+  case value <= max_val {
+    True -> validator
+    False -> validator |> add_error(LessThan(validator.name, max_val + 1))
+  }
+}
+
 /// utils
 pub fn to_string(error: ValidateError) -> String {
   case error {
@@ -85,42 +125,13 @@ fn add_error(validator: Validated(t), error: ValidateError) -> Validated(t) {
   Validated(..validator, errors:)
 }
 
-/// rules
-pub fn non_empty(validator: Validated(String)) -> Validated(String) {
-  let result = validator.function()
-  let size = result |> string.length
-  case size > 0 {
-    True -> validator
-    False -> validator |> add_error(Required(validator.name))
-  }
-}
-
-pub fn range(
-  validator: Validated(String),
-  min: Int,
-  max: Int,
-) -> Validated(String) {
-  let length = validator.function() |> string.length
-  let cond = length >= min && length <= max
-
-  case cond {
-    True -> validator
-    False -> validator |> add_error(Length(validator.name, min, max))
-  }
-}
-
-pub fn min(validator: Validated(Int), min_val: Int) -> Validated(Int) {
-  let value = validator.function()
-  case value >= min_val {
-    True -> validator
-    False -> validator |> add_error(GreaterThan(validator.name, min_val - 1))
-  }
-}
-
-pub fn max(validator: Validated(Int), max_val: Int) -> Validated(Int) {
-  let value = validator.function()
-  case value <= max_val {
-    True -> validator
-    False -> validator |> add_error(LessThan(validator.name, max_val + 1))
+pub fn chain_result(
+  result: Result(a, List(ValidateError)),
+  name: String,
+  f: fn(a) -> Validated(b),
+) -> Validated(b) {
+  case result {
+    Ok(value) -> f(value)
+    Error(errors) -> Validated(name, errors, fn() { panic })
   }
 }
