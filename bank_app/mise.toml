@@ -1,0 +1,18 @@
+[tools]
+atlas = "latest"
+erlang = "latest"
+gleam = "latest"
+rebar = "latest"
+sqlite = "latest"
+
+[tasks."db:reset"]
+dir = "src/db"
+run = """
+atlas schema clean --env local --auto-approve
+"""
+
+[tasks."db:migrate"]
+dir = "src/db"
+run = """
+atlas schema apply --env local --auto-approve
+"""
