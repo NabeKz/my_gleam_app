@@ -5,7 +5,7 @@ import mist
 import wisp
 import wisp/wisp_mist
 
-import shared/db/db
+import shared/db
 
 pub fn main() -> Nil {
   wisp.configure_logger()

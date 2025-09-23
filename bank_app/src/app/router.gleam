@@ -1,10 +1,10 @@
-import gleam/http.{Get}
+import features/account/usecase
+import gleam/http.{Get, Post}
 import gleam/json
 import gleam/result
 import wisp
 
 import app/context
-import shared/db/db
 
 pub fn handle_request(ctx: context.Context, req: wisp.Request) -> wisp.Response {
   let path = wisp.path_segments(req)
@@ -16,7 +16,13 @@ pub fn handle_request(ctx: context.Context, req: wisp.Request) -> wisp.Response 
       |> wisp.json_response(200)
     }
     ["db"], Get -> {
-      db.exec(ctx.connection)
+      usecase.invoke(ctx.connection)
+      |> result.map(fn(_) { wisp.ok() })
+      |> result.map_error(fn(_) { wisp.bad_request("ng") })
+      |> result.unwrap_both()
+    }
+    ["db"], Post -> {
+      usecase.exec(ctx.connection)
       |> result.map(fn(_) { wisp.created() })
       |> result.map_error(fn(_) { wisp.bad_request("ng") })
       |> result.unwrap_both()

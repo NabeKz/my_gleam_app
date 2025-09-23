@@ -1,3 +1,6 @@
 ###
 GET http://localhost:8000/health
-Accept: application/json
+###
+GET http://localhost:8000/db
+###
+POST http://localhost:8000/db

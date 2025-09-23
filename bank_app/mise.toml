@@ -6,13 +6,31 @@ rebar = "latest"
 sqlite = "latest"
 
 [tasks."db:reset"]
-dir = "src/db"
+dir = "db"
 run = """
 atlas schema clean --env local --auto-approve
 """
 
+[tasks."db:output"]
+dir = "db"
+run = """
+atlas schema inspect --env local
+"""
+
+[tasks."db:debug"]
+dir = "db"
+run = """
+sqlite3 database.sqlite3
+"""
+
 [tasks."db:migrate"]
-dir = "src/db"
+dir = "db"
 run = """
 atlas schema apply --env local --auto-approve
+"""
+
+[tasks."serve"]
+run = """
+  watchexec --restart --clear --wrap-process=session --stop-signal SIGTERM \
+  --exts gleam --watch src/ -- "gleam run"
 """

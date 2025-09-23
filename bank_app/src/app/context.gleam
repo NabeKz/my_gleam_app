@@ -1,4 +1,4 @@
-import shared/db/db
+import shared/db
 
 pub type Context {
   Context(connection: db.Connection)
