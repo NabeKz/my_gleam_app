@@ -1,4 +1,5 @@
 import gleam/dynamic/decode
+import gleam/result
 import shared/ffi/os
 import sqlight
 
@@ -7,7 +8,7 @@ pub type Connection {
 }
 
 pub type Sql {
-  Sql(value: String, args: List(sqlight.Value))
+  Sql(statement: String, args: List(sqlight.Value))
 }
 
 pub fn new() {
@@ -18,14 +19,45 @@ pub fn new() {
   Connection(connection)
 }
 
-pub fn exec(sql: String, connection: Connection) {
+pub fn exec(statement: String, connection: Connection) {
   let Connection(connection) = connection
 
-  sqlight.exec(sql, connection)
+  let _ = sqlight.exec(statement, connection)
+}
+
+pub fn exec_with(sql: Sql, connection: Connection) {
+  let Connection(connection) = connection
+  let Sql(statement, args) = sql
+
+  let _ = sqlight.query(statement, connection, args, decode.success(Nil))
+}
+
+pub fn exec_with_result(
+  sql: Sql,
+  connection: Connection,
+) -> Result(Nil, sqlight.Error) {
+  let Connection(connection) = connection
+  let Sql(statement, args) = sql
+
+  sqlight.query(statement, connection, args, decode.success(Nil))
+  |> result.map(fn(_) { Nil })
 }
 
 pub fn query(sql: String, connection: Connection, decoder: decode.Decoder(t)) {
-  let Connection(connection) = connection
+  query_with(Sql(sql, []), connection, decoder)
+}
 
-  sqlight.query(sql, connection, [], decoder)
+pub fn query_with(
+  sql: Sql,
+  connection: Connection,
+  decoder: decode.Decoder(t),
+) {
+  let Connection(connection) = connection
+  let Sql(statement, args) = sql
+
+  sqlight.query(statement, connection, args, decoder)
+}
+
+pub fn sql(statement: String, args: List(sqlight.Value)) -> Sql {
+  Sql(statement, args)
 }
