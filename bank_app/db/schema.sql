@@ -11,3 +11,7 @@ CREATE TABLE journals (
 
 CREATE INDEX journals_aggregate_idx
     ON journals (aggregate_type, aggregate_id);
+
+CREATE TABLE bank_projection (
+    id TEXT PRIMARY
+);
