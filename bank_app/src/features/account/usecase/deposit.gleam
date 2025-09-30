@@ -1,20 +1,24 @@
-import features/account/domain
-import shared/event_store
+import features/account/domain/aggregate as domain
+import features/account/usecase/port
 
 pub fn deposit(
-  message: domain.CounterEvent,
-  get_counter: domain.GetCounter,
-  store: event_store.Store,
+  aggregate_id: String,
+  event: domain.CounterEvent,
+  load_events: port.LoadEvents,
+  append_events: port.AppendEvents,
 ) {
-  let id = "a"
+  case load_events(aggregate_id) {
+    Ok(events) -> {
+      let current = domain.new() |> domain.replay(events)
 
-  case get_counter(id) {
-    Ok(counter) -> {
-      counter
-      |> domain.handle_message(message)
-      |> event_store.apply(store, _)
+      case append_events(aggregate_id, [event]) {
+        Ok(_) -> {
+          let next = domain.handle(current, event)
 
-      Ok(Nil)
+          Ok(next)
+        }
+        Error(error) -> Error(error)
+      }
     }
     Error(error) -> Error(error)
   }
