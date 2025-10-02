@@ -1,25 +1,17 @@
-import features/account/domain/aggregate as domain
+import features/account/domain/aggregate
 import features/account/usecase/port
+import gleam/result
 
 pub fn deposit(
   aggregate_id: String,
-  event: domain.CounterEvent,
+  event: aggregate.CounterEvent,
   load_events: port.LoadEvents,
   append_events: port.AppendEvents,
 ) {
-  case load_events(aggregate_id) {
-    Ok(events) -> {
-      let current = domain.new() |> domain.replay(events)
+  use events <- result.try(load_events(aggregate_id))
 
-      case append_events(aggregate_id, [event]) {
-        Ok(_) -> {
-          let next = domain.handle(current, event)
+  let current = aggregate.new() |> aggregate.replay(events)
+  use _ <- result.try(append_events(aggregate_id, [event]))
 
-          Ok(next)
-        }
-        Error(error) -> Error(error)
-      }
-    }
-    Error(error) -> Error(error)
-  }
+  aggregate.handle(current, event) |> Ok()
 }
