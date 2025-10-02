@@ -1,8 +1,8 @@
 import features/account/domain/aggregate
+import features/account/usecase/error
 
-// TODO: impl Error type
 pub type LoadEvents =
-  fn(String) -> Result(List(aggregate.CounterEvent), String)
+  fn(String) -> Result(List(aggregate.CounterEvent), error.AppError)
 
 pub type AppendEvents =
-  fn(String, List(aggregate.CounterEvent)) -> Result(Nil, String)
+  fn(String, List(aggregate.CounterEvent)) -> Result(Nil, error.AppError)
