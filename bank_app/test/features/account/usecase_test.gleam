@@ -5,16 +5,23 @@ import shared/db
 import sqlight
 
 fn new_connection() -> db.Connection {
-  let assert Ok(sql_connection) = sqlight.open(":memory:")
-
-  db.Connection(sql_connection)
+  db.new(":memory:")
 }
 
 fn create_journals_table(connection: db.Connection) -> Nil {
   let assert Ok(_) =
     db.exec_with(
       db.sql(
-        "CREATE TABLE journals (id INTEGER PRIMARY KEY AUTOINCREMENT, aggregate_type TEXT NOT NULL, event TEXT NOT NULL, created_at TEXT NOT NULL);",
+        "\n        CREATE TABLE journals (\n          id INTEGER PRIMARY KEY AUTOINCREMENT,\n          aggregate_type TEXT NOT NULL,\n          aggregate_id TEXT NOT NULL,\n          version INTEGER NOT NULL,\n          event_type TEXT NOT NULL,\n          event TEXT NOT NULL,\n          created_at TEXT NOT NULL DEFAULT (datetime('now')),\n          UNIQUE(aggregate_type, aggregate_id, version)\n        );\n        ",
+        [],
+      ),
+      connection,
+    )
+
+  let assert Ok(_) =
+    db.exec_with(
+      db.sql(
+        "\n        CREATE INDEX journals_aggregate_idx\n          ON journals (aggregate_type, aggregate_id);\n        ",
         [],
       ),
       connection,
@@ -30,10 +37,13 @@ pub fn invoke_returns_journals_test() {
   let assert Ok(_) =
     db.exec_with(
       db.sql(
-        "INSERT INTO journals (aggregate_type, event, created_at) VALUES (?, ?, ?);",
+        "\n        INSERT INTO journals (\n          aggregate_type,\n          aggregate_id,\n          version,\n          event_type,\n          event,\n          created_at\n        ) VALUES (?, ?, ?, ?, ?, ?);\n        ",
         [
           sqlight.text("account"),
-          sqlight.text("Upped"),
+          sqlight.text("counter-123"),
+          sqlight.int(1),
+          sqlight.text("account.deposited"),
+          sqlight.text("{\"amount\":100}"),
           sqlight.text("2024-01-01T00:00:00Z"),
         ],
       ),
@@ -43,7 +53,17 @@ pub fn invoke_returns_journals_test() {
   case usecase.invoke(connection) {
     Ok(journals) -> {
       assert journals
-        == [usecase.Journal(1, "account", "Upped", "2024-01-01T00:00:00Z")]
+        == [
+          usecase.Journal(
+            1,
+            "account",
+            "counter-123",
+            1,
+            "account.deposited",
+            "{\"amount\":100}",
+            "2024-01-01T00:00:00Z",
+          ),
+        ]
 
       Nil
     }
@@ -74,7 +94,18 @@ pub fn exec_inserts_journal_entry_test() {
 
       case usecase.invoke(connection) {
         Ok(journals) -> {
-          assert journals == [usecase.Journal(1, "a", "c", "2025-10-10")]
+          assert journals
+            == [
+              usecase.Journal(
+                1,
+                "account",
+                "counter-1",
+                1,
+                "account.deposited",
+                "credited",
+                "2025-10-10T00:00:00Z",
+              ),
+            ]
 
           Nil
         }
