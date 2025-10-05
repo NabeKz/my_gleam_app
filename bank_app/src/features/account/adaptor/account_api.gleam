@@ -29,3 +29,7 @@ fn error_message(err: error.AppError) -> String {
     error.AppendFailed(message) -> message
   }
 }
+
+fn resolve_event(_req: wisp.Request) -> aggregate.CounterEvent {
+  aggregate.Upped
+}
