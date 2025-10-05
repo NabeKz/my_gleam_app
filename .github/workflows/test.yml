@@ -15,6 +15,7 @@ defaults:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -33,6 +34,7 @@ jobs:
       - name: Install Gleam
         uses: jdx/mise-action@156251fcc627ac4e26cb0f93dd47d1d4979abf24 # v3.3.0
         with:
+          cache: true
           working_directory: |
             bank_app
 
