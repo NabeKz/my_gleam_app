@@ -2,23 +2,37 @@ name: test
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - master
-  #     - main
-  # pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - bank_app/**/*
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bank_app
     steps:
-      - uses: actions/checkout@v4
-      - uses: erlef/setup-beam@v1
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          otp-version: "27.1.2"
-          gleam-version: "1.11.1"
-          rebar3-version: "3"
-          # elixir-version: "1.15.4"
-      - run: gleam deps download
-      - run: gleam test
-      - run: gleam format --check src test
+          sparse-checkout: |
+            bank_app
+          sparse-checkout-cone: true
+
+      - name: Install Gleam
+        uses: jdx/mise-action@156251fcc627ac4e26cb0f93dd47d1d4979abf24 # v3.3.0
+
+      - name: Install Deps
+        run: |
+          gleam deps download
+      
+      - name: Check format
+        run: |
+          gleam format --check src test
+      
+      - name: Run Test
+        run: |
+          gleam test
