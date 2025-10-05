@@ -1,6 +1,5 @@
 import gleam/dynamic/decode
 import gleam/result
-import shared/ffi/os
 import sqlight
 
 pub type Connection {
