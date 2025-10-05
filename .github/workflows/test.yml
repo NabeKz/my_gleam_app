@@ -20,8 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
-          sparse-checkout: |
-            bank_app
+          sparse-checkout: bank_app
 
       - name: Install Gleam
         uses: jdx/mise-action@156251fcc627ac4e26cb0f93dd47d1d4979abf24 # v3.3.0
