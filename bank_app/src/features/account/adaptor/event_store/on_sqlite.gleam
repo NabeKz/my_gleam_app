@@ -5,11 +5,11 @@ import shared/db
 import sqlight
 
 pub fn load_events(_connection: db.Connection) -> port.LoadEvents {
-  fn(_aggregate_id) { Ok([]) }
+  fn(_aggregate_id) { Ok(port.EventStream([], 0)) }
 }
 
 pub fn append_events(connection: db.Connection) -> port.AppendEvents {
-  fn(aggregate_id, _events) {
+  fn(aggregate_id, version, _events) {
     db.Sql(
       statement: "
         insert into journals (
@@ -25,6 +25,8 @@ pub fn append_events(connection: db.Connection) -> port.AppendEvents {
       args: [
         sqlight.text("account"),
         sqlight.text(aggregate_id),
+        sqlight.int(version),
+        sqlight.text(""),
         sqlight.text(""),
         sqlight.text(""),
       ],

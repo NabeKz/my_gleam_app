@@ -9,15 +9,22 @@ pub fn deposit(
   aggregate_id: uuid.Generate,
   load_events: port.LoadEvents,
   append_events: port.AppendEvents,
-) -> Result(aggregate.Account, error.AppError) {
+) -> Result(port.AggregateContext(aggregate.Account), error.AppError) {
   let id = aggregate_id()
-  use events <- result.try(load_events(id))
+  use port.EventStream(events, version) <- result.try(load_events(id))
 
-  let current = id |> aggregate.new() |> aggregate.replay(events)
+  let current =
+    id
+    |> aggregate.new()
+    |> aggregate.replay(events)
+
   let event = aggregate.Upped
-  use _ <- result.try(append_events(id, [event]))
+  use _ <- result.try(append_events(id, version, [event]))
 
-  aggregate.handle(current, event) |> Ok()
+  current
+  |> aggregate.handle(event)
+  |> fn(acc) { port.AggregateContext(acc, version + 1) }
+  |> Ok
 }
 
 pub fn create(
@@ -28,15 +35,10 @@ pub fn create(
   let account = aggregate_id |> aggregate.new()
   let created_event = aggregate.Created
 
-  use _ <- result.try(append_events(aggregate_id, [created_event]))
+  use _ <- result.try(append_events(aggregate_id, 0, [created_event]))
 
   account
   |> aggregate.handle(created_event)
-  |> port.AggregateContext(1)
-  |> increment()
+  |> fn(acc) { port.AggregateContext(acc, 1) }
   |> Ok
-}
-
-fn increment(ctx: port.AggregateContext(t)) -> port.AggregateContext(t) {
-  port.AggregateContext(data: ctx.data, version: ctx.version + 1)
 }
