@@ -1,12 +1,12 @@
-import features/account/adaptor/rdb
-import features/account/usecase/deposit
-import features/account/usecase/port
+import features/account/adaptor/event_store/on_sqlite
+import features/account/application/port
+import features/account/application/usecase
 import shared/db
 import shared/ffi/os
 import shared/uuid
 
 pub type Usecase {
-  Usecase(account: port.Usecase)
+  Usecase(deposit: port.Deposit, create: port.Create)
 }
 
 pub type Context {
@@ -23,15 +23,15 @@ pub fn new() -> Context {
   let deps = deps(connection)
 
   let account_usecase =
-    port.Usecase(deposit: fn() {
-      deposit.deposit(deps.generate_id, deps.load_events, deps.append_events)
-    })
+    Usecase(
+      deposit: fn() {
+        // usecase.deposit(deps.generate_id, deps.load_events, deps.append_events)
+        todo
+      },
+      create: fn() { todo },
+    )
 
-  Context(
-    connection:,
-    generate_id: deps.generate_id,
-    usecase: Usecase(account: account_usecase),
-  )
+  Context(connection:, generate_id: deps.generate_id, usecase: account_usecase)
 }
 
 pub type Deps {
@@ -45,7 +45,7 @@ pub type Deps {
 fn deps(connection: db.Connection) -> Deps {
   Deps(
     generate_id: uuid.v4,
-    load_events: rdb.load_events(connection),
-    append_events: rdb.append_events(connection),
+    load_events: on_sqlite.load_events(connection),
+    append_events: on_sqlite.append_events(connection),
   )
 }

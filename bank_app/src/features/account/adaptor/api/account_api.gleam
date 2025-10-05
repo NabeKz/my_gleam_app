@@ -1,19 +1,21 @@
 import gleam/int
 import wisp
 
+import features/account/application/error
+import features/account/application/port
 import features/account/domain/aggregate
-import features/account/usecase/error
-import features/account/usecase/port
 
-pub fn post(usecase: port.Usecase) -> wisp.Response {
-  case usecase.deposit() {
+pub fn post(usecase: port.Create) -> wisp.Response {
+  case usecase() {
     Ok(counter) -> respond_created(counter)
     Error(err) -> respond_error(err)
   }
 }
 
-fn respond_created(counter: aggregate.Counter) -> wisp.Response {
-  let body = aggregate.value(counter) |> int.to_string()
+fn respond_created(
+  ctx: port.AggregateContext(aggregate.Account),
+) -> wisp.Response {
+  let body = aggregate.value(ctx.data) |> int.to_string()
 
   wisp.response(201)
   |> wisp.string_body(body)

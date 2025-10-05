@@ -1,34 +1,36 @@
-pub type CounterEvent {
+pub type AccountEvent {
+  Created
   Upped
   Downed
 }
 
-pub opaque type Counter {
-  Counter(value: Int)
+pub opaque type Account {
+  Account(id: String, value: Int)
 }
 
-pub fn new() -> Counter {
-  Counter(0)
+pub fn new(id: String) -> Account {
+  Account(id, 0)
 }
 
-pub fn handle(counter: Counter, message: CounterEvent) -> Counter {
+pub fn handle(account: Account, message: AccountEvent) -> Account {
   case message {
-    Upped -> Counter(counter.value + 1)
-    Downed -> Counter(counter.value - 1)
+    Created -> Account(account.id, 0)
+    Upped -> Account(account.id, account.value + 1)
+    Downed -> Account(account.id, account.value - 1)
   }
 }
 
-pub fn replay(counter: Counter, events: List(CounterEvent)) -> Counter {
+pub fn replay(account: Account, events: List(AccountEvent)) -> Account {
   case events {
-    [] -> counter
+    [] -> account
     [message, ..rest] -> {
-      counter
+      account
       |> handle(message)
       |> replay(rest)
     }
   }
 }
 
-pub fn value(self: Counter) -> Int {
+pub fn value(self: Account) -> Int {
   self.value
 }

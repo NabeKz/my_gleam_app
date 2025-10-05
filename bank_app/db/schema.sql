@@ -1,5 +1,6 @@
 CREATE TABLE journals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    -- aggregate_type: 集約ルートの種別（例: "account"）
     aggregate_type TEXT NOT NULL,
     aggregate_id TEXT NOT NULL,
     version INTEGER NOT NULL,
