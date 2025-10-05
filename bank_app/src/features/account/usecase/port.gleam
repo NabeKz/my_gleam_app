@@ -6,3 +6,10 @@ pub type LoadEvents =
 
 pub type AppendEvents =
   fn(String, List(aggregate.CounterEvent)) -> Result(Nil, error.AppError)
+
+pub type Usecase {
+  Usecase(deposit: Deposit)
+}
+
+pub type Deposit =
+  fn() -> Result(aggregate.Counter, error.AppError)

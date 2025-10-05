@@ -11,11 +11,8 @@ pub type Sql {
   Sql(statement: String, args: List(sqlight.Value))
 }
 
-pub fn new() {
-  let assert Ok(basepath) = os.get_cwd()
-  let db_path = basepath <> "/db/database.sqlite3"
-
-  let assert Ok(connection) = sqlight.open(db_path)
+pub fn new(path: String) {
+  let assert Ok(connection) = sqlight.open(path)
   Connection(connection)
 }
 

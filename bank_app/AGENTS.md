@@ -17,3 +17,6 @@ Follow the `type: summary` pattern seen in history (`feat:`, `refactor:`, `fix:`
 
 ## Database & Configuration Tips
 Atlas drives migrations; confirm `atlas.hcl` stays in sync with `schema.sql`. Generated SQLite files should not be committed—add them to `.gitignore` when working locally. When switching environments, set required tool versions via `mise install` to keep Erlang/Gleam parity with CI.
+
+## MUST
+Reply in Japanese.

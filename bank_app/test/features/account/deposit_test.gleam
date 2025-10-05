@@ -7,6 +7,10 @@ import features/account/usecase/error
 pub fn replays_history_and_applies_event_test() {
   let aggregate_id = "counter-123"
 
+  let generate_id = fn() {
+    aggregate_id
+  }
+
   let load_events = fn(id) {
     assert id == aggregate_id
 
@@ -15,16 +19,16 @@ pub fn replays_history_and_applies_event_test() {
 
   let append_events = fn(id, events) {
     assert id == aggregate_id
-    assert events == [aggregate.Downed]
+    assert events == [aggregate.Upped]
 
     Ok(Nil)
   }
 
   case
-    deposit.deposit(aggregate_id, aggregate.Downed, load_events, append_events)
+    deposit.deposit(generate_id, load_events, append_events)
   {
     Ok(counter) -> {
-      assert aggregate.value(counter) == 0
+      assert aggregate.value(counter) == 2
 
       Nil
     }
@@ -42,7 +46,7 @@ pub fn load_failure_propagates_error_test() {
   }
 
   case
-    deposit.deposit("counter-1", aggregate.Upped, load_events, append_events)
+    deposit.deposit(fn() { "counter-1" }, load_events, append_events)
   {
     Error(error.LoadFailed(_)) -> Nil
     _ -> should.fail()
@@ -59,7 +63,7 @@ pub fn append_failure_propagates_error_test() {
   }
 
   case
-    deposit.deposit("counter-1", aggregate.Upped, load_events, append_events)
+    deposit.deposit(fn() { "counter-1" }, load_events, append_events)
   {
     Error(error.AppendFailed(_)) -> Nil
     _ -> should.fail()
